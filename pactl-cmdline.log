@@ -1,0 +1,15 @@
+Server String: /var/run/pulse/native
+Library Protocol Version: 32
+Server Protocol Version: 32
+Is Local: yes
+Client Index: 302
+Tile Size: 65496
+User Name: pulse
+Host Name: raspberrypi
+Server Name: pulseaudio
+Server Version: 10.0
+Default Sample Specification: s16le 2ch 44100Hz
+Default Channel Map: front-left,front-right
+Default Sink: bluez_sink.D0_8A_55_00_9C_27.a2dp_sink
+Default Source: alsa_output.platform-soc_audio.analog-stereo.monitor
+Cookie: 44e4:a102

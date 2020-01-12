@@ -1,0 +1,88 @@
+#!/usr/bin/expect -f
+
+# set return code as 0
+set ret 0
+set discovered 0
+set prompt "#"
+set address [lindex $argv 0]
+
+send_user "INFO::Attempting to connect to $address\n"
+spawn sudo bluetoothctl -a
+expect -re $prompt
+send "remove $address\r"
+sleep 1
+expect -re $prompt
+# clear buffer
+unset expect_out(buffer)
+send "\n\r"
+sleep 1
+expect *
+send "scan on\r"
+sleep 1
+send_user "\nINFO::Scan started\n"
+# enter an effectively infinite loop
+expect {
+	"$address" {
+		#send_user "\nBUFFER\n"
+		#puts $expect_out(buffer)
+		#send_user "\nEND BUFFER\n"
+		set discovered 1
+		send_user "\nINFO:: Found $address\n"
+	}
+	$prompt {
+		exp_continue
+	}
+	"not available" {
+		exp_continue
+	}
+	"started" {
+		exp_continue
+	}
+	"Controller" {
+		exp_continue
+	}
+	default {
+		exp_continue
+	}
+}
+if ($discovered==0) {		
+	set ret 1
+	send_user "\nERROR:: Failed to find $address\n"
+	exit $ret
+}
+
+send "scan off\r"
+expect {
+	-re $prompt {}
+	"not available" {
+		exit 1
+	}
+}
+send "trust $address\r"
+expect {
+        -re $prompt {}
+        "not available" {
+                exit 1     
+        }
+}
+send "pair $address\r"
+expect -re "Pairing successful"
+expect -re $prompt
+sleep 2
+send "info $address\r"
+expect -re $prompt
+send "connect $address\r"
+expect {
+	"Failed to connect" { 
+		send "quit\r" 
+		set ret 1
+	}
+	"Connected successful" {
+		send_user "\nShould be paired now.\r"
+	}
+}
+expect -re $prompt
+send "quit\r"
+expect eof
+exit $ret
+

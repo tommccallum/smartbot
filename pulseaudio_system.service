@@ -1,0 +1,15 @@
+# tee /etc/systemd/system/pulseaudio.service
+[Unit]
+Description=PulseAudio system-wide server
+
+[Service]
+Type=forking
+PIDFile=/var/run/pulse/pid
+ExecStart=/usr/bin/pulseaudio --daemonize --system --realtime --log-target=journal
+ExecStop=/usr/bin/pulseaudio -k
+Restart=on-failure
+LimitRTPRIO=1000
+LimitNICE=-20
+
+[Install]
+WantedBy=multi-user.target

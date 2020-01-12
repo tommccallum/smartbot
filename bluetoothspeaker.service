@@ -1,0 +1,15 @@
+[Unit]
+Description=Bluetooth Speaker
+After=autologin@.service
+
+[Service]
+User=pi
+Group=pi
+Type=simple
+Restart=on-failure
+StartLimitBurst=0
+RestartSec=3
+ExecStart=/bin/bash /home/pi/innogen_radio/bluetooth.sh systemctl
+
+[Install]
+WantedBy=multi-user.target

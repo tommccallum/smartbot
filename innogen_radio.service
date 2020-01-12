@@ -1,0 +1,14 @@
+[Unit]
+Description=Innogen Radio
+After=bluetoothspeaker.service
+
+[Service]
+User=www-data
+Group=pi
+Type=simple
+Restart=on-failure
+RestartSec=5
+ExecStart=/home/pi/innogen_radio/network_checker.sh
+
+[Install]
+WantedBy=multi-user.target
