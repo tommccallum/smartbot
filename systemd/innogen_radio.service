@@ -8,7 +8,7 @@ Group=pi
 Type=simple
 Restart=on-failure
 RestartSec=5
-ExecStart=/home/pi/innogen_radio/network_checker.sh
+ExecStart=/home/pi/BluetoothMusicPlayer/network_checker.sh
 
 [Install]
 WantedBy=multi-user.target

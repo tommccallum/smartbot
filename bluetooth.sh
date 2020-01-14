@@ -1,20 +1,13 @@
 #!/bin/bash
 
 # Check that Pulseaudio is loaded, if not start it
-HOMEDIR="/home/pi/innogen_radio"
+HOMEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 BLUETOOTH_DEVICE=$( cat "${HOMEDIR}/Bluetooth_Speaker.txt" )
 EXPECTED_PULSE_APP="pulseaudio"
 HELLOWORLD="${HOMEDIR}/Tardis-sound.wav"
 SYSTEMCTL=$1
 
 echo "User: ${USER}"
-if [ "x$SYSTEMCTL" == "x" ]
-then
-	pactl info > $HOMEDIR/pactl-cmdline.log
-else
-	pactl info > $HOMEDIR/pactl-systemctl.log
-	sudo -u pi pactl info > $HOMEDIR/pactl-systemctl-sudo.log
-fi
 
 if [ ! -e "${HELLOWORLD}" ]
 then

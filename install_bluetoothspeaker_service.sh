@@ -1,8 +1,12 @@
 #!/bin/bash
 
-sudo cp bluetoothspeaker.service /etc/systemd/system/
-sudo chmod 644 /etc/systemd/system/bluetoothspeaker.service
-sudo systemctl enable bluetoothspeaker.service
+SERVICE="bluetoothspeaker.service"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+SERVDIR="${DIR}/systemd"
+DESTDIR="/etc/systemd/system"
+sudo cp $SERVDIR/$SERVICE $DESTDIR
+sudo chmod 644 $DESTDIR/$SERVICE
+sudo systemctl enable $SERVICE
 sudo systemctl daemon-reload
-sudo systemctl restart bluetoothspeaker.service
-systemctl status bluetoothspeaker.service
+sudo systemctl restart $SERVICE
+systemctl status $SERVICE

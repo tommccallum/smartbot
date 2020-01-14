@@ -1,8 +1,13 @@
 #!/bin/bash
 
-sudo cp innogen_radio.service /etc/systemd/system/
-sudo chmod 644 /etc/systemd/system/innogen_radio.service
-sudo systemctl enable innogen_radio.service
+SERVICE="innogen_radio.service"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+SERVDIR="${DIR}/systemd"
+DESTDIR="/etc/systemd/system"
+sudo cp $SERVDIR/$SERVICE $DESTDIR
+sudo chmod 644 $DESTDIR/$SERVICE
+sudo systemctl enable $SERVICE
 sudo systemctl daemon-reload
-sudo systemctl restart innogen_radio.service
-systemctl status innogen_radio.service
+sudo systemctl restart $SERVICE
+systemctl status $SERVICE
+
