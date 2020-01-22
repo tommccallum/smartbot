@@ -7,7 +7,7 @@ from user_context import UserContext
 
 if __name__ == "__main__":
     config = Configuration()
-    personality = Personality(config.get_personality_filepath())
+    personality = Personality(config)
     states = personality.get_states()
     context = UserContext(states)
     ev = EventDeviceAgent(config.get_device(), handler=context)

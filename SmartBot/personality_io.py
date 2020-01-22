@@ -10,9 +10,12 @@ class Personality:
     """
     Configuration for the personality of the smart bot
     """
-    def __init__(self, config, file):
+    def __init__(self, config, file=None):
         self.config = config
-        self.file = file
+        if file:
+            self.file = file
+        else:
+            self.file = self.config.get_personality_filepath()
         self.json = None
         self._load()
         self.voice_library = VoiceLibrary(self)
