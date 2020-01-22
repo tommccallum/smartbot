@@ -20,6 +20,8 @@ class LiveStreamState(HandlerState):
         self._next_state = next_state
         self.local_conf = os.path.join(self.configuration.config_path, "live_stream.json")
         self.next_track = 0
+        self.json=None
+        self._read()
 
     def _read(self):
         with open(self.local_conf, "r") as conf:
