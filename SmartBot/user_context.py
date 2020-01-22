@@ -12,6 +12,7 @@ class UserContext(BluetoothSpeakerHandler):
         self.queue = []
         self._state = None
         self._first = state
+        self.running = {}
         self.transition_to(state)
 
     def transition_to_first(self):
