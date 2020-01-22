@@ -44,8 +44,7 @@ class Personality:
             raise ValueError("\\conf\\festival\\language not set in personality configuration")
 
     def get_states(self):
-        states = self.json["states"]
-        return StatesFactory(states)
+        return StatesFactory.create(self.config, self)
 
     def save(self):
         str = json.dumps(self.file, sort_keys=True, indent=4)

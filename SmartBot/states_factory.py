@@ -8,7 +8,7 @@ class StatesFactory:
 
     @staticmethod
     def create(configuration : Configuration, personality: "Personality") -> HandlerState:
-        states = personality.get_states()
+        states = personality.json["states"]
         if len(states) == 0:
             raise ValueError("No personality states found.")
         first_object = None
@@ -26,5 +26,5 @@ class StatesFactory:
 
     @staticmethod
     def map_object(name, configuration : Configuration, personality : "Personality"):
-        if name.tolower() == "live_stream":
+        if name.lower() == "live_stream":
             return LiveStreamState.create(configuration, personality)

@@ -22,6 +22,11 @@ class TestPersonality(unittest.TestCase):
         actual = p.get_language()
         self.assertEqual("en", actual)
 
+    def test_get_states(self):
+        config = Configuration("../conf/config.json")
+        p = Personality(config, os.path.abspath("../conf/personality.json"))
+        actual = p.get_states()
+        self.assertNotEqual(None, actual)
 
 if __name__ == '__main__':
     unittest.main()
