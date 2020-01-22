@@ -17,7 +17,7 @@ class MplayerStart(Ability):
         else:
             mplayer = None
             if "mplayer" in self.user_context.running:
-                mplayer = self.user_context.running
+                mplayer = self.user_context.running["mplayer"]
             else:
                 mplayer = MPlayer()
                 self.user_context.running["mplayer"] = mplayer

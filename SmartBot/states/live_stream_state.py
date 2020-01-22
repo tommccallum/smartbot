@@ -56,6 +56,9 @@ class LiveStreamState(HandlerState):
 
     def on_exit(self):
         self._context.add(ConsolePrinter("RadioState::on_exit"))
+        if "mplayer" in self.context.running:
+            mplayer = self.context.running["mplayer"]
+            mplayer.stop()
 
     def on_previous_track_down(self):
         self.context.add(TextToSpeech("Pausing radio", self.personality))
@@ -65,7 +68,12 @@ class LiveStreamState(HandlerState):
         self.context.execute()
 
     def on_next_track_down(self):
-        self.context.add(TextToSpeech("Next show", self.personality))
+        if "mplayer" in self.context.running:
+            mplayer = self.context.running["mplayer"]
+            mplayer.stop()
+        track = self.get_next_track()
+        self.context.add(TextToSpeech("Next show is "+track["name"], self.personality))
+        self.context.add(MplayerStart(track["url"]))
 
     def on_next_track_up(self):
         self.context.execute()
