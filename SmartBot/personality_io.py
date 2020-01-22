@@ -19,7 +19,7 @@ class Personality:
         self.json = None
         self._load()
         self.voice_library = VoiceLibrary(self)
-        if not os.path.isfile(file):
+        if not os.path.isfile(self.file):
             raise FileNotFoundError("Personality file '"+file+"' does not exist.")
 
 
