@@ -3,15 +3,15 @@ import os
 import subprocess
 
 def sayText(personality, text):
-    if personality.has_saying(text):
+    if personality.voice_library.has_saying(text):
         print("[Personality] using existing saying")
-        file_path = personality.get_saying(text)
+        file_path = personality.voice_library.get_saying(text)
     else:
-        file_path = personality.get_saying_path(text)
+        file_path = personality.voice_library.get_saying_path(text)
         print("[Personality] creating new saying in personality")
         cmd = "echo \""+text+"\" | text2wave -eval \"(voice_cmu_us_slt_arctic_clunits)\" -o \""+file_path+"\""
         subprocess.run(cmd, shell=True)
-        personality.save_saying(text, file_path)
+        personality.voice_library.save_saying(text, file_path)
     playSaying(file_path)
 
 
