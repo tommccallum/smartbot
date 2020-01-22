@@ -1,0 +1,7 @@
+{
+  "output" : {
+    "sink": "org.bluez",
+    "device": "D0:8A:55:00:9C:27"
+  },
+  "personality": "personality.json"
+}

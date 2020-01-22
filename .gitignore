@@ -1,4 +1,6 @@
 *.log
 *~
 cache/
+.idea/
+venv/
 
