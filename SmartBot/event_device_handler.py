@@ -13,6 +13,8 @@ class EventDeviceAgent:
         self.async = async
         self.handler = handler
         self.name = name
+        self.loop = None
+        self.device = None
         self.find_device()
 
     def set_handler(self, handler):
@@ -34,8 +36,11 @@ class EventDeviceAgent:
 
     def read_event(self):
         if self.async:
-            dev = InputDevice(self.device)
-            self._async_read_event(dev)
+            if self.device:
+                dev = InputDevice(self.device)
+                self._async_read_event(dev)
+            else:
+                raise ValueError("No device name found in configuration.")
         else:
             self._sync_read_event(self.device)
 
@@ -50,8 +55,9 @@ class EventDeviceAgent:
         self.loop = asyncio.get_event_loop()
         self.loop.run_until_complete(self._signalHandler(dev))
 
-    def closed(self):
-        self.loop.close()
+    def close(self):
+        if self.loop:
+            self.loop.close()
 
     async def _signalHandler(self, dev):
         async for ev in dev.async_read_loop():

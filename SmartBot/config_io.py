@@ -16,6 +16,7 @@ class Configuration:
         self.config = None
         self.config_path = os.path.join(HOME_DIRECTORY, DEFAULT_CONFIG_LOCATION)
         self.config_file = None
+        self.json=None
         if config_file:
             self.config_file = config_file
             self.config_path = os.path.dirname(config_file)
@@ -65,7 +66,7 @@ class Configuration:
 
     def get_device(self):
         if "output" in self.json:
-            if "device" in self.json:
+            if "device" in self.json["output"]:
                 return self.json["output"]["device"]
         raise ValueError("\\output\\device does not exist in configuration")
 
