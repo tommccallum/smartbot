@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 from config_io import DEFAULT_CONFIG_LOCATION
 from fifo import make_fifo
@@ -32,9 +33,10 @@ class MPlayer:
         with open(fifo,"w") as out_file:
             out_file.write(command)
 
-    def start(track):
+    def start(self, track):
         """Run mplayer and write pid to file just in case we need to clean up"""
-        process = os.subprocess.run("mplayer --input-file in --framedrop decoder -vo null " + track)
+        # @todo locate mplayer on system directly
+        process = subprocess.run("/usr/bin/mplayer --input-file \""+self.fifo+"\" --framedrop decoder -vo null \"" + track+"\"", shell=True)
         print("PID of mplayer process:"+process.pid)
 
 

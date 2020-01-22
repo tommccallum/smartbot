@@ -49,7 +49,10 @@ class LiveStreamState(HandlerState):
 
     def on_enter(self):
         self._context.add(ConsolePrinter("RadioState::on_enter"))
-        self.context.add(MplayerStart(self.get_next_track()))
+        track = self.get_next_track()
+        self.context.add(TextToSpeech(track["name"], self.personality))
+        self.context.add(MplayerStart(track["url"]))
+        self.context.execute()
 
     def on_exit(self):
         self._context.add(ConsolePrinter("RadioState::on_exit"))

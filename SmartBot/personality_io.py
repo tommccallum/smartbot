@@ -26,7 +26,7 @@ class Personality:
     def _load(self):
         with open(self.file, "r") as in_file:
             self.json = json.load(in_file)
-            if "say" not in self.json:
+            if not "say" in self.json:
                 self.json["say"] = {}
 
     def get_voice(self):
@@ -47,7 +47,7 @@ class Personality:
         return StatesFactory.create(self.config, self)
 
     def save(self):
-        str = json.dumps(self.file, sort_keys=True, indent=4)
+        str = json.dumps(self.json, sort_keys=True, indent=4)
         with open(self.file, "w") as out:
             out.write(str)
 

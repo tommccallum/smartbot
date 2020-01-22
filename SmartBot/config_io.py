@@ -31,6 +31,9 @@ class Configuration:
                 src_conf_path = os.path.join(self._get_current_path(),"conf")
                 shutil.copytree( src_conf_path, self.config_path)
             self.config_file = os.path.join(self.config_path, DEFAULT_CONFIG_NAME)
+        if not os.path.isdir(os.path.join(self.config_path,"cache")):
+            print("[INFO] Making cache file in "+os.path.join(self.config_path,"cache"))
+            os.mkdir(os.path.join(self.config_path,"cache"))
         self._read()
 
     def _get_current_path(self):

@@ -11,7 +11,8 @@ class VoiceLibrary:
 
     def has_saying(self, text):
         try:
-            return True
+            if text in self.json:
+                return True
         except:
             return False
 
