@@ -1,4 +1,8 @@
+import json
+import os
+
 from abilities.console_printer import ConsolePrinter
+from abilities.mplayer_start import MplayerStart
 from abilities.text_to_speech import TextToSpeech
 from config_io import Configuration
 from handler_state import HandlerState
@@ -14,12 +18,36 @@ class LiveStreamState(HandlerState):
         self.configuration = configuration
         self.personality = personality
         self._next_state = next_state
+        self.local_conf = os.path.join(self.configuration.config_path, "live_stream.json")
+        self.next_track = 0
+
+    def _read(self):
+        with open(self.local_conf, "r") as conf:
+            self.json = json.load(conf)
+
+    def get_track_count(self):
+        if not "playlist" in self.json:
+            return 0
+        return len(self.json["playlist"])
+
+    def get_next_track(self):
+        track = None
+        if "playlist" in self.json:
+            n = self.get_track_count()
+            if self.next_track >= n:
+                self.context.add(TextToSpeech("Moving to start of the list of stations", self.personality))
+                self.next_track = 0
+            if n > 0 and self.next_track < n:
+                track = self.json["playlist"][self.next_track]
+                self.next_track += 1
+        return track
 
     def set_next_state(self, next):
         self._next_state = next
 
     def on_enter(self):
         self._context.add(ConsolePrinter("RadioState::on_enter"))
+        self.context.add(MplayerStart(self.get_next_track()))
 
     def on_exit(self):
         self._context.add(ConsolePrinter("RadioState::on_exit"))

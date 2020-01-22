@@ -1,6 +1,7 @@
 import os
 
 from config_io import DEFAULT_CONFIG_LOCATION
+from fifo import make_fifo
 
 
 class MPlayer:
@@ -10,13 +11,7 @@ class MPlayer:
     def __init__(self):
         self.state = 0
         self.filename="mplayer.fifo"
-        self.path = os.path.join(DEFAULT_CONFIG_LOCATION,"fifos")
-        self.fifo = os.path.join(self.path,self.filename)
-        self.setup()
-
-    def setup(self):
-        if not os.path.isfile(self.fifo):
-            os.mkfifo(self.fifo)
+        self.fifo = make_fifo(self.filename)
 
     def pause(self):
         if self.state == MPlayer.STATE_PLAYING:
@@ -37,9 +32,10 @@ class MPlayer:
         with open(fifo,"w") as out_file:
             out_file.write(command)
 
-    def _start(playlist):
+    def start(track):
         """Run mplayer and write pid to file just in case we need to clean up"""
-        os.subprocess.run("mplayer --input-file in --framedrop decoder -vo null " + playlist)
+        process = os.subprocess.run("mplayer --input-file in --framedrop decoder -vo null " + track)
+        print("PID of mplayer process:"+process.pid)
 
 
 def get_file_playlist():

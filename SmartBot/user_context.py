@@ -27,6 +27,7 @@ class UserContext(BluetoothSpeakerHandler):
         self._state.on_enter()
 
     def add(self, output : Ability) -> None:
+        output.user_context = self
         self.queue.append(output)
 
     def execute(self) -> None:
