@@ -2,6 +2,7 @@ import json
 import os
 
 from abilities.console_printer import ConsolePrinter
+from abilities.mplayer_pause import MplayerPause
 from abilities.mplayer_start import MplayerStart
 from abilities.text_to_speech import TextToSpeech
 from config_io import Configuration
@@ -49,6 +50,7 @@ class LiveStreamState(HandlerState):
 
     def on_enter(self):
         self._context.add(ConsolePrinter("RadioState::on_enter"))
+        self.context.add(TextToSpeech("Welcome, you will be now listening to live radio", self.personality))
         track = self.get_next_track()
         self.context.add(TextToSpeech(track["name"], self.personality))
         self.context.add(MplayerStart(track["url"]))
@@ -61,10 +63,10 @@ class LiveStreamState(HandlerState):
             mplayer.stop()
 
     def on_previous_track_down(self):
-        self.context.add(TextToSpeech("Pausing radio", self.personality))
+        self.context.add(MplayerPause())
+        self.context.add(TextToSpeech("Pausing radio, press the same button to continue", self.personality))
 
     def on_previous_track_up(self):
-        # self.context.add(mplayer_pause())
         self.context.execute()
 
     def on_next_track_down(self):
@@ -79,7 +81,6 @@ class LiveStreamState(HandlerState):
         self.context.execute()
 
     def on_play_down(self):
-        self.context.add(TextToSpeech("Pausing radio", self.personality))
         self.context.transition_to(self._next_state)
         self.context.execute()
 
