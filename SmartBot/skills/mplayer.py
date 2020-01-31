@@ -12,21 +12,24 @@ class MPlayer:
     STATE_STOPPED=2
 
     def __init__(self):
-        self.state = 0
+        self.state = MPlayer.STATE_STOPPED
         self.filename="mplayer.fifo"
         self.fifo = make_fifo(self.filename)
         self.track = None
 
     def pause_or_play(self):
-        if self.state == MPlayer.STATE_PLAYING:
-            self._send_command_to(self.fifo, "cycle pause")
+        if self.state == MPlayer.STATE_PLAYING or
+            self.state == MPlayer.STATE_PAUSED:
+            # note that for later versions of mplayer this changes to 'cycle pause'
+            # so we need to handle the version of mplayer
+            self._send_command_to(self.fifo, "pause")
             self.state = MPlayer.STATE_PAUSED
         elif self.state == MPlayer.STATE_STOPPED:
             self.play()
 
     def play(self, track=None):
         if self.state == MPlayer.STATE_PAUSED:
-            self._send_command_to(self.fifo, "cycle pause")
+            self._send_command_to(self.fifo, "pause")
             self.state = MPlayer.STATE_PLAYING
         elif self.state == MPlayer.STATE_STOPPED:
             self.start(track)
@@ -47,7 +50,9 @@ class MPlayer:
 
     def _send_command_to(self, fifo, command):
         with open(fifo,"w") as out_file:
-            out_file.write(command)
+            out_file.write(command+"\n")
+            out_file.close()
+            print("[INFO] Written "+command+" to "+fifo)
 
     def start(self, track=None):
         """Run mplayer and write pid to file just in case we need to clean up"""

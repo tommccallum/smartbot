@@ -13,5 +13,6 @@ class MplayerPause(Ability):
     def perform(self):
         mplayer = None
         if "mplayer" in self.user_context.running:
+            print("[INFO] attempting to pause mplayer")
             mplayer = self.user_context.running["mplayer"]
             mplayer.pause_or_play()
