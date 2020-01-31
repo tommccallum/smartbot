@@ -11,13 +11,15 @@ from handler_state import HandlerState
 
 class LiveStreamState(HandlerState):
     @staticmethod
-    def create(configuration: Configuration, personality: "Personality"):
-        return LiveStreamState(configuration, personality)
+    def create(configuration: Configuration, personality: "Personality", state):
+        return LiveStreamState(configuration, personality, state)
 
     def __init__(self, configuration: Configuration, personality: "Personality",
+                 state,
                  next_state: HandlerState = None) -> None:
         self.configuration = configuration
         self.personality = personality
+        self.config = state
         self._next_state = next_state
         self.local_conf = os.path.join(self.configuration.config_path, "live_stream.json")
         self.next_track = 0
@@ -25,8 +27,9 @@ class LiveStreamState(HandlerState):
         self._read()
 
     def _read(self):
-        with open(self.local_conf, "r") as conf:
-            self.json = json.load(conf)
+        if os.path.isfile(self.local_conf):
+            with open(self.local_conf, "r") as conf:
+                self.json = json.load(conf)
 
     def get_track_count(self):
         if not "playlist" in self.json:
@@ -49,7 +52,7 @@ class LiveStreamState(HandlerState):
         self._next_state = next
 
     def on_enter(self):
-        self._context.add(ConsolePrinter("RadioState::on_enter"))
+        self._context.add(ConsolePrinter("LiveStreamState::on_enter"))
         self.context.add(TextToSpeech("Welcome, you will be now listening to live radio", self.personality))
         track = self.get_next_track()
         self.context.add(TextToSpeech(track["name"], self.personality))
@@ -57,7 +60,7 @@ class LiveStreamState(HandlerState):
         self.context.execute()
 
     def on_exit(self):
-        self._context.add(ConsolePrinter("RadioState::on_exit"))
+        self._context.add(ConsolePrinter("LiveStreamState::on_exit"))
         if "mplayer" in self.context.running:
             mplayer = self.context.running["mplayer"]
             mplayer.stop()

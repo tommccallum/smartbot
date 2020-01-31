@@ -1,5 +1,6 @@
 from config_io import Configuration
 from handler_state import HandlerState
+from states.audio_state import AudioState
 from states.end_state import EndState
 from states.live_stream_state import LiveStreamState
 
@@ -25,6 +26,8 @@ class StatesFactory:
         return first_object
 
     @staticmethod
-    def map_object(name, configuration : Configuration, personality : "Personality"):
-        if name.lower() == "live_stream":
-            return LiveStreamState.create(configuration, personality)
+    def map_object(state, configuration : Configuration, personality : "Personality"):
+        if state.name.lower() == "live":
+            return LiveStreamState.create(configuration, personality, state)
+        elif state.name.lower() == "audio":
+            return AudioState.create(configuration, personality, state)

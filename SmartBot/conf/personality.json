@@ -6,7 +6,23 @@
         },
         "language": "en"
     },
-    "states": ["live_stream"],
+    "states": [{
+        "name": "live"
+        }, {
+            "name": "audio",
+            "title": "Saved Programmes",
+            "path": "%HOME%/Radio/keep",
+            "extensions": "m4a",
+            "orderby": "name"
+        },
+        {
+            "name": "audio",
+            "title": "Latest Programmes",
+            "path": "%HOME%/Radio/tmp",
+            "extensions": "m4a",
+            "orderby": ["date", "desc"]
+        }
+    ],
     "say": {
         "Next show": "/home/pi/BluetoothMusicPlayer/cache/fc46b255ebac9724eb1e184ceea4866f05348e898dc0ae771b51fa49038b4307.wav",
         "Pausing radio": "/home/pi/BluetoothMusicPlayer/cache/5dc2c9004693431fbcc75c2a996247f5f9447a13750e714e5d0f727f008e5733.wav"
