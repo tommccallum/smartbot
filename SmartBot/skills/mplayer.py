@@ -3,7 +3,7 @@ import subprocess
 import signal
 import json
 
-from config_io import DEFAULT_CONFIG_LOCATION
+from config_io import create_config
 from fifo import make_fifo
 
 
@@ -15,7 +15,10 @@ class MPlayer:
 
 
     def __init__(self):
-        config = json.load("conf/mplayer.json")
+        gbl_config = create_config()
+        config_path = gbl_config.config_path+"/mplayer.json"
+        with open(config_path, "r") as config_fh:
+            MPlayer.config = json.load(config_fh)
         self.state = MPlayer.STATE_STOPPED
         self.filename="mplayer.fifo"
         self.fifo = make_fifo(self.filename)

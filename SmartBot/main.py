@@ -1,13 +1,13 @@
 #!/usr/bin/python3
 
-from config_io import Configuration
+from config_io import Configuration, create_config
 from event_device_handler import EventDeviceAgent
 from personality_io import Personality
 from user_context import UserContext
 
 
 def app_init():
-    config = Configuration()
+    config = create_config()
     personality = Personality(config)
     states = personality.get_states()
     context = UserContext(states)

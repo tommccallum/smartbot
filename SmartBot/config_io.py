@@ -9,7 +9,15 @@ DEFAULT_CONFIG_DIRECTORY="smartbot"
 DEFAULT_CONFIG_LOCATION = os.path.join(".config",DEFAULT_CONFIG_DIRECTORY)
 DEFAULT_CONFIG_NAME = "config.json"
 HOME_DIRECTORY = str(Path.home())
+CONFIG = None
 
+def create_config(filename=None):
+    global CONFIG
+    if CONFIG:
+        return CONFIG
+    else:
+        CONFIG = Configuration(filename)
+    return CONFIG
 
 class Configuration:
     def __init__(self, config_file=None):
@@ -20,6 +28,7 @@ class Configuration:
         if config_file:
             self.config_file = config_file
             self.config_path = os.path.dirname(config_file)
+        GLOBAL_CONFIG_PATH=self.config_path
         self._load()
 
     def _load(self):
