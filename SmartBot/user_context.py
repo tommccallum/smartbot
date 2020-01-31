@@ -33,7 +33,7 @@ class UserContext(BluetoothSpeakerHandler):
 
     def execute(self) -> None:
         for out in self.queue:
-            out.perform()
+            out.run()
         self.queue = []
 
     def on_previous_track_down(self):

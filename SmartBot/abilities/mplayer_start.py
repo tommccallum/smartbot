@@ -7,7 +7,8 @@ class MplayerStart(Ability):
     Used to indicate we want to start a new mplayer process
     """
 
-    def __init__(self, track):
+    def __init__(self, track, on_success=None, on_failure=None):
+        super().__init__(on_success, on_failure)
         self.track = track
         self.user_context = None
 
@@ -22,3 +23,5 @@ class MplayerStart(Ability):
                 mplayer = MPlayer()
                 self.user_context.running["mplayer"] = mplayer
             mplayer.start(self.track)
+            return True
+        return False

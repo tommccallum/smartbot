@@ -9,7 +9,8 @@ class ConsolePrinter(Ability):
     INFO=0
     DEBUG=1
 
-    def __init__(self, text, level=INFO):
+    def __init__(self, text, level=INFO, on_success=None, on_failure=None):
+        super().__init__(on_success, on_failure)
         self.text = text
         self.level = level
 
@@ -24,3 +25,5 @@ class ConsolePrinter(Ability):
             print("[WARNING] no text was found in object")
         else:
             print("["+self._get_level()+"] "+self.text)
+            return True
+        return False

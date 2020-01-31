@@ -63,8 +63,8 @@ class LiveStreamState(HandlerState):
             mplayer.stop()
 
     def on_previous_track_down(self):
-        self.context.add(MplayerPause())
-        self.context.add(TextToSpeech("Pausing radio, press the same button to continue", self.personality))
+        next_ability = TextToSpeech("Pausing radio, press the same button to continue", self.personality)
+        self.context.add(MplayerPause(on_success=next_ability))
 
     def on_previous_track_up(self):
         self.context.execute()
