@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from config_io import Configuration, create_config
+from config_io import Configuration,create_config
 from event_device_handler import EventDeviceAgent
 from personality_io import Personality
 from user_context import UserContext

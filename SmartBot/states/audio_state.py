@@ -182,3 +182,9 @@ class AudioState(HandlerState):
 
     def on_play_up(self):
         pass
+
+    def on_interrupt(self):
+        self.context.running["mplayer"].on_interrupt()
+
+    def on_continue(self):
+        self.context.running["mplayer"].on_continue()

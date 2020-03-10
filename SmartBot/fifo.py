@@ -1,10 +1,10 @@
 import os
 
-from config_io import DEFAULT_CONFIG_LOCATION, HOME_DIRECTORY
-
+#from config_io import DEFAULT_CONFIG_LOCATION, HOME_DIRECTORY
+import config_io
 
 def make_fifo(filename):
-    path = os.path.join(os.path.join(HOME_DIRECTORY,DEFAULT_CONFIG_LOCATION), "fifos")
+    path = os.path.join(os.path.join(config_io.HOME_DIRECTORY,config_io.DEFAULT_CONFIG_LOCATION), "fifos")
     if not os.path.isdir(path):
         print("[INFO] Creating directory: " + path)
         os.makedirs(path)

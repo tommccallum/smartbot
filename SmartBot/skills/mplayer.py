@@ -3,7 +3,7 @@ import subprocess
 import signal
 import json
 import random
-from config_io import create_config
+import config_io
 from fifo import make_fifo
 
 
@@ -15,7 +15,7 @@ class MPlayer:
 
 
     def __init__(self):
-        gbl_config = create_config()
+        gbl_config = config_io.create_config()
         config_path = gbl_config.config_path+"/mplayer.json"
         with open(config_path, "r") as config_fh:
             MPlayer.config = json.load(config_fh)
@@ -29,6 +29,7 @@ class MPlayer:
         while os.path.isfile(self.filename):
             r = random.randint(1, 1000)
             self.filename = "mplayer" + str(r) + ".fifo"
+        return self.filename
 
     def pause_or_play(self):
         if self.state == MPlayer.STATE_PLAYING:
@@ -40,14 +41,22 @@ class MPlayer:
             self.play()
 
     def on_interrupt(self):
+        print("[INFO] mplayer object interrupted")
         self.pause_or_play()
 
     def on_continue(self):
+        print("[INFO] mplayer object continue")
         self.pause_or_play()
 
     def is_finished(self):
         """check if process has completed"""
-        return self.process == None or self.process.poll() == None
+#        return self.process == None or self.process.poll() == None
+        try:
+            os.kill(self.process.pid, 0)
+        except OSError:
+            return True
+        else:
+            return False
 
     def play(self, track=None):
         if self.state == MPlayer.STATE_PAUSED:

@@ -81,10 +81,10 @@ class Alarm:
         date_time = now.strftime("%Y-%m-%d %H:%M:%S")
         print("[ALARM] Woke at ", date_time, " to ", action, " ", str(args))
         if action == "play":
-            self.config.context.on_interrupt()
+            self.config_object.context.on_interrupt()
             mplayer = MPlayer()
             mplayer.start(args[0])
-            threading.Timer(1, lambda: self.config.context.on_continue() if mplayer.is_finished() else False ).start()
+            threading.Timer(1, lambda: self.config_object.context.on_continue() if mplayer.is_finished() else False ).start()
 
 
 
