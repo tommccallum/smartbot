@@ -4,6 +4,7 @@ import pathlib
 from os import makedirs
 from pathlib import Path
 import shutil
+from alarm import Alarm
 
 DEFAULT_CONFIG_DIRECTORY="smartbot"
 DEFAULT_CONFIG_LOCATION = os.path.join(".config",DEFAULT_CONFIG_DIRECTORY)
@@ -20,7 +21,11 @@ def create_config(filename=None):
     return CONFIG
 
 class Configuration:
+    """Handles configuration"""
+
     def __init__(self, config_file=None):
+        self.alarm = None   # set when read new configuration
+        self.context = None # set to allow the alarm to interrupt
         self.config = None
         self.config_path = os.path.join(HOME_DIRECTORY, DEFAULT_CONFIG_LOCATION)
         self.config_file = None
@@ -52,6 +57,7 @@ class Configuration:
     def _read(self):
         with open(self.config_file, "r") as in_file:
             self.json = json.load(in_file)
+        self.alarm = Alarm(self)
 
     def save(self):
         string_repr = json.dumps(self.json, sort_keys=True, indent=4)

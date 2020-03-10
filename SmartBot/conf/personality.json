@@ -7,6 +7,8 @@
         "language": "en"
     },
     "states": [{
+        "name": "introduction"
+        },{
         "name": "live"
         }, {
             "name": "audio",

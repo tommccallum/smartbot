@@ -11,6 +11,7 @@ def app_init():
     personality = Personality(config)
     states = personality.get_states()
     context = UserContext(states)
+    config.context = context
     return config, context
 
 

@@ -3,7 +3,7 @@ from handler_state import HandlerState
 from states.audio_state import AudioState
 from states.end_state import EndState
 from states.live_stream_state import LiveStreamState
-
+from states.introduction_state import IntroductionState
 
 class StatesFactory:
 
@@ -31,3 +31,5 @@ class StatesFactory:
             return LiveStreamState.create(configuration, personality, state)
         elif state.name.lower() == "audio":
             return AudioState.create(configuration, personality, state)
+        elif state.name.lower() == "introduction":
+            return IntroductionState.create(configuration, personality, state)
