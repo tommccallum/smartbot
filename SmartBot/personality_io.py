@@ -29,6 +29,11 @@ class Personality:
             if not "say" in self.json:
                 self.json["say"] = {}
 
+    def get_name(self):
+        if not "name" in self.json or self.json["name"] == "":
+            raise ValueError("No name specified for personality.")
+        return self.json["name"]
+
     def get_voice(self):
         try:
             voice = self.json["conf"]["festival"]["voice"]

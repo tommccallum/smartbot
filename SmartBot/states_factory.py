@@ -33,8 +33,8 @@ class StatesFactory:
             raise ValueError("state should have a name attribute")
         if state["name"].lower() == "live":
             return LiveStreamState.create(configuration, personality, state)
-        elif state.name.lower() == "audio":
+        elif state["name"].lower() == "audio":
             return AudioState.create(configuration, personality, state)
-        elif state.name.lower() == "introduction":
+        elif state["name"].lower() == "introduction":
             return IntroductionState.create(configuration, personality, state)
 

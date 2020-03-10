@@ -27,11 +27,12 @@ class IntroductionState(HandlerState):
         self._next_state = next_state
         self.local_conf = os.path.join(self.configuration.config_path, "introduction.json")
         self.next_track = 0
-        self.json = None
+        self.json = {}
         self.completed = False
         self._read()
 
     def _read(self):
+        print("[DEBUG] ",self.local_conf)
         if os.path.isfile(self.local_conf):
             with open(self.local_conf, "r") as conf:
                 self.json = json.load(conf)
@@ -44,9 +45,9 @@ class IntroductionState(HandlerState):
     def on_enter(self):
         self._context.add(ConsolePrinter("IntroductionState::on_enter"))
         if not self.completed:
-            self._context.add(TextToSpeech("Hello Innogen"))
-            if not "introduction" in self.json:
-                self._context.add(TextToSpeech("My name is "+self.personality.get_name()))
+            self._context.add(TextToSpeech("Hello Innogen", self.personality))
+            if not self.json or not "introduction" in self.json:
+                self._context.add(TextToSpeech("My name is "+self.personality.get_name(), self.personality))
                 self.json["introduction"] = True
             self._save()
             self.completed = True
@@ -56,3 +57,5 @@ class IntroductionState(HandlerState):
     def on_exit(self):
         self._context.add(ConsolePrinter("IntroductionState::on_exit"))
 
+    def set_next_state(self, next):
+        self._next_state=next
