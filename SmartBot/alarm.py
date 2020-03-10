@@ -1,8 +1,13 @@
+import os
+
 import schedule
 import time
 import re
 from datetime import datetime
 import threading
+
+from skills.mplayer import MPlayer
+
 
 class Alarm:
     """Alarm class to handle scheduling tasks"""
@@ -30,7 +35,15 @@ class Alarm:
         schedule.run_pending()
         threading.Timer(1,self.timer).start()
 
+    def check_args(self, action, args):
+        if action == "play":
+            if not os.path.isfile(args[0]):
+                raise ValueError(str(args[0])+"does not exist")
+            return
+        raise ValueError("invalid action specified for alarm")
+
     def schedule_task(self, at_list, action, args):
+        self.check_args( action, args )
         days = []
         time_of_day = None
         time_pattern = re.compile("\d{1,2}:\d\d")
@@ -67,5 +80,11 @@ class Alarm:
         now = datetime.now()
         date_time = now.strftime("%Y-%m-%d %H:%M:%S")
         print("[ALARM] Woke at ", date_time, " to ", action, " ", str(args))
+        if action == "play":
+            self.config.context.on_interrupt()
+            mplayer = MPlayer()
+            mplayer.start(args[0])
+            threading.Timer(1, lambda: self.config.context.on_continue() if mplayer.is_finished() else False ).start()
+
 
 

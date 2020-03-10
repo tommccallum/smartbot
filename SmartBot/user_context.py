@@ -36,6 +36,12 @@ class UserContext(BluetoothSpeakerHandler):
             out.run()
         self.queue = []
 
+    def on_interrupt(self):
+        self._state.on_interrupt()
+
+    def on_continue(self):
+        self._state.on_continue()
+
     def on_previous_track_down(self):
         self._state.on_previous_track_down()
 

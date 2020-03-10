@@ -17,3 +17,9 @@ class HandlerState(BluetoothSpeakerHandler):
     def on_exit(self):
         """on transitioning from this state"""
         pass
+
+    def on_interrupt(self):
+        pass
+
+    def on_continue(self):
+        pass
