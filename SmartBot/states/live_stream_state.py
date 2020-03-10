@@ -14,17 +14,22 @@ class LiveStreamState(HandlerState):
     def create(configuration: Configuration, personality: "Personality", state):
         return LiveStreamState(configuration, personality, state)
 
-    def __init__(self, configuration: Configuration, personality: "Personality",
+    def __init__(self, 
+                 configuration: Configuration, 
+                 personality: "Personality",
                  state,
                  next_state: HandlerState = None) -> None:
+        print("here")
+        print(configuration)
         self.configuration = configuration
         self.personality = personality
-        self.config = state
+        self.state_config = state
         self._next_state = next_state
         self.local_conf = os.path.join(self.configuration.config_path, "live_stream.json")
         self.next_track = 0
         self.json=None
         self._read()
+        print(configuration)
 
     def _read(self):
         if os.path.isfile(self.local_conf):

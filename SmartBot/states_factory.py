@@ -27,7 +27,11 @@ class StatesFactory:
 
     @staticmethod
     def map_object(state, configuration : Configuration, personality : "Personality"):
-        if state.name.lower() == "live":
+        if not type(state) is dict:
+            raise ValueError("state should be a dictionary")
+        if not "name" in state:
+            raise ValueError("state should have a name attribute")
+        if state["name"].lower() == "live":
             return LiveStreamState.create(configuration, personality, state)
-        elif state.name.lower() == "audio":
+        elif state["name"].lower() == "audio":
             return AudioState.create(configuration, personality, state)

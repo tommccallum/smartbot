@@ -23,11 +23,15 @@ class EventDeviceAgent:
     def find_device(self):
         if self.name == None:
             self.device = None
+            print("Device name is none, setting device handle to None")
             return
         for path in list_devices():
             input_dev = InputDevice(path)
             if input_dev.name == self.name:
                 self.device = path
+                print("Found device "+self.name+" at "+self.device)
+        if not self.device:
+            raise ValueError("Device "+self.name+" is not found")
 
     def list_devices(self):
         devices = [InputDevice(path) for path in list_devices()]
