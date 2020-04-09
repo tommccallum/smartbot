@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DEST="$HOME/Radio"
+DEST="$HOME/Radio_Uncompressed"
 
 for full in $( find $HOME/Radio_Uncompressed -iname "*.m4a" | head -n 1 ) 
 do 

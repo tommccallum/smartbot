@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# check for python3
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && cd .. && pwd )"
+PYTHON=$( which python3 )
+LOCAL_CONFIG="$HOME/.config/smartbot"
+DEFAULT_CONF="$DIR/src/conf"
+
+if [ ! -e "${LOCAL_CONFIG}" ]
+then
+    echo "[INFO] First run detected"
+
+    echo "[INFO] Installing configuration into ${CONFIG}"
+    mkdir -p "${CONFIG}"
+    cp "$DEFAULT_CONF/*" "${LOCAL_CONFIG}/"
+fi
+
+$PYTHON $DIR/src/main.py
+
