@@ -1,0 +1,7 @@
+{
+  "shell": "/usr/bin/mplayer -input file='%fifo%' -framedrop decoder -vo null '%track%'",
+  "commands": {
+    "pause": "pause",
+    "continue": "pause"
+  }
+}

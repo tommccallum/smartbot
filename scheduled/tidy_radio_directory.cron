@@ -1,4 +1,4 @@
 #!/bin/bash
 
 # Say when we want to remove files from Radio directory
-/usr/bin/find /home/pi/Radio/tmp -mtime +10 -exec rm -f {} \;
+/usr/bin/find /home/pi/Radio_Uncompressed/tmp -mtime +10 -exec rm -f {} \;
