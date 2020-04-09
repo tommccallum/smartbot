@@ -1,2 +1,2 @@
 # retrieve programs
-1 2 * * * /home/pi/BluetoothMusicPlayer/get_iplayer/get_radio_shows.sh > /home/pi/BluetoothMusicPlayer/logs/get_iplayer.log 2>&1 
+1 2 * * * /home/pi/smartbot/get_iplayer/get_radio_shows.sh > /home/pi/smartbot/logs/get_iplayer.log 2>&1 
