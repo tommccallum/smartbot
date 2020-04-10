@@ -5,7 +5,7 @@ import json
 import random
 import config_io
 from fifo import make_fifo
-
+import time
 
 class MPlayer:
     STATE_PAUSED=0
@@ -96,6 +96,9 @@ class MPlayer:
             self.process = subprocess.Popen("exec "+shell_cmd, shell=True, stdout=subprocess.PIPE)
             print("PID of mplayer process:"+str(self.process.pid))
             self.state = MPlayer.STATE_PLAYING
+            # mplayer is quite slow to start so
+            # so wait before we execute anything else
+            time.sleep(2)
 
 
 def get_file_playlist():

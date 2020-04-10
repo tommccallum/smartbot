@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SERVICE="pulseaudio_system.service"
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && cd .. && pwd )"
 SERVDIR="${DIR}/systemd"
 DESTDIR="/etc/systemd/system"
 sudo cp $SERVDIR/$SERVICE $DESTDIR

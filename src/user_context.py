@@ -13,7 +13,10 @@ class UserContext(BluetoothSpeakerHandler):
         self._state = None
         self._first = state
         self.running = {}
-        self.transition_to(state)
+        self.personality = None
+
+    def start():
+        self.transition_to(self.state)
 
     def transition_to_first(self):
         self.transition_to(self._first)

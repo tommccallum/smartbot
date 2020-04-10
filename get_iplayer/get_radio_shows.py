@@ -25,10 +25,12 @@ def load_targets():
     with open(file,"r") as in_file:
         line = in_file.readline()
         while line:
-            if line[0] == '#':
+            if line[0] == '#' or len(line.strip()) == 0:
+                line = in_file.readline()
                 continue
             if not os.path.isdir(dest_dir):
                 raise ValueError(dest_dir+" does not exist")
+            line=line.strip('\n').strip('\"')
             target = { "regex": line, "dest_dir": dest_dir }
             targets.append(target)
             line = in_file.readline()
@@ -37,7 +39,7 @@ def load_targets():
 
 def run_get_iplayer(target, ID):
     # can we locate get_iplayer some how or read in from a config file
-    cmd = get_iplayer+" --type=radio --channel=\"BBC Radio 2\" -g --radiomode=good -g --output \""+target["dest_dir"]+"\" \""+target["regex"]+"\""
+    cmd = get_iplayer+" --type=radio --channel=\"BBC Radio 2\" --radiomode=good -g --output \""+target["dest_dir"]+"\" \""+target["regex"]+"\""
     stdout.write("["+str(ID)+"] "+cmd+"\n")
     stdout.flush()
     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True)
@@ -48,6 +50,7 @@ def run_get_iplayer(target, ID):
     stdout.flush()
 
 if __name__ == "__main__":
+    print("Loading programmes to download")
     targets = load_targets()
     # this should be set to num processors - 1
     pool = Pool(processes=3)
@@ -59,6 +62,8 @@ if __name__ == "__main__":
         proc = pool.apply_async(func=run_get_iplayer, args=(target,ID))
         jobs.append(proc)
         ID += 1
+
+    print("Waiting for jobs to finish")
     while(not all([p.ready() for p in jobs])):
         stdout.flush()
         time.sleep(1)

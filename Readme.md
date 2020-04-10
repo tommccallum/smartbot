@@ -8,6 +8,10 @@ G# Personal assistant
 ## Software
 
 - Python 3
+```
+sudo apt install libbluetooth-dev
+pip install pybluez
+```
 - get_iplayer
 -- https://github.com/get-iplayer/get_iplayer
 - festvox
@@ -68,3 +72,15 @@ sudo chmod g+ws /opt/smartbot
 cp get_iplayer/programs.txt /opt/smartbot
 ```
 
+# Sensing distance
+
+- https://www.raspberrypi.org/forums/viewtopic.php?t=47466
+- can see bluetooth le devices with this, but cannot get rssi
+```
+sudo hcitool lescan --passive
+``
+- this works once connected
+```
+sudo hcitool rssi <device>
+```
+- https://www.quora.com/How-do-I-calculate-distance-in-meters-km-yards-from-rssi-values-in-dBm-of-BLE-in-android

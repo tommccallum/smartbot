@@ -1,5 +1,5 @@
 {
-  "shell": "/usr/bin/mplayer -input file='%fifo%' -framedrop decoder -vo null '%track%'",
+  "shell": "/usr/bin/mplayer -noautosub -novideo -input file='%fifo%' -framedrop -vo null '%track%'",
   "commands": {
     "pause": "pause",
     "continue": "pause"

@@ -4,7 +4,7 @@ use evtest to explore /dev/input/event device signals
 from evdev import ecodes, InputDevice, categorize, list_devices
 from debug_context import DebugContext
 import asyncio
-
+from abilities.text_to_speech import TextToSpeech
 
 class EventDeviceAgent:
     """Agent for handling bluetooth events"""
@@ -15,6 +15,7 @@ class EventDeviceAgent:
         self.name = name
         self.loop = None
         self.device = None
+        self.personality=None
         self.find_device()
 
     def set_handler(self, handler):
@@ -31,6 +32,11 @@ class EventDeviceAgent:
                 self.device = path
                 print("Found device "+self.name+" at "+self.device)
         if not self.device:
+            ## interrupt the current context
+            if self.handler.personality is not None:
+                self.handler.on_interrupt()
+                self.handler.add(TextToSpeech("Sorry Innogen, something has gone wrong can you restart your speaker.", self.handler.personality))
+                self.handler.execute()
             raise ValueError("Device "+self.name+" is not found")
 
     def list_devices(self):
