@@ -23,8 +23,6 @@ function restart_pulseaudio() {
   if [ "x$pulse_pid" == "x" ]; then
     echo "[ERROR] Pulseaudio is not running after restart, something is really chronic!"
     exit 1
-  else
-    echo "Pulseaudio is now running on pid ${pulse_pid}"
   fi
   echo "${pulse_is_running}"
 }
@@ -68,7 +66,7 @@ while true; do
     ## this is the time we want to search our journal from for errors
     WHEN_START=$(date "+%Y-%m-%d %H:%M:%S")
 
-    if [ ${FULL_CONNECT_REQUIRED} -eq 1 ]; then
+    if [ ${FULL_CONNECT_REQUIRED} -eq 0 ]; then
       PAIRED=$(is_paired)
       if [ $PAIRED -eq 0 ]; then
         FULL_CONNECT_REQUIRED=1
@@ -86,7 +84,7 @@ while true; do
         if [ $? != 0 ]; then
 
           HOST_IS_DOWN_MSG="Unable to get Headset Voice gateway SDP record: Host is down"
-          IS_HOST_OFF=$(journal --since "${WHEN_START}" | grep bluetoothd | grep "$HOST_IS_DOWN_MSG" | wc -l )
+          IS_HOST_OFF=$(journalctl --since "${WHEN_START}" | grep bluetoothd | grep "$HOST_IS_DOWN_MSG" | wc -l )
           if [ $IS_HOST_OFF -gt 0 ]
           then
             # device is off no point continuing
@@ -97,7 +95,7 @@ while true; do
 
           # if was not successful check why then loop
           DO_QUICK_CONNECT_AGAIN=0
-          VALUES=$(journal --since "${WHEN_START}" | grep bluetoothd | grep -oP "\(\d+\)$" | sed "s/(//" | sed "s/)//")
+          VALUES=$(journalctl --since "${WHEN_START}" | grep bluetoothd | grep -oP "\(\d+\)$" | sed "s/(//" | sed "s/)//")
           for v in "${VALUES[@]}"; do
             if [ $v -eq 111 ]; then
               FULL_CONNECT_REQUIRED=0
@@ -117,6 +115,7 @@ while true; do
             QUICK_CONNECT_COUNT=$((QUICK_CONNECT_COUNT+1))
             if [ $QUICK_CONNECT_COUNT -gt 10 ]
             then
+              echo "error: quick connect limit reached, full connect required"
               FULL_CONNECT_REQUIRED=1
             else
               sleep 1
@@ -125,14 +124,16 @@ while true; do
           fi
           if [ $FULL_CONNECT_REQUIRED -gt 0 ]
           then
+            echo "error: full connect required"
             restart_pulseaudio
             sleep 1
             continue
           fi
 
           ## we get this error if pulseaudio is not running
-          NO_A2DP=$(journal --since "${WHEN_START}" | grep bluetoothd | grep "a2dp-sink profile connect failed for" | grep "Protocol not available" | wc -l)
+          NO_A2DP=$(journalctl --since "${WHEN_START}" | grep bluetoothd | grep "a2dp-sink profile connect failed for" | grep "Protocol not available" | wc -l)
           if [ $NO_A2DP -gt 1 ]; then
+            echo "error: a2dp-sink profile connect failed"
             restart_pulseaudio
             sleep 1
             continue
@@ -150,6 +151,7 @@ while true; do
       $HOMEDIR/bluetooth_speaker.expect "${BLUETOOTH_DEVICE}"
       if [ $? != 0 ]; then
         # if was not successful then loop
+        echo "full reconnect was unsuccessful"
         sleep 1
         continue
       fi
@@ -173,6 +175,7 @@ while true; do
     ## even if the device is turned off.
     ##
     ## -------------------------------------------------------------------------------------------
+    echo "ok, so far just checking a few more bits"
 
     # reset our testing variables
     FULL_CONNECT_REQUIRED=0
@@ -180,10 +183,10 @@ while true; do
 
     ## a sign of success for a2dp is this: Watching system buttons on /dev/input/event3 (mac_address) under systemd-logind
     ## kernel: input: D0:8A:55:00:9C:27 as /devices/virtual/input/input8
-    A2DP_INPUT=$(journal --since "${WHEN_START}" | grep kernel | grep "${BLUETOOTH_DEVICE}" | grep "input:" | grep "as /devices/virtual/input" | wc -l)
+    A2DP_INPUT=$(journalctl --since "${WHEN_START}" | grep kernel | grep "${BLUETOOTH_DEVICE}" | grep "input:" | grep "as /devices/virtual/input" | wc -l)
     if [ ${A2DP_INPUT} -eq 0 ]; then
       ## hmmm.. something not quite right, lets try again as we do not have proper control
-      restart_pulseaudio
+      echo $(restart_pulseaudio) > /dev/null
       sleep 1
       continue
     fi
@@ -277,15 +280,17 @@ while true; do
   ## this is what the module-switch-on-connect is supposed to prevent in /etc/pulse/default.pa
   PULSE_SINK=$(pactl list sinks short | grep "module-bluez5-device.c" | grep "a2dp_sink" | awk '{print $1}')
   INPUTS=$(pactl list sink-inputs | grep "Sink Input #" | sed "s/Sink Input #//g")
-  CURRENT_SINKS=$(pactl list sink-inputs | grep "Sink:" | awl '{print $2}')
+  CURRENT_SINKS=$(pactl list sink-inputs | grep "Sink:" | awk '{print $2}')
 
   for ii in "${!INPUTS[@]}"
   do
     input=${INPUTS[ii]}
     current_sink=${CURRENT_SINKS[ii]}
-    if [ "x${input}" != "x" -a ${CURRENT_SUNK} -ne $PULSE_SINK ]; then
-      echo "Moving Sink Input #${input} from ${current_sink} to $PULSE_SINK"
-      pactl move-sink-input ${input} ${PULSE_SINK}
+    if [ "x${input}" != "x" ]; then
+      if [ ${current_sink} -ne $PULSE_SINK ]; then
+          echo "Moving Sink Input #${input} from ${current_sink} to $PULSE_SINK"
+          pactl move-sink-input ${input} ${PULSE_SINK}
+      fi
     fi
   done
 
