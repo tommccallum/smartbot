@@ -65,6 +65,9 @@ while true; do
       fi
     fi
 
+    ## this is the time we want to search our journal from for errors
+    WHEN_START=$(date "+%Y-%m-%d %H:%M:%S")
+
     if [ ${FULL_CONNECT_REQUIRED} -eq 1 ]; then
       PAIRED=$(is_paired)
       if [ $PAIRED -eq 0 ]; then
@@ -77,7 +80,6 @@ while true; do
         ## us to reconnect
         ##
         echo "Attempting a quick connect for bluetooth device"
-        WHEN_START=$(date "+%Y-%m-%d %H:%M:%S")
         sudo bluetoothctl disconnect "${BLUETOOTH_DEVICE}"
         sleep 2
         sudo bluetoothctl connect "${BLUETOOTH_DEVICE}"
