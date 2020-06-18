@@ -1,0 +1,44 @@
+{
+    "name": "April",
+    "conf": {
+        "festival": {
+            "voice": "voice_cmu_us_slt_arctic_clunits"
+        },
+        "language": "en"
+    },
+    "states": [{
+        "name": "introduction"
+        },{
+            "name": "audio",
+            "title": "Live Radio",
+            "filename": "live_stream.json",
+            "on_enter": "You are now listening to live radio.",
+            "on_empty": "There are no radio stations available."
+        }, {
+            "name": "audio",
+            "title": "Saved Programmes",
+            "playlist": {
+                "tracks": [
+                    { "directory": "%HOME%/Radio_Uncompressed/keep", "extensions": "m4a", "include-subdir": true }
+                ],
+                "orderby": "name"
+            },
+            "on_enter": "You are now listening to your favourites.",
+            "on_empty": "There are no favourites chosen yet."
+        },
+        {
+            "name": "audio",
+            "title": "Latest Programmes",
+            "playlist": {
+                "tracks": [
+                    { "directory": "%HOME%/Radio_Uncompressed/tmp", "extensions": "m4a", "include-subdir": true }
+                ],
+                "orderby": ["date", "desc"]
+            },
+            "on_enter": "You are now listening to the latest programmes.",
+            "on_empty": "There are no programmes downloaded yet."
+        }
+    ],
+    "say": {
+    }
+}

@@ -30,8 +30,10 @@ def load_targets():
                 continue
             if not os.path.isdir(dest_dir):
                 raise ValueError(dest_dir+" does not exist")
-            line=line.strip('\n').strip('\"')
-            target = { "regex": line, "dest_dir": dest_dir }
+            channel, regex = line.split(",")
+            channel=channel.strip('\n').strip('\"')
+            regex = regex.strip('\n').strip('\"')
+            target = { "channel": channel, "regex": regex, "dest_dir": dest_dir }
             targets.append(target)
             line = in_file.readline()
     return targets
@@ -39,7 +41,7 @@ def load_targets():
 
 def run_get_iplayer(target, ID):
     # can we locate get_iplayer some how or read in from a config file
-    cmd = get_iplayer+" --type=radio --channel=\"BBC Radio 2\" --radiomode=good -g --output \""+target["dest_dir"]+"\" \""+target["regex"]+"\""
+    cmd = get_iplayer+" --type=radio --channel=\""+target["channel"]+"\" --radiomode=good -g --output \""+target["dest_dir"]+"\" \""+target["regex"]+"\""
     stdout.write("["+str(ID)+"] "+cmd+"\n")
     stdout.flush()
     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True)
@@ -48,6 +50,7 @@ def run_get_iplayer(target, ID):
     output_str = "\n".join([ "["+str(ID)+"] " + line for line in lines ])
     stdout.write(output_str+"\n")
     stdout.flush()
+
 
 if __name__ == "__main__":
     print("Loading programmes to download")

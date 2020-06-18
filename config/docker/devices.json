@@ -1,0 +1,18 @@
+{
+    "58:D9:C3:5A:67:30" : {
+        "type" : "mobile",
+        "owner" : "Tom"
+    },
+    "C5:7E:24:C0:15:94" : {
+        "type" : "watch",
+        "owner" : "Innogen"
+    },
+    "BC:98:DF:D0:91:D8" : {
+        "type" : "mobile",
+        "owner" : "Catriona"
+    },
+    "D4:9D:C0:4D:72:4D" : {
+        "type" : "tablet",
+        "owner" : "Catriona"
+    }
+}

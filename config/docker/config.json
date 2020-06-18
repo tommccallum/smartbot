@@ -1,0 +1,14 @@
+{
+  "owner": "Innogen",
+  "personality": "personality.json",
+  "radio_show_path": "/home/pi/Radio_Uncompressed",
+  "music_path": "/home/pi/Music",
+  "devices": {
+    "path": "devices.json"
+  },
+  "output" : {
+    "sink": "org.bluez",
+    "device": "D0:8A:55:00:9C:27"
+  },
+  "alarms": []
+}

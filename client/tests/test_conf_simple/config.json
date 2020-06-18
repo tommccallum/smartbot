@@ -1,0 +1,9 @@
+{
+  "owner": "Bob",
+  "output" : {
+    "sink": "org.bluez",
+    "device": null
+  },
+  "personality": "personality.json",
+  "alarms": []
+}

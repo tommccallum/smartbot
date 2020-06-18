@@ -1,0 +1,30 @@
+{
+    "name": "April",
+    "conf": {
+        "festival": {
+            "voice": "voice_cmu_us_slt_arctic_clunits"
+        },
+        "language": "en"
+    },
+    "states": [{
+        "name": "introduction"
+        },{
+        "name": "live"
+        }, {
+            "name": "audio",
+            "title": "Saved Programmes",
+            "path": "%HOME%/Radio_Uncompressed/keep",
+            "extensions": "m4a",
+            "orderby": "name"
+        },
+        {
+            "name": "audio",
+            "title": "Latest Programmes",
+            "path": "%HOME%/Radio_Uncompressed/tmp",
+            "extensions": "m4a",
+            "orderby": ["date", "desc"]
+        }
+    ],
+    "say": {
+    }
+}

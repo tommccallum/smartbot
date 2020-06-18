@@ -1,0 +1,72 @@
+{
+    "name": "April",
+    "conf": {
+        "festival": {
+            "voice": "voice_kal_diphone"
+        },
+        "language": "en"
+    },
+    "states": [{
+        "type": "introduction",
+        "filename": "introduction.json"
+        },{
+            "type": "audio",
+            "title": "Live Radio",
+            "filename": "live_stream.json",
+            "on_enter": "You are now listening to live radio.",
+            "on_empty": "There are no radio stations available."
+        }, {
+            "type": "audio",
+            "title": "Saved Programmes",
+            "filename": "saved_programmes.json",
+            "playlist": {
+                "tracks": [
+                    { "directory": "%HOME%/Radio_Uncompressed/keep", "extensions": "m4a", "include-subdir": true }
+                ],
+                "orderby": "name"
+            },
+            "on_enter": "You are now listening to your favourites.",
+            "on_empty": "There are no favourites chosen yet."
+        },
+        {
+            "type": "audio",
+            "title": "Latest Programmes",
+            "filename": "latest_programmes.json",
+            "playlist": {
+                "tracks": [
+                    { "directory": "%HOME%/Radio_Uncompressed/tmp", "extensions": "m4a", "include-subdir": true }
+                ],
+                "orderby": ["date", "desc"]
+            },
+            "on_enter": "You are now listening to the latest programmes.",
+            "on_empty": "There are no programmes downloaded yet."
+        },
+        {
+            "type": "audio",
+            "title": "Lets Dance",
+            "filename": "lets_dance.json",
+            "playlist": {
+                "tracks": [
+                    { "directory": "%HOME%/Music/dance", "extensions": "m4a", "include-subdir": true }
+                ],
+                "orderby": ["name", "asc"]
+            },
+            "on_enter": "Let's Dance!",
+            "on_empty": "There are no songs available yet."
+        },
+        {
+            "type": "speakingclock",
+            "title": "Speaking Clock",
+            "on_enter": false
+        },
+        {
+            "type": "facts",
+            "title": "Funky Facts",
+            "filename":"facts.json",
+            "on_enter": "Here are some funky facts.",
+            "on_empty": "There are no funky facts available."
+        }
+    ],
+    "say": {
+    }
+}
