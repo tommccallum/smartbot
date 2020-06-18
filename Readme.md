@@ -58,10 +58,23 @@ pip install pybluez
 ```
 load-module module-switch-on-connect
 ```
+Note that I did this and was getting the following errors:
+```
+Jun 18 19:38:16 april bluetoothd[294]: Unable to get connect data for Headset Voice gateway: getpeername: Transport endpoint is not connected (107)
+Jun 18 19:38:16 april bluetoothd[294]: connect error: Connection refused (111)
+Jun 18 19:38:18 april bluetoothd[294]: connect error: Connection refused (111)
+```
+I removed the line, removed the device and re-paired.
+
 - install bluez for bluetooth
 - install python-gobject
 - pactl load-module module-bluetooth-discover
 - check /var/log/syslog if you get errors when trying to connect to bluetooth
+
+Use this command to follow the system log as its connects:
+```
+journalctl --follow
+```
 
 # Bluetooth
 
