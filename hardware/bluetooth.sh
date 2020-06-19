@@ -5,6 +5,7 @@ HOMEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 BLUETOOTH_DEVICE=$(cat "${HOMEDIR}/Bluetooth_Speaker.txt")
 EXPECTED_PULSE_APP="pulseaudio"
 HELLOWORLD="${HOMEDIR}/../sounds/can_you_hear_me.wav"
+TIMEOUT=2       ## expected length of HELLOWORLD sound
 SYSTEMCTL=$1
 
 ## check if we are already paired with device
@@ -16,7 +17,11 @@ function is_paired() {
 
 function restart_pulseaudio() {
   ## restart pulseaudio for good measure
-  pulseaudio -k
+  local pulse_is_running=$(ps ax | grep pulseaudio | grep -v grep | wc -l)
+  if [ ${pulse_is_running} -gt 0 ]
+  then
+    pulseaudio -k
+  fi
   pulseaudio --start
   local pulse_is_running=$(ps ax | grep pulseaudio | grep -v grep | wc -l)
   local pulse_pid=$(ps aux | grep "$EXPECTED_PULSE_APP" | awk '{print $2}')
@@ -44,6 +49,7 @@ echo "[OK] Registered bluetooth device is ${BLUETOOTH_DEVICE}"
 # connection for some reason
 FULL_CONNECT_REQUIRED=0
 QUICK_CONNECT_COUNT=1
+NEW_CONNECTION=0
 while true; do
 
   IS_CONNECTED=$(hcitool con | grep "${BLUETOOTH_DEVICE}" | wc -l)
@@ -81,7 +87,9 @@ while true; do
         sudo bluetoothctl disconnect "${BLUETOOTH_DEVICE}"
         sleep 2
         sudo bluetoothctl connect "${BLUETOOTH_DEVICE}"
-        if [ $? != 0 ]; then
+        if [ $? -eq 0 ]; then
+          NEW_CONNECTION=1
+        else
 
           HOST_IS_DOWN_MSG="Unable to get Headset Voice gateway SDP record: Host is down"
           IS_HOST_OFF=$(journalctl --since "${WHEN_START}" | grep bluetoothd | grep "$HOST_IS_DOWN_MSG" | wc -l )
@@ -185,6 +193,8 @@ while true; do
         sleep 1
         continue
       fi
+
+      NEW_CONNECTION=1
     fi
 
 
@@ -268,26 +278,22 @@ while true; do
         CARD=$(pactl list | grep -B 2 bluez | grep Card | sed "s/Card #//")
         echo "Attempting to select a2dp_sink profile for card ${CARD}"
         pactl set-card-profile ${CARD} a2dp_sink
+        if [ $? -gt 0 ]; then
+          echo "[ERROR] Failed ot set card  ${CARD} profile to a2dp_sink"
+          restart_pulseaudio
+          continue
+        fi
+        ## we output this for the reader
         pactl list sinks short | grep "module-bluez5-device.c" | grep "a2dp_sink"
 
         IS_DEFAULT_SINK_SET=$(pactl list sinks short | grep "module-bluez5-device.c" | grep "a2dp_sink" | awk '{print $1}' | wc -l)
         if [ $IS_DEFAULT_SINK_SET -eq 0 ]; then
-          echo "[ERROR] Failed to set speaker to a2dp_sink profile, restarting pulseaudio and trying connect."
-          restart_pulseaudio
-          continue
-        fi
-
-        SINK_NAME=$(pactl list sinks short | grep "module-bluez5-device.c" | grep "a2dp_sink" | awk '{print $1}')
-        pactl set-default-sink $SINK_NAME
-        if [ $? == 0 ]; then
-          echo "[OK] Detected a2dp bluetooth device, attempting to play test sound"
-          timeout 15 aplay "${HELLOWORLD}"
-          if [ $? != 0 ]; then
-            echo "[ERROR] aplay failed to complete, restarting pulseaudio and reconnecting"
+          SINK_NAME=$(pactl list sinks short | grep "module-bluez5-device.c" | grep "a2dp_sink" | awk '{print $1}')
+          pactl set-default-sink $SINK_NAME
+          if [ $? -gt 0 ]; then
+            echo "[ERROR] Failed to set default sink, restarting pulseaudio and trying connect."
             restart_pulseaudio
             continue
-          else
-            echo "[OK] aplay completed"
           fi
         fi
       fi
@@ -314,6 +320,20 @@ while true; do
       fi
     fi
   done
+
+  if [ $NEW_CONNECTION -gt 0 ]
+  then
+    NEW_CONNECTION=0
+    echo "[OK] New connection found, attempting to speak"
+    timeout $TIMEOUT aplay "${HELLOWORLD}"
+    if [ $? != 0 ]; then
+      echo "[ERROR] helloworld sound failed to play, restarting pulseaudio and reconnecting"
+      restart_pulseaudio
+      continue
+    else
+      echo "[OK] we are connected successfully"
+    fi
+  fi
 
   ## by this point we should have what we want for a little while
   ## let other processes do something
