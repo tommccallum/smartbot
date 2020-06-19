@@ -93,18 +93,46 @@ while true; do
             continue
           fi
 
+          ## we get this error if pulseaudio is not running
+          NO_A2DP=$(journalctl --since "${WHEN_START}" | grep bluetoothd | grep "a2dp-sink profile connect failed for" | grep "Protocol not available" | wc -l)
+          if [ $NO_A2DP -gt 1 ]; then
+            echo "error: a2dp-sink profile connect failed"
+            restart_pulseaudio
+            sleep 1
+            continue
+          fi
+
+          MSG=$(journalctl --since "${WHEN_START}" | grep bluetoothd | grep "Control: Refusing unexpected connect" )
+          if [ $MSG -gt 1 ]; then
+            echo "error: refusing connection"
+            restart_pulseaudio
+            sleep 1
+            continue
+          fi
+
+          MSG=$(journalctl --since "${WHEN_START}" | grep bluetoothd | grep "Unable to get Headset Voice gateway SDP record: Operation already in progress")
+          if [ $MSG -gt 1 ]; then
+            echo "error: sdp record, retrying"
+            restart_pulseaudio
+            sleep 1
+            continue
+          fi
+
+
           # if was not successful check why then loop
           DO_QUICK_CONNECT_AGAIN=0
           VALUES=$(journalctl --since "${WHEN_START}" | grep bluetoothd | grep -oP "\(\d+\)$" | sed "s/(//" | sed "s/)//")
           for v in "${VALUES[@]}"; do
-            if [ $v -eq 111 ]; then
-              FULL_CONNECT_REQUIRED=0
-            fi
-            if [ $v -eq 107 ]; then
-              ### does not need a full reconnect if hits happens
-              DO_QUICK_CONNECT_AGAIN=1
-              sleep 1
-              continue
+            if [ "x$v" != "x" ]; then
+              if [ $v -eq 111 ]; then
+                FULL_CONNECT_REQUIRED=0
+              fi
+              if [ $v -eq 107 ]; then
+                ### does not need a full reconnect if hits happens
+                DO_QUICK_CONNECT_AGAIN=1
+                sleep 1
+                continue
+              fi
             fi
           done
           if [ $DO_QUICK_CONNECT_AGAIN -gt 0 ]
@@ -130,14 +158,7 @@ while true; do
             continue
           fi
 
-          ## we get this error if pulseaudio is not running
-          NO_A2DP=$(journalctl --since "${WHEN_START}" | grep bluetoothd | grep "a2dp-sink profile connect failed for" | grep "Protocol not available" | wc -l)
-          if [ $NO_A2DP -gt 1 ]; then
-            echo "error: a2dp-sink profile connect failed"
-            restart_pulseaudio
-            sleep 1
-            continue
-          fi
+
           # otherwise we just try again
           sleep 1
           continue
