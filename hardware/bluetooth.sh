@@ -71,6 +71,7 @@ while true; do
 
     ## this is the time we want to search our journal from for errors
     WHEN_START=$(date "+%Y-%m-%d %H:%M:%S")
+    echo "Journal view from ${WHEN_START}"
 
     if [ ${FULL_CONNECT_REQUIRED} -eq 0 ]; then
       PAIRED=$(is_paired)
@@ -206,7 +207,7 @@ while true; do
     ## even if the device is turned off.
     ##
     ## -------------------------------------------------------------------------------------------
-    echo "ok, so far just checking a few more bits"
+    echo "ok, so far just checking a few more bitsm please bare with us"
 
     # reset our testing variables
     FULL_CONNECT_REQUIRED=0
@@ -217,6 +218,9 @@ while true; do
     A2DP_INPUT=$(journalctl --since "${WHEN_START}" | grep kernel | grep "${BLUETOOTH_DEVICE}" | grep "input:" | grep "as /devices/virtual/input" | wc -l)
     if [ ${A2DP_INPUT} -eq 0 ]; then
       ## hmmm.. something not quite right, lets try again as we do not have proper control
+      echo "Failed to find virtual input for bluetooth device, reconnecting"
+      NEW_CONNECTION=0
+      sudo bluetoothctl disconnect "${BLUETOOTH_DEVICE}"
       echo $(restart_pulseaudio) > /dev/null
       sleep 1
       continue
@@ -225,7 +229,8 @@ while true; do
     PULSE_SINK=$(pactl list sinks short | grep "module-bluez5-device.c" | awk '{print $1}')
     if [ "x$PULSE_SINK" == "x" ]; then
       echo "[ERROR] Pulseaudio has not picked up a bluetooth device, restarting pulseaudio and trying again"
-      pactl list sinks short
+      NEW_CONNECTION=0
+      sudo bluetoothctl disconnect "${BLUETOOTH_DEVICE}"
       restart_pulseaudio
       continue
     else
@@ -240,26 +245,24 @@ while true; do
       A2DP=$(pactl list sinks short | grep "module-bluez5-device.c" | grep "a2dp_sink" | awk '{print $1}')
       if [ "x$A2DP" == "x" ]; then
         echo "[ERROR] Failed to set speaker to a2dp_sink profile, restarting pulseaudio and trying again"
+        NEW_CONNECTION=0
+        sudo bluetoothctl disconnect "${BLUETOOTH_DEVICE}"
         restart_pulseaudio
         continue
       fi
     fi
 
     ## check we are the default sink which we should be...
-    IS_DEFAULT_SINK=$(pactl info | grep "Default Sunk" | grep "bluez_sink" | grep "a2dp_sink" | wc -l)
+    IS_DEFAULT_SINK=$(pactl info | grep "Default Sink" | grep "bluez_sink" | grep "a2dp_sink" | wc -l)
     if [ $IS_DEFAULT_SINK -eq 0 ]; then
       A2DP=$(pactl list sinks short | grep "module-bluez5-device.c" | grep "a2dp_sink" | awk '{print $1}')
       pactl set-default-sink $A2DP
-      if [ $? == 0 ]; then
-        echo "[OK] Detected a2dp bluetooth device, attempting to play test sound"
-        timeout 15 aplay "${HELLOWORLD}"
-        if [ $? != 0 ]; then
-          echo "[ERROR] aplay failed to complete, restarting pulseaudio and trying again"
-          restart_pulseaudio
-          continue
-        else
-          echo "[OK] aplay completed"
-        fi
+      if [ $? -gt 0 ]; then
+        echo "Failed to set default sink as $A2DP"
+        NEW_CONNECTION=0
+        sudo bluetoothctl disconnect "${BLUETOOTH_DEVICE}"
+        restart_pulseaudio
+        continue
       fi
     fi
   fi # end of checking if we are connected
@@ -279,7 +282,9 @@ while true; do
         echo "Attempting to select a2dp_sink profile for card ${CARD}"
         pactl set-card-profile ${CARD} a2dp_sink
         if [ $? -gt 0 ]; then
-          echo "[ERROR] Failed ot set card  ${CARD} profile to a2dp_sink"
+          echo "[ERROR] Failed ot set card ${CARD} profile to a2dp_sink"
+          NEW_CONNECTION=0
+          sudo bluetoothctl disconnect "${BLUETOOTH_DEVICE}"
           restart_pulseaudio
           continue
         fi
@@ -292,6 +297,8 @@ while true; do
           pactl set-default-sink $SINK_NAME
           if [ $? -gt 0 ]; then
             echo "[ERROR] Failed to set default sink, restarting pulseaudio and trying connect."
+            NEW_CONNECTION=0
+            sudo bluetoothctl disconnect "${BLUETOOTH_DEVICE}"
             restart_pulseaudio
             continue
           fi
@@ -317,6 +324,13 @@ while true; do
       if [ ${current_sink} -ne $PULSE_SINK ]; then
           echo "Moving Sink Input #${input} from ${current_sink} to $PULSE_SINK"
           pactl move-sink-input ${input} ${PULSE_SINK}
+          if [ $? -gt 0 ]; then
+            echo "Failed to move sink from ${input} to ${PULSE_SINK}"
+            NEW_CONNECTION=0
+            sudo bluetoothctl disconnect "${BLUETOOTH_DEVICE}"
+            restart_pulseaudio
+            continue
+          fi
       fi
     fi
   done
@@ -328,6 +342,8 @@ while true; do
     timeout $TIMEOUT aplay "${HELLOWORLD}"
     if [ $? != 0 ]; then
       echo "[ERROR] helloworld sound failed to play, restarting pulseaudio and reconnecting"
+      NEW_CONNECTION=0
+      sudo bluetoothctl disconnect "${BLUETOOTH_DEVICE}"
       restart_pulseaudio
       continue
     else
