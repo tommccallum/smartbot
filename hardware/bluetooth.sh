@@ -56,7 +56,7 @@ while true; do
   IS_CONNECTED=$(hcitool con | grep "${BLUETOOTH_DEVICE}" | wc -l)
   if [ ${IS_CONNECTED} -eq 0 ]; then
     echo "No connection found, attempting to reconnect..."
-    CONNECTION_DURATION_START=$(date +%s)
+    CONNECTION_DURATION_START=$(date "+%s")
 
     PULSE_PID=$(ps aux | grep "$EXPECTED_PULSE_APP" | awk '{print $2}')
     if [ "x$PULSE_PID" == "x" ]; then
@@ -347,7 +347,7 @@ while true; do
   then
     NEW_CONNECTION=0
 
-    CONNECTION_DURATION_END=$(date +%s)
+    CONNECTION_DURATION_END=$(date "+%s")
     DURATION=$((CONNECTION_DURATION_END - CONNECTION_DURATION_START))
     echo "Connection time was ${DURATION} seconds"
 
