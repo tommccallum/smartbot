@@ -1,0 +1,6 @@
+{
+  "download_directory": "/home/pi/Music/podcasts",
+  "podcasts": [
+    { "name": "The History of China", "url":"http://feeds.feedburner.com/TheHistoryOfChina" }
+  ]
+}

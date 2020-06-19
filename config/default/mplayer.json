@@ -1,7 +1,9 @@
 {
-  "shell": "/usr/bin/mplayer -noautosub -novideo -input file='%fifo%' -framedrop -vo null '%track%'",
+  "shell": "/usr/bin/mplayer -noautosub -novideo -noconsolecontrols %seek% -input file='%fifo%' -framedrop -vo null '%track%'",
   "commands": {
     "pause": "pause",
-    "continue": "pause"
+    "continue": "pause",
+    "seek": "seek",
+    "load": "loadfile"
   }
 }

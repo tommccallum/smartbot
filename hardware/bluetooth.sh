@@ -386,7 +386,7 @@ while true; do
       continue
     else
       echo "[OK] we are connected successfully"
-      echo "$(date "+%s"),CONNECTED" >$LOCKFILE
+      echo "$(date "+%s"),CONNECTED" > $LOCKFILE
     fi
   fi
 
