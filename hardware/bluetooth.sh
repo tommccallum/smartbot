@@ -91,7 +91,7 @@ while true; do
         sudo bluetoothctl connect "${BLUETOOTH_DEVICE}"
         if [ $? -eq 0 ]; then
           echo "Waiting for stuff to happen if it is going to"
-          sleep 2 # let stuff happen
+          sleep 5 # let stuff happen
           NEW_CONNECTION=1
         else
 
