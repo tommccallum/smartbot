@@ -87,19 +87,19 @@ class Alarm:
                 elif at_item == "weekend":
                     days = [6, 0]
                 elif at_item == "monday":
-                    days = 1
+                    days = [1]
                 elif at_item == "tuesday":
-                    days = 2
+                    days = [2]
                 elif at_item == "wednesday":
-                    days = 3
+                    days = [3]
                 elif at_item == "thursday":
-                    days = 4
+                    days = [4]
                 elif at_item == "friday":
-                    days = 5
+                    days = [5]
                 elif at_item == "saturday":
-                    days = 6
+                    days = [6]
                 elif at_item == "sunday":
-                    days = 0
+                    days = [0]
 
         if len(days) == 0:
             # if no days specified we assume we just have a time and set it today

@@ -1,0 +1,62 @@
+{
+  "owner": "Innogen",
+  "devices": {
+    "path": "devices.json"
+  },
+  "output" : {
+    "sink": "org.bluez",
+    "device": "D0:8A:55:00:9C:27"
+  },
+  "personality": "personality.json",
+  "alarms": [
+        {
+            "when": [ "monday","07:00"],
+            "action": "play",
+            "args": {
+                "track":"/home/pi/Music/wakeup/all/Happy.mp3"
+            }
+        },
+        {
+            "when": [ "tuesday","07:00"],
+            "action": "play",
+            "args": {
+                "track":"/home/pi/Music/wakeup/all/Happy.mp3"
+            }
+        },
+        {
+            "when": [ "wednesday","07:00"],
+            "action": "play",
+            "args": {
+                "track":"/home/pi/Music/wakeup/all/Happy.mp3"
+            }
+        },
+        {
+            "when": [ "thursday","07:00"],
+            "action": "play",
+            "args": {
+                "track":"/home/pi/Music/wakeup/all/Happy.mp3"
+            }
+        },
+        {
+            "when": [ "friday","07:00"],
+            "action": "play",
+            "args": {
+                "track":"/home/pi/Music/wakeup/all/Happy.mp3"
+            }
+        },
+        {
+            "when": [ "saturday","07:00"],
+            "action": "play",
+            "args": {
+                "track":"/home/pi/Music/wakeup/all/Happy.mp3"
+            }
+        },
+        {
+            "when": [ "sunday","07:00"],
+            "action": "play",
+            "args": {
+                "track":"/home/pi/Music/wakeup/all/Happy.mp3"
+            }
+        }
+  ]
+}

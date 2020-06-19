@@ -9,7 +9,7 @@ import numpy
 #     local_path = local_path.replace("%CONFIG%", self.configuration.config_path)
 
 class Playlist:
-    def __init__(self, list_of_tracks, home_path=None, config_path=None):
+    def __init__(self, list_of_tracks, home_path=None, config_path=None ):
         """Set up playlist"""
         self.playlist = []
         self.ordering = []

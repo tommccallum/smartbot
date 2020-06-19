@@ -58,6 +58,9 @@ class PlaylistStreamState(State):
                 logging.error(playlist_config)
                 raise ValueError("no tracks key specified in playlist")
             self.playlist = Playlist(playlist_config["tracks"], self.configuration.HOME_DIRECTORY, self.configuration.get_config_path())
+            for s in self.playlist.playlist:
+                if "name" not in s:
+                    s["name"] = self.personality.voice_library.convert_filename_to_speech_text(s["url"])
             if "shuffle" in playlist_config:
                 if playlist_config["shuffle"]:
                     self.playlist.shuffle()
