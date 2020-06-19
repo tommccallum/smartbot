@@ -9,6 +9,7 @@ TIMEOUT=2 ## expected length of HELLOWORLD sound
 SYSTEMCTL=$1
 SLEEP_BETWEEN_CHECKS=5
 VERBOSE=0
+LOCKFILE="/tmp/smartbot_connected.lock"
 
 if [ "$1" == "-v" ]; then
   VERBOSE=1
@@ -43,6 +44,15 @@ function msg() {
   fi
 }
 
+function remove_lockfile() {
+  if [ -e "${LOCKFILE}" ]; then
+    msg "Clearing old lock file to show that we are not connected"
+    rm -f "${LOCKFILE}"
+  fi
+}
+
+remove_lockfile
+
 echo "User: ${USER}"
 
 if [ ! -e "${HELLOWORLD}" ]; then
@@ -71,6 +81,7 @@ while true; do
     #
     #   otherwise QUICK_CONNECT
     #
+    remove_lockfile
 
     echo "No connection found, attempting to reconnect..."
     CONNECTION_DURATION_START=$(date "+%s")
@@ -375,6 +386,7 @@ while true; do
       continue
     else
       echo "[OK] we are connected successfully"
+      echo "$(date "+%s"),CONNECTED" >$LOCKFILE
     fi
   fi
 
