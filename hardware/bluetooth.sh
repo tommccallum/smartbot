@@ -95,23 +95,23 @@ while true; do
 
           ## we get this error if pulseaudio is not running
           NO_A2DP=$(journalctl --since "${WHEN_START}" | grep bluetoothd | grep "a2dp-sink profile connect failed for" | grep "Protocol not available" | wc -l)
-          if [ $NO_A2DP -gt 1 ]; then
+          if [ $NO_A2DP -gt 0 ]; then
             echo "error: a2dp-sink profile connect failed"
             restart_pulseaudio
             sleep 1
             continue
           fi
 
-          MSG=$(journalctl --since "${WHEN_START}" | grep bluetoothd | grep "Control: Refusing unexpected connect" )
-          if [ $MSG -gt 1 ]; then
+          MSG=$(journalctl --since "${WHEN_START}" | grep bluetoothd | grep "Control: Refusing unexpected connect" | wc -l )
+          if [ $MSG -gt 0 ]; then
             echo "error: refusing connection"
             restart_pulseaudio
             sleep 1
             continue
           fi
 
-          MSG=$(journalctl --since "${WHEN_START}" | grep bluetoothd | grep "Unable to get Headset Voice gateway SDP record: Operation already in progress")
-          if [ $MSG -gt 1 ]; then
+          MSG=$(journalctl --since "${WHEN_START}" | grep bluetoothd | grep "Unable to get Headset Voice gateway SDP record: Operation already in progress" | wc -l )
+          if [ $MSG -gt 0 ]; then
             echo "error: sdp record, retrying"
             restart_pulseaudio
             sleep 1
