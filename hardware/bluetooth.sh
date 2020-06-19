@@ -133,16 +133,15 @@ while true; do
           DO_QUICK_CONNECT_AGAIN=0
           VALUES=$(journalctl --since "${WHEN_START}" | grep bluetoothd | grep -oP "\(\d+\)$" | sed "s/(//" | sed "s/)//")
           for v in "${VALUES[@]}"; do
-            if [ "x$v" != "x" ]; then
-              if [ $v -eq 111 ]; then
-                FULL_CONNECT_REQUIRED=0
-              fi
-              if [ $v -eq 107 ]; then
-                ### does not need a full reconnect if hits happens
-                DO_QUICK_CONNECT_AGAIN=1
-                sleep 1
-                continue
-              fi
+            echo "journalctl error code: ${v}"
+            if [ "x$v" == "x111" ]; then
+              FULL_CONNECT_REQUIRED=0
+            fi
+            if [ "x$v" == "x107" ]; then
+              ### does not need a full reconnect if hits happens
+              DO_QUICK_CONNECT_AGAIN=1
+              sleep 1
+              continue
             fi
           done
           if [ $DO_QUICK_CONNECT_AGAIN -gt 0 ]
@@ -213,19 +212,6 @@ while true; do
     # reset our testing variables
     FULL_CONNECT_REQUIRED=0
     QUICK_CONNECT_COUNT=0
-
-    ## a sign of success for a2dp is this: Watching system buttons on /dev/input/event3 (mac_address) under systemd-logind
-    ## kernel: input: D0:8A:55:00:9C:27 as /devices/virtual/input/input8
-    A2DP_INPUT=$(journalctl --since "${WHEN_START}" | grep kernel | grep "${BLUETOOTH_DEVICE}" | grep "input:" | grep "as /devices/virtual/input" | wc -l)
-    if [ ${A2DP_INPUT} -eq 0 ]; then
-      ## hmmm.. something not quite right, lets try again as we do not have proper control
-      echo "Failed to find virtual input for bluetooth device, reconnecting"
-      NEW_CONNECTION=0
-      sudo bluetoothctl disconnect "${BLUETOOTH_DEVICE}"
-      echo $(restart_pulseaudio) > /dev/null
-      sleep 1
-      continue
-    fi
 
     PULSE_SINK=$(pactl list sinks short | grep "module-bluez5-device.c" | awk '{print $1}')
     if [ "x$PULSE_SINK" == "x" ]; then
@@ -336,6 +322,23 @@ while true; do
       fi
     fi
   done
+
+  ## a sign of success for a2dp is this: Watching system buttons on /dev/input/event3 (mac_address) under systemd-logind
+  ## kernel: input: D0:8A:55:00:9C:27 as /devices/virtual/input/input8
+  ## this seems to take a bit of time to do so lets sleep for 2
+  sleep 2
+  A2DP_INPUT=$(journalctl --since "${WHEN_START}" | grep kernel | grep "${BLUETOOTH_DEVICE}" | grep "input:" | grep "as /devices/virtual/input" | wc -l)
+  if [ ${A2DP_INPUT} -eq 0 ]; then
+    ## hmmm.. something not quite right, lets try again as we do not have proper control
+    echo "Failed to find virtual input for bluetooth device, reconnecting"
+    NEW_CONNECTION=0
+    sudo bluetoothctl disconnect "${BLUETOOTH_DEVICE}"
+    echo $(restart_pulseaudio) > /dev/null
+    sleep 1
+    continue
+  fi
+
+
 
   if [ $NEW_CONNECTION -gt 0 ]
   then
