@@ -329,7 +329,8 @@ while true; do
 
   ## a sign of success for a2dp is this: Watching system buttons on /dev/input/event3 (mac_address) under systemd-logind
   ## kernel: input: D0:8A:55:00:9C:27 as /devices/virtual/input/input8
-  ## this seems to take a bit of time to do so lets sleep for 2
+  ## this seems to take a bit of time to do so lets sleep for another 2
+  sleep 2
   A2DP_INPUT=$(journalctl --since "${WHEN_START}" | grep kernel | grep "${BLUETOOTH_DEVICE}" | grep "input:" | grep "as /devices/virtual/input" | wc -l)
   if [ ${A2DP_INPUT} -eq 0 ]; then
     ## hmmm.. something not quite right, lets try again as we do not have proper control
