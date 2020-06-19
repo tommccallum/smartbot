@@ -4,7 +4,7 @@
 HOMEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 BLUETOOTH_DEVICE=$(cat "${HOMEDIR}/Bluetooth_Speaker.txt")
 EXPECTED_PULSE_APP="pulseaudio"
-HELLOWORLD="${HOMEDIR}/../sounds/Tardis-sound.wav"
+HELLOWORLD="${HOMEDIR}/../sounds/can_you_hear_me.wav"
 SYSTEMCTL=$1
 
 ## check if we are already paired with device
