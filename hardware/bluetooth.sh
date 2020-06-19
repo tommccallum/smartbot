@@ -90,6 +90,8 @@ while true; do
         sleep 2
         sudo bluetoothctl connect "${BLUETOOTH_DEVICE}"
         if [ $? -eq 0 ]; then
+          echo "Waiting for stuff to happen if it is going to"
+          sleep 2 # let stuff happen
           NEW_CONNECTION=1
         else
 
@@ -207,7 +209,7 @@ while true; do
     ## even if the device is turned off.
     ##
     ## -------------------------------------------------------------------------------------------
-    echo "ok, so far just checking a few more bitsm please bare with us"
+    echo "ok so far, just checking a few more bits, please bare with us"
 
     # reset our testing variables
     FULL_CONNECT_REQUIRED=0
@@ -215,10 +217,11 @@ while true; do
 
     PULSE_SINK=$(pactl list sinks short | grep "module-bluez5-device.c" | awk '{print $1}')
     if [ "x$PULSE_SINK" == "x" ]; then
-      echo "[ERROR] Pulseaudio has not picked up a bluetooth device, restarting pulseaudio and trying again"
+      echo "[ERROR] pulseaudio '${PULSE_SINK}' has not picked up a bluetooth device, restarting pulseaudio and trying again"
       NEW_CONNECTION=0
       sudo bluetoothctl disconnect "${BLUETOOTH_DEVICE}"
       restart_pulseaudio
+      sleep 1
       continue
     else
       echo "[OK] Detected pulseaudio bluetooth device (${PULSE_SINK})"
