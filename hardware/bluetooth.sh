@@ -312,6 +312,7 @@ while true; do
   ## but we are stuck on the internal speaker for some reason for some
   ## pulse connections
   ## this is what the module-switch-on-connect is supposed to prevent in /etc/pulse/default.pa
+  echo "Checking all applications are using the correct speaker device"
   PULSE_SINK=$(pactl list sinks short | grep "module-bluez5-device.c" | grep "a2dp_sink" | awk '{print $1}')
   INPUTS=$(pactl list sink-inputs | grep "Sink Input #" | sed "s/Sink Input #//g")
   CURRENT_SINKS=$(pactl list sink-inputs | grep "Sink:" | awk '{print $2}')
