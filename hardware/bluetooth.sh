@@ -7,6 +7,7 @@ EXPECTED_PULSE_APP="pulseaudio"
 HELLOWORLD="${HOMEDIR}/../sounds/can_you_hear_me.wav"
 TIMEOUT=2       ## expected length of HELLOWORLD sound
 SYSTEMCTL=$1
+SLEEP_BETWEEN_CHECKS=5
 
 ## check if we are already paired with device
 ## returns 1 if paired, 0 otherwise
@@ -354,7 +355,8 @@ while true; do
 
   ## by this point we should have what we want for a little while
   ## let other processes do something
-  sleep 5
+  echo "All good, sleeping for $SLEEP_BETWEEN_CHECKS seconds"
+  sleep $SLEEP_BETWEEN_CHECKS
 
   ## end infinite while loop
 done
