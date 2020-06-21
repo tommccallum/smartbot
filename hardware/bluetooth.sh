@@ -80,6 +80,7 @@ msg "[OK] Registered bluetooth device is ${BLUETOOTH_DEVICE}"
 FULL_CONNECT_REQUIRED=0
 QUICK_CONNECT_COUNT=1
 NEW_CONNECTION=0
+FIRST_START=1
 while true; do
 
   IS_CONNECTED=$(hcitool con | grep "${BLUETOOTH_DEVICE}" | wc -l)
@@ -410,6 +411,13 @@ while true; do
     else
       echo "[OK] we are connected successfully"
       echo "$(date "+%s"),CONNECTED" > $LOCKFILE
+    fi
+  else
+    if [ $FIRST_START -gt 0 ]
+    then
+      echo "[OK] we are connected successfully"
+      echo "$(date "+%s"),CONNECTED" > $LOCKFILE
+      FIRST_START=0
     fi
   fi
 
