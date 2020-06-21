@@ -255,7 +255,7 @@ class MPlayer:
         self.state = MPlayer.STATE_PLAYING
         # mplayer is quite slow to start so
         # so wait before we execute anything else
-        time.sleep(2)
+        time.sleep(5)
         if seek > 0:
             self.set_play_duration(seek)
             self.continue_play_timer()
