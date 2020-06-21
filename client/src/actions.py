@@ -19,7 +19,7 @@ def blocking_play(path):
     path = expand_path(path)
     (rest, ext) = os.path.splitext(path)
     if os.path.isfile(path):
-        if ext == "wav":
+        if ext == ".wav":
             subprocess.run("aplay -t wav \"" + path + "\"", shell=True)
         else:
             subprocess.run("mplayer \"" + path + "\"", shell=True)
