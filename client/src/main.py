@@ -13,15 +13,15 @@ from personality import Personality
 from user_context import UserContext
 from fifo import make_fifo, read_fifo_in_thread
 from event import EventEnum, Event
-
+from globals import app_context
 
 terminal_old_settings = None
 app_config = None
-app_context = None
 event_device_agent = None
 
 @atexit.register
 def clean_exit():
+    global app_context
     logging.debug("clean exit")
     # the above will send to the current state but not the rest
     # so we also loop through to ensure everything shutsdown cleaning
