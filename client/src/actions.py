@@ -5,8 +5,8 @@ import globalvars
 
 def expand_path(path):
     config = globalvars.app_context.personality.config
-    if config.home_path is not None:
-        path = path.replace("%HOME%", config.home_path)
+    if config.HOME_DIRECTORY is not None:
+        path = path.replace("%HOME%", config.HOME_DIRECTORY)
     if config.config_path is not None:
         path = path.replace("%CONFIG%", config.config_path)
     return path
