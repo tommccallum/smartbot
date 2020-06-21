@@ -62,6 +62,7 @@ class EventDeviceAgent(BasicThread):
 
     def do_work_in_thread(self, is_first_run):
         """Override"""
+        logging.debug("working...")
         if self.device is None:
             try:
                 self._find_input_device()

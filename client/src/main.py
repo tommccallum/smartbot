@@ -53,6 +53,7 @@ def start_event_device_agent(config, context):
         event_device_agent = EventDeviceAgent(context, config.get_device())
         event_device_agent.start()
     except Exception as e:
+        logging.debug("*** AAAH *** ")
         logging.debug(e)
         if event_device_agent is not None:
             logging.debug("closing EventDeviceAgent")
