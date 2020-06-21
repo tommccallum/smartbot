@@ -86,7 +86,7 @@ class EventDeviceAgent(BasicThread):
                         new_event = Event(EventEnum.BUTTON_DOWN)
                         new_event.data = EVENT_BUTTON_PLAY;
                     else:
-                        new_event = Event(EventEnum.BUTTON_DOWN)
+                        new_event = Event(EventEnum.BUTTON_UP)
                         new_event.data = EVENT_BUTTON_PLAY;
                 if new_event is not None:
                     logging.debug("adding device event to queue")

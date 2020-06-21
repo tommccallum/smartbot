@@ -17,6 +17,7 @@ from fifo import make_fifo, read_fifo_in_thread
 
 terminal_old_settings = None
 app_config = None
+app_context = None
 event_device_agent = None
 
 @atexit.register
