@@ -66,10 +66,8 @@ class KeyboardListener(threading.Thread):
                 tty.setcbreak(sys.stdin.fileno())
                 #logging.debug("waiting for 3 bytes")
                 key = None
-                if sys.stdin in select.select([sys.stdin], [], [], 500):
-                    key = sys.stdin.read(1) # blocks until reads 3 bytes, which is correct for arrow keys, will detect CTRL+C
-                    if key == chr(27):
-                        key += sys.stdin.read(2)
+                if sys.stdin in select.select([sys.stdin], [], [], 500)[0]:
+                    key = sys.stdin.readline()
                 termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
                 #logging.debug("handling key")
                 if key:
