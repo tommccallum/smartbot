@@ -1,9 +1,13 @@
 from enum import Enum
 
 EVENT_KEY_UP=0
+EVENT_BUTTON_PLAY=0
 EVENT_KEY_DOWN=1
+## no down button equivalent on speaker
 EVENT_KEY_LEFT=2
+EVENT_BUTTON_PREV=2
 EVENT_KEY_RIGHT=3
+EVENT_BUTTON_NEXT=3
 EVENT_KEY_Q = 4
 
 class EventEnum(Enum):
@@ -18,6 +22,8 @@ class EventEnum(Enum):
     DEVICE_LOST=7,
     BLUETOOTH_EVENT=8
     KEY_PRESS=10,
+    BUTTON_DOWN=11,
+    BUTTON_UP=12,
     QUIT=255
 
 

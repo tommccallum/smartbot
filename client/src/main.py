@@ -41,12 +41,13 @@ def app_init(config_path=None):
 def start_event_device_agent(config, context):
     ev = None
     try:
-        ev = EventDeviceAgent(config.get_device(), handler=context)
+        ev = EventDeviceAgent(context, config.get_device())
         ev.read_event()
     except Exception as e:
         logging.debug(e)
     finally:
         if ev is not None:
+            logging.debug("closing EventDeviceAgent")
             ev.close()
 
 from event import EventEnum, Event

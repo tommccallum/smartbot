@@ -3,26 +3,28 @@ use evtest to explore /dev/input/event device signals
 """
 from evdev import ecodes, InputDevice, categorize, list_devices
 from debug_context import DebugContext
-from event import Event, EventEnum
+from event import Event, EventEnum, EVENT_BUTTON_PREV, EVENT_BUTTON_NEXT, EVENT_BUTTON_PLAY
 import asyncio
+import threading
 
-from states.announce_state import AnnounceState
 
+class EventDeviceAgent(threading.Thread):
+    """
+    Agent for handling bluetooth events
+    This is done in a separate thread and then
+    events are passed to the context add_event which is a queue
+    """
 
-class EventDeviceAgent:
-    """Agent for handling bluetooth events"""
-
-    def __init__(self, name, async_mode=True, handler=DebugContext()):
-        self.async_mode = async_mode
-        self.handler = handler
+    def __init__(self, context, name):
+        self.context = context
         self.name = name
         self.loop = None
         self.device = None
         self.personality = None
         self.find_device()
 
-    def set_handler(self, handler):
-        self.handler = handler
+    def set_context(self, context):
+        self.context = context
 
     def find_device(self):
         if self.name == None:
@@ -44,46 +46,46 @@ class EventDeviceAgent:
             print(device.path, device.name, device.phys)
 
     def read_event(self):
-        if self.async_mode:
-            if self.device:
-                dev = InputDevice(self.device)
-                self._async_read_event(dev)
-            else:
-                raise ValueError("No device name found in configuration.")
+        if self.device:
+            dev = InputDevice(self.device)
+            self._async_read_event(dev)
         else:
-            self._sync_read_event(self.device)
+            raise ValueError("No device name found in configuration.")
 
-    def _sync_read_event(self, device):
-        """Synchronous reading of events"""
-        device = InputDevice(device)
-        for event in device.read_loop():
-            if event.type == ecodes.EV_KEY:
-                print(categorize(event))
 
     def _async_read_event(self, dev):
         self.loop = asyncio.get_event_loop()
-        self.loop.run_until_complete(self._signalHandler(dev))
+        self.loop.run_until_complete(self._signalcontext(dev))
 
     def close(self):
         if self.loop:
             self.loop.close()
 
-    async def _signalHandler(self, dev):
+    async def _signalcontext(self, dev):
         async for ev in dev.async_read_loop():
             # print(repr(ev)+","+ecodes.KEY[ev.code])
             if ev.code != 0:
+                new_event = None
                 if ev.code == 165:
                     if ev.value == 1:
-                        self.handler.on_previous_track_down()
+                        new_event = Event(EventEnum.BUTTON_DOWN)
+                        new_event.data = EVENT_BUTTON_PREV;
                     else:
-                        self.handler.on_previous_track_up()
+                        new_event = Event(EventEnum.BUTTON_UP)
+                        new_event.data = EVENT_BUTTON_PREV;
                 if ev.code == 163:
                     if ev.value == 1:
-                        self.handler.on_next_track_down()
+                        new_event = Event(EventEnum.BUTTON_DOWN)
+                        new_event.data = EVENT_BUTTON_NEXT;
                     else:
-                        self.handler.on_next_track_up()
+                        new_event = Event(EventEnum.BUTTON_UP)
+                        new_event.data = EVENT_BUTTON_NEXT;
                 if ev.code == 200:
                     if ev.value == 1:
-                        self.handler.on_play_down()
+                        new_event = Event(EventEnum.BUTTON_DOWN)
+                        new_event.data = EVENT_BUTTON_PLAY;
                     else:
-                        self.handler.on_play_up()
+                        new_event = Event(EventEnum.BUTTON_DOWN)
+                        new_event.data = EVENT_BUTTON_PLAY;
+                if new_event is not None:
+                    self.context.add_event(new_event)
