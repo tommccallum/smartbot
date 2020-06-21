@@ -10,7 +10,7 @@ import asyncio
 import threading
 
 
-class EventDeviceAgent(threading.Thread):
+class EventDeviceAgent():
     """
     Agent for handling bluetooth events
     This is done in a separate thread and then
