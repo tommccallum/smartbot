@@ -1,16 +1,22 @@
 """
 use evtest to explore /dev/input/event device signals
+
+was using asyncio but this still seemed to block on async for ev in dev.async_read_loop():
+so instead have modified to do blocking calls but in a separate thread.  The events are then
+put into the context queue and handled by the main thread.
 """
 import logging
 
 from evdev import ecodes, InputDevice, categorize, list_devices
+
+from BasicThread import BasicThread
 from debug_context import DebugContext
 from event import Event, EventEnum, EVENT_BUTTON_PREV, EVENT_BUTTON_NEXT, EVENT_BUTTON_PLAY
 import asyncio
 import threading
 
 
-class EventDeviceAgent():
+class EventDeviceAgent(BasicThread):
     """
     Agent for handling bluetooth events
     This is done in a separate thread and then
@@ -22,6 +28,7 @@ class EventDeviceAgent():
         self.name = name
         self.loop = None
         self.device = None
+        self.device_io = None
         self.personality = None
         self.find_device()
 
@@ -47,29 +54,16 @@ class EventDeviceAgent():
         for device in devices:
             print(device.path, device.name, device.phys)
 
-    def read_event(self):
+    def open(self):
         if self.device:
-            dev = InputDevice(self.device)
-            self._async_read_event(dev)
+            self.device_io = InputDevice(self.device)
         else:
             raise ValueError("No device name found in configuration.")
 
-
-    def _async_read_event(self, dev):
-        try:
-            self.loop = asyncio.get_event_loop()
-            self.loop.run_until_complete(self._signalcontext(dev))
-        except:
-            pass
-
-    def close(self):
-        if self.loop:
-            self.loop.close()
-
-    async def _signalcontext(self, dev):
-        async for ev in dev.async_read_loop():
-            logging.debug("device event detected")
-            # print(repr(ev)+","+ecodes.KEY[ev.code])
+    def do_work_in_thread(self, is_first_run):
+        """Override"""
+        for ev in self.device_io.read_loop():
+            logging.debug("device event detected "+repr(ev)+","+ecodes.KEY[ev.code])
             if ev.code != 0:
                 new_event = None
                 if ev.code == 165:
@@ -96,3 +90,8 @@ class EventDeviceAgent():
                 if new_event is not None:
                     logging.debug("adding device event to queue")
                     self.context.add_event(new_event)
+
+    def stop(self):
+        if self.loop:
+            self.loop.close()
+        super().stop()

@@ -25,7 +25,7 @@ def clean_exit():
     # the above will send to the current state but not the rest
     # so we also loop through to ensure everything shutsdown cleaning
     if event_device_agent:
-        event_device_agent.close()
+        event_device_agent.stop()
     if app_context:
         app_context.stop()
     logging.debug("making terminal sane again")
@@ -50,7 +50,8 @@ def start_event_device_agent(config, context):
     global event_device_agent
     try:
         event_device_agent = EventDeviceAgent(context, config.get_device())
-        event_device_agent.read_event()
+        event_device_agent.open()
+        event_device_agent.start()
     except Exception as e:
         logging.debug(e)
         if event_device_agent is not None:

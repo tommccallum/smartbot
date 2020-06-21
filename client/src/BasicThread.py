@@ -1,30 +1,17 @@
-import _thread
-import json
-import os
-import logging
 import threading
+import logging
+import _thread
 import time
 
-from actions import blocking_play, inline_action
-from config_io import Configuration
 from event import Event, EventEnum
-from states.state import State
 
 
-class ContinuousState(State):
+class BasicThread():
     """
-        Plays a thread in the background
-        NOT TO BE USED DIRECTLY
-
-        Threading example used is
-        https://topic.alibabacloud.com/a/python-thread-pause-resume-exit-detail-and-example-_python_1_29_20095165.html
+        Basic thread class.
     """
-    def __init__(self,
-                 configuration: Configuration,
-                 personality: "Personality",
-                 state_configuration
-                 ) -> None:
-        super(ContinuousState, self).__init__(configuration, personality, state_configuration)
+    def __init__(self) -> None:
+        super(BasicThread, self).__init__()
         # this is the next state to go to when the user clicks on Next Mode button
         self.running = 0
         self.thread_id = None
@@ -32,6 +19,7 @@ class ContinuousState(State):
         self.thread_pause_flag.set()
         self.thread_running_flag = threading.Event()
         self.thread_running_flag.set()
+        self.thread_delay=0.2
 
     def do_work_in_thread(self, is_first_run):
         """Override"""
@@ -48,7 +36,7 @@ class ContinuousState(State):
             self.do_work_in_thread(first_run)
             first_run = False
             logging.debug("finished work")
-            time.sleep(0.5) # add a minimal amount to existing timer that should be in child class
+            time.sleep(self.thread_delay) # add a minimal amount to existing timer that should be in child class
 
     def _start_thread(self):
         logging.debug("starting")
@@ -73,54 +61,32 @@ class ContinuousState(State):
         self.running = 0
         self.thread_pause_flag.set()
         self.thread_running_flag.clear()
-        threading.join()
+        if self.thread_id is not None:
+            threading.join()
 
-
-    def on_empty(self):
-        if "on_empty" in self.state_config:
-            action = self.state_config["on_empty"]
-        else:
-            action = "There are no tracks available on this playlist."
-        inline_action( action )
-
-    def on_enter(self):
-        if self.state_config is not None:
-            action = self.state_config["on_enter"]
-        else:
-            action = "Welcome, you are listening to {}".format(self.state_config["title"])
-        inline_action(action)
+    def start(self):
+        """ start or resume"""
         if self.thread_id is None:
             self._start_thread()
         else:
             self._resume_thread()
 
+    def stop(self):
+        self._stop_thread()
 
-    def on_exit(self):
+    def pause(self):
         self.waiting_to_pause = 1
         self._pause_thread()
         logging.debug("waiting to complete pause")
         while self.waiting_to_pause == 1:
-            time.sleep(0.2)
-
-    def on_previous_track_down(self):
-        """In this mode, the previous button pauses the currently playing song"""
-        if self.running:
-            self._pause_thread()
-            self.personality.voice_library.say("Pausing, press the same button to continue")
-        else:
-            self._resume_thread()
-
-    def on_play_down(self):
-        logging.debug("trying to move on")
-        self._pause_thread()
-        self.context.transition_to_next()
+            time.sleep(self.thread_delay)
 
     def on_interrupt(self):
         self.waiting_to_pause = 1
         self._pause_thread()
         logging.debug("waiting to complete pause")
         while self.waiting_to_pause == 1:
-            time.sleep(0.2)
+            time.sleep(self.thread_delay)
 
     def on_continue(self):
         self._resume_thread()
