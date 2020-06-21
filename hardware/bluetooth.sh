@@ -308,7 +308,7 @@ while true; do
         echo "Attempting to select a2dp_sink profile for card ${CARD}"
         pactl set-card-profile ${CARD} a2dp_sink
         if [ $? -gt 0 ]; then
-          echo "[ERROR] Failed ot set card ${CARD} profile to a2dp_sink"
+          echo "[ERROR] Failed to set card ${CARD} profile to a2dp_sink"
           NEW_CONNECTION=0
           sudo bluetoothctl disconnect "${BLUETOOTH_DEVICE}"
           echo $(restart_pulseaudio) >/dev/null
@@ -345,8 +345,8 @@ while true; do
   CURRENT_SINKS=$(pactl list sink-inputs | grep "Sink:" | awk '{print $2}')
 
   for ii in "${!INPUTS[@]}"; do
-    input=${INPUTS[ii]}
-    current_sink=${CURRENT_SINKS[ii]}
+    input=${INPUTS[$ii]}
+    current_sink=${CURRENT_SINKS[$ii]}
     if [ "x${input}" != "x" ]; then
       if [ ${current_sink} -ne $PULSE_SINK ]; then
         echo "Moving Sink Input #${input} from ${current_sink} to $PULSE_SINK"
