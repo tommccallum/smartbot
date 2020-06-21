@@ -62,9 +62,12 @@ class EventDeviceAgent(BasicThread):
         """Override"""
         if self.device_io is None:
             try:
+                logging.debug("attempting to reopen device {}".format(self.device))
                 self.open()
                 logging.debug("reconnected to virtual device")
             except:
+                logging.debug("attempt failed, try again in a bit")
+                self.device_io = None
                 pass
         if self.device_io is None:
             time.sleep(1)
