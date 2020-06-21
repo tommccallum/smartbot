@@ -53,6 +53,7 @@ class UserContext(BluetoothSpeakerHandler):
 
     def start(self):
         """Call this to start the various states that have been enabled"""
+        self.check_connected()
         self._current_state_index = 0
         self.transition_to(self._state_objects[self._current_state_index])
 
@@ -234,17 +235,7 @@ class UserContext(BluetoothSpeakerHandler):
         """this will be coming in to a separate thread!"""
         self.add_event(event)
 
-
-    def update(self):
-        """
-        Should be called in an infinite loop
-        :return:
-        """
-        if self.ignore_messages:
-            """
-            If this is true we are in a sensitive area and we don't want to be interrupted
-            """
-            return True
+    def check_connected(self):
         if not is_bluetooth_speaker_connected():
             ## pause everything
             logging.debug("detected speaker is not connected")
@@ -258,6 +249,18 @@ class UserContext(BluetoothSpeakerHandler):
             ev = Event(EventEnum.DEVICE_RECONNECTED)
             self._notify(ev)
 
+
+    def update(self):
+        """
+        Should be called in an infinite loop
+        :return:
+        """
+        if self.ignore_messages:
+            """
+            If this is true we are in a sensitive area and we don't want to be interrupted
+            """
+            return True
+        self.check_connected()
         if self.keyboard_thread is None:
             self.keyboard_thread = KeyboardListener()
             self.keyboard_thread.add_listener(self)
