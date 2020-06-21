@@ -123,23 +123,23 @@ if __name__ == "__main__":
     terminal_old_settings = termios.tcgetattr(sys.stdin)
     app_config, local_context = app_init()
     globalvars.app_context = local_context
-    app_context._listeners.append(MainListener(app_config, app_context))
+    app_context._listeners.append(MainListener(app_config, globalvars.app_context))
 
     # begin listening to device events such as
     # vol up, vol down etc.
     # this should throw an exception if /dev/input/eventN location
     # is not found
-    start_event_device_agent(app_config,app_context)
+    start_event_device_agent(app_config,globalvars.app_context)
     # start listening to bluetooth events
     # read_fifo_in_thread(app_context.bluetooth_event_fifo, app_context)
     # start main loop through states
-    app_context.start()
+    globalvars.app_context.start()
     app_config.alarm.start();
     # scanner for LE bluetooth devices needs to run as root
     # so we listen to a FIFO for an indication of who's here
     while True:
         #logging.debug("listening")
-        if not app_context.update():
+        if not globalvars.app_context.update():
             break
         # sleep the main process
         time.sleep(0.25)
