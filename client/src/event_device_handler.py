@@ -24,6 +24,7 @@ class EventDeviceAgent(BasicThread):
     """
 
     def __init__(self, context, name):
+        super().__init__()
         self.context = context
         self.name = name
         self.loop = None
