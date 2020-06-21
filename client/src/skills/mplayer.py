@@ -113,16 +113,16 @@ class MPlayer:
             return True
         try:
             # at end mplayer stays as a zombie process - why?
-            logging.debug("Test if exec and mplayer are finished")
+            #logging.debug("Test if exec and mplayer are finished")
             self.mplayer_process.poll()
             parent = psutil.Process(self.mplayer_process.pid)
             for child in parent.children(recursive=True):
-                logging.debug("testing child {}-{}".format(child.ppid,child.pid))
+                #logging.debug("testing child {}-{}".format(child.ppid,child.pid))
                 os.kill(child.pid, 0)
             os.kill(parent.pid,0)
-            logging.debug("{} exists".format(self.mplayer_process.pid))
+            #logging.debug("{} exists".format(self.mplayer_process.pid))
         except:
-            logging.debug("{} does not exist".format(self.mplayer_process.pid))
+            #logging.debug("{} does not exist".format(self.mplayer_process.pid))
             self.state = MPlayer.STATE_STOPPED
             return True     # pid does not exist
         return False    # pid does exist

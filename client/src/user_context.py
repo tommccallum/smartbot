@@ -2,7 +2,8 @@ from bluetooth_speaker_handler import BluetoothSpeakerHandler
 from fifo import read_fifo_nonblocking
 from keyboard_thread import KeyboardListener
 from states.state import State
-from event import Event, EventEnum, EVENT_KEY_UP, EVENT_KEY_RIGHT, EVENT_KEY_LEFT, EVENT_KEY_Q
+from event import Event, EventEnum, EVENT_KEY_UP, EVENT_KEY_RIGHT, EVENT_KEY_LEFT, EVENT_KEY_Q, EVENT_BUTTON_PLAY, \
+    EVENT_BUTTON_NEXT, EVENT_BUTTON_PREV
 import logging
 import threading
 import queue
@@ -49,6 +50,19 @@ class UserContext(BluetoothSpeakerHandler):
         """Call this to start the various states that have been enabled"""
         self._current_state_index = 0
         self.transition_to(self._state_objects[self._current_state_index])
+
+    def stop(self):
+        quit_ev = Event(EventEnum.QUIT)
+        if self.keyboard_thread:
+            self.keyboard_thread.stop()
+        self.add_event(quit_ev)
+        # the above will send to the current state but not the rest
+        # so we also loop through to ensure everything shutsdown cleaning
+        for s in self._state_objects:
+            if s != self._state:
+                s.notify(quit_ev)
+        if self.configuration.alarm:
+            self.configuration.alarm.stop()
 
     def transition_to_first(self):
         """Transition to the first state"""
@@ -162,15 +176,15 @@ class UserContext(BluetoothSpeakerHandler):
                 if event.data == EVENT_KEY_LEFT:
                     self._state.on_previous_track_down()
                 if event.data == EVENT_KEY_Q:
-                    quit_ev = Event(EventEnum.QUIT)
-                    if self.keyboard_thread:
-                        self.keyboard_thread.stop()
-                    self.add_event(quit_ev)
-                    # the above will send to the current state but not the rest
-                    # so we also loop through to ensure everything shutsdown cleaning
-                    for s in self._state_objects:
-                        if s != self._state:
-                            s.notify(quit_ev)
+                    self.stop()
+            elif event.id == EventEnum.BUTTON_DOWN:
+                logging.debug("device event detected")
+                if event.data == EVENT_BUTTON_PLAY:
+                    self._state.on_play_down()
+                if event.data == EVENT_BUTTON_NEXT:
+                    self._state.on_next_track_down()
+                if event.data == EVENT_BUTTON_PREV:
+                    self._state.on_previous_track_down()
 
             elif event.id == EventEnum.QUIT:
                 ## shut everything down

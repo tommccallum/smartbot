@@ -1,6 +1,8 @@
 """
 use evtest to explore /dev/input/event device signals
 """
+import logging
+
 from evdev import ecodes, InputDevice, categorize, list_devices
 from debug_context import DebugContext
 from event import Event, EventEnum, EVENT_BUTTON_PREV, EVENT_BUTTON_NEXT, EVENT_BUTTON_PLAY
@@ -63,6 +65,7 @@ class EventDeviceAgent(threading.Thread):
 
     async def _signalcontext(self, dev):
         async for ev in dev.async_read_loop():
+            logging.debug("device event detected")
             # print(repr(ev)+","+ecodes.KEY[ev.code])
             if ev.code != 0:
                 new_event = None
@@ -88,4 +91,5 @@ class EventDeviceAgent(threading.Thread):
                         new_event = Event(EventEnum.BUTTON_DOWN)
                         new_event.data = EVENT_BUTTON_PLAY;
                 if new_event is not None:
+                    logging.debug("adding device event to queue")
                     self.context.add_event(new_event)

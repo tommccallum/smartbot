@@ -78,7 +78,7 @@ class PlaylistStreamState(State):
         if self.current_track and self.mplayer:
             values["user_state"]["track"] = self.current_track
             values["user_state"]["seek"] = self.mplayer.get_play_duration()
-        logging.debug("saving state as {}".format(values["user_state"]))
+        #logging.debug("saving state as {}".format(values["user_state"]))
         return values
 
     def get_track_count(self):

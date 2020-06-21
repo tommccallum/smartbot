@@ -16,10 +16,18 @@ from fifo import make_fifo, read_fifo_in_thread
 
 
 terminal_old_settings = None
+app_config = None
+event_device_agent = None
 
 @atexit.register
 def clean_exit():
     logging.debug("clean exit")
+    # the above will send to the current state but not the rest
+    # so we also loop through to ensure everything shutsdown cleaning
+    if event_device_agent:
+        event_device_agent.close()
+    if app_config:
+        app_config.stop()
     logging.debug("making terminal sane again")
     if terminal_old_settings:
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, terminal_old_settings)
@@ -39,16 +47,16 @@ def app_init(config_path=None):
 
 
 def start_event_device_agent(config, context):
-    ev = None
+    global event_device_agent
     try:
-        ev = EventDeviceAgent(context, config.get_device())
-        ev.read_event()
+        event_device_agent = EventDeviceAgent(context, config.get_device())
+        event_device_agent.read_event()
     except Exception as e:
         logging.debug(e)
-    finally:
-        if ev is not None:
+        if event_device_agent is not None:
             logging.debug("closing EventDeviceAgent")
-            ev.close()
+            event_device_agent.close()
+        event_device_agent = None
 
 from event import EventEnum, Event
 

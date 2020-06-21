@@ -65,7 +65,7 @@ class Alarm:
     def _timer(self):
         """This is the callback function which is run each second"""
         if self._running:
-            logging.debug("{} Schedule wokeup, next job is {}".format(datetime.now(), schedule.next_run()))
+            #logging.debug("{} Schedule wokeup, next job is {}".format(datetime.now(), schedule.next_run()))
             schedule.run_pending()
             if schedule.next_run() is None:
                 logging.info("no jobs to run, stopping scheduler")
