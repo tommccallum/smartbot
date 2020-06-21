@@ -15,7 +15,7 @@ curl -X GET -H "Content-type: application/json" -H "Accept: application/json" "h
 
 COUNTER=1
 while true; do
-  TEST_FILE="$LOCATION/$FILENAME_$COUNTER.$EXTENSION"
+  TEST_FILE="${LOCATION}/${FILENAME}_${COUNTER}.${EXTENSION}"
   if [ -e "$TEST_FILE" ]
   then
     ANY_DIFF=$( diff "$TMPFILE" "$TEST_FILE" | wc -l )
