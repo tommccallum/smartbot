@@ -203,7 +203,7 @@ class MPlayer:
 
                 ## we don't trust this so we are going to do a hacky shell check as well
                 ## we are looking for any mplayer processes that have our fifo file attached
-                cmd = "ps aux | grep mplayer | grep '{}' | grep -v grep | awk '{print $2}'".format(self.fifo)
+                cmd = "ps aux | grep mplayer | grep '{}' | grep -v grep | awk '{print \\\\$2}'".format(self.fifo)
                 output = subprocess.check_output(cmd, shell=True)
                 pids = output.decode("utf-8").split("\n")
                 if len(pids) > 0:
