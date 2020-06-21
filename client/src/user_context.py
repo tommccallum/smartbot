@@ -54,6 +54,10 @@ class UserContext(BluetoothSpeakerHandler):
     def start(self):
         """Call this to start the various states that have been enabled"""
         self.check_connected()
+        if self.keyboard_thread is None:
+            self.keyboard_thread = KeyboardListener()
+            self.keyboard_thread.add_listener(self)
+            self.keyboard_thread.start()
         self._current_state_index = 0
         self.transition_to(self._state_objects[self._current_state_index])
 
