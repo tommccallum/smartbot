@@ -63,7 +63,10 @@
             "type": "facts",
             "title": "Funky Facts",
             "filename":"facts.json",
-            "on_enter": "Here are some funky facts.",
+            "on_enter": {
+                "type":"sound",
+                "path":"%HOME%/smartbot/sounds/gojetters-funkyfacts.wav"
+            },
             "on_empty": "There are no funky facts available."
         }
     ],
