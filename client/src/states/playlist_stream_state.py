@@ -191,7 +191,7 @@ class PlaylistStreamState(State):
             logging.debug("asked to play next track when mplayer was still stopping")
             time.sleep(3) # hack!
 
-        self.personality.context.ignore_messages = True
+        self.configuration.context.ignore_messages = True
         if self.mplayer.is_playing():
             logging.debug("mplayer is playing, quick load")
             if track is None:
