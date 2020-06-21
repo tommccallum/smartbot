@@ -10,11 +10,8 @@ import logging
 from evdev import ecodes, InputDevice, categorize, list_devices
 
 from BasicThread import BasicThread
-from debug_context import DebugContext
 from event import Event, EventEnum, EVENT_BUTTON_PREV, EVENT_BUTTON_NEXT, EVENT_BUTTON_PLAY
-import asyncio
-import threading
-
+import time
 
 class EventDeviceAgent(BasicThread):
     """
@@ -63,41 +60,56 @@ class EventDeviceAgent(BasicThread):
 
     def do_work_in_thread(self, is_first_run):
         """Override"""
-        for ev in self.device_io.read_loop():
-            if ev.code != 0:
-                logging.debug("device event detected " + repr(ev) + "," + ecodes.KEY[ev.code])
-                new_event = None
-                if ev.code == 165:
-                    if ev.value == 1:
-                        new_event = Event(EventEnum.BUTTON_DOWN)
-                        new_event.data = EVENT_BUTTON_PREV;
-                    else:
-                        new_event = Event(EventEnum.BUTTON_UP)
-                        new_event.data = EVENT_BUTTON_PREV;
-                if ev.code == 163:
-                    if ev.value == 1:
-                        new_event = Event(EventEnum.BUTTON_DOWN)
-                        new_event.data = EVENT_BUTTON_NEXT;
-                    else:
-                        new_event = Event(EventEnum.BUTTON_UP)
-                        new_event.data = EVENT_BUTTON_NEXT;
-                if ev.code == 200: # KEY_PLAYCD
-                    if ev.value == 1:
-                        new_event = Event(EventEnum.BUTTON_DOWN)
-                        new_event.data = EVENT_BUTTON_PLAY;
-                    else:
-                        new_event = Event(EventEnum.BUTTON_UP)
-                        new_event.data = EVENT_BUTTON_PLAY;
-                if ev.code == 201: # KEY_PAUSECD but we use it to change mode as well
-                    if ev.value == 1:
-                        new_event = Event(EventEnum.BUTTON_DOWN)
-                        new_event.data = EVENT_BUTTON_PLAY;
-                    else:
-                        new_event = Event(EventEnum.BUTTON_UP)
-                        new_event.data = EVENT_BUTTON_PLAY;
-                if new_event is not None:
-                    logging.debug("adding device event to queue")
-                    self.context.add_event(new_event)
+        if self.device_io is None:
+            try:
+                self.open()
+                logging.debug("reconnected to virtual device")
+            except:
+                pass
+        if self.device_io is None:
+            time.sleep(1)
+            return
+        try:
+            for ev in self.device_io.read_loop():
+                if ev.code != 0:
+                    logging.debug("device event detected " + repr(ev) + "," + ecodes.KEY[ev.code])
+                    new_event = None
+                    if ev.code == 165:
+                        if ev.value == 1:
+                            new_event = Event(EventEnum.BUTTON_DOWN)
+                            new_event.data = EVENT_BUTTON_PREV;
+                        else:
+                            new_event = Event(EventEnum.BUTTON_UP)
+                            new_event.data = EVENT_BUTTON_PREV;
+                    if ev.code == 163:
+                        if ev.value == 1:
+                            new_event = Event(EventEnum.BUTTON_DOWN)
+                            new_event.data = EVENT_BUTTON_NEXT;
+                        else:
+                            new_event = Event(EventEnum.BUTTON_UP)
+                            new_event.data = EVENT_BUTTON_NEXT;
+                    if ev.code == 200: # KEY_PLAYCD
+                        if ev.value == 1:
+                            new_event = Event(EventEnum.BUTTON_DOWN)
+                            new_event.data = EVENT_BUTTON_PLAY;
+                        else:
+                            new_event = Event(EventEnum.BUTTON_UP)
+                            new_event.data = EVENT_BUTTON_PLAY;
+                    if ev.code == 201: # KEY_PAUSECD but we use it to change mode as well
+                        if ev.value == 1:
+                            new_event = Event(EventEnum.BUTTON_DOWN)
+                            new_event.data = EVENT_BUTTON_PLAY;
+                        else:
+                            new_event = Event(EventEnum.BUTTON_UP)
+                            new_event.data = EVENT_BUTTON_PLAY;
+                    if new_event is not None:
+                        logging.debug("adding device event to queue")
+                        self.context.add_event(new_event)
+        except OSError as err:
+            ## mostly likely we lost the device
+            logging.debug(err)
+            self.device_io = None
+
 
     def stop(self):
         if self.loop:

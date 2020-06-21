@@ -82,6 +82,13 @@ class PlaylistStreamState(State):
         #logging.debug("saving state as {}".format(values["user_state"]))
         return values
 
+    def notify(self, event):
+        if event.id == EventEnum.DEVICE_FOUND:
+            self._restart_where_we_left_off()
+        elif event.id == EventEnum.DEVICE_LOST:
+            self._save_state()
+            self.mplayer.stop()
+
     def get_track_count(self):
         return self.playlist.size()
 
@@ -107,7 +114,10 @@ class PlaylistStreamState(State):
             self.personality.voice_library.say(self.state_config["on_enter"])
         else:
             self.personality.voice_library.say("Welcome, you will be now listening to live radio")
+        self._restart_where_we_left_off()
+        self.has_entry_completed = True
 
+    def _restart_where_we_left_off(self):
         # load an existing state if one exists
         seek = 0
         track = None
@@ -124,7 +134,6 @@ class PlaylistStreamState(State):
                     self.current_track = track
                     self.playlist.set_current(track)
         self._play_next_track(track, seek)
-        self.has_entry_completed = True
 
     def on_exit(self):
         logging.debug("state exiting")

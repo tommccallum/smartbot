@@ -249,12 +249,14 @@ class UserContext(BluetoothSpeakerHandler):
             ## pause everything
             logging.debug("detected speaker is not connected")
             logging.debug("pausing current state")
-            self._state.on_previous_track_down()
+            ev = Event(Event.DEVICE_LOST)
+            self.notify(ev)
             logging.debug("blocking thread until speaker is reconnected, checking every second")
             while not is_bluetooth_speaker_connected():
                 time.sleep(1)
             logging.debug("speaker has been reconnected, continuing")
-            self._state.on_previous_track_down()
+            ev = Event(Event.DEVICE_RECONNECTED)
+            self.notify(ev)
 
         if self.keyboard_thread is None:
             self.keyboard_thread = KeyboardListener()
