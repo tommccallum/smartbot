@@ -210,7 +210,7 @@ class MPlayer:
                 if len(pids) > 0:
                     for pid in pids:
                         logging.debug("killing process {} as it should be dead".format(pid))
-                        os.kill( pid, signal.SIGKILL )
+                        os.kill( int(pid), signal.SIGKILL )
 
         except Exception as e:
             logging.debug(e)
