@@ -1,5 +1,6 @@
 import os
 import subprocess
+from main import app_context
 
 
 def blocking_play(path):

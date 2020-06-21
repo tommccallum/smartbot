@@ -12,7 +12,7 @@ from event_device_handler import EventDeviceAgent
 from personality import Personality
 from user_context import UserContext
 from fifo import make_fifo, read_fifo_in_thread
-
+from event import EventEnum, Event
 
 
 terminal_old_settings = None
@@ -60,7 +60,6 @@ def start_event_device_agent(config, context):
             event_device_agent.close()
         event_device_agent = None
 
-from event import EventEnum, Event
 
 class MainListener:
     """Hack class to get working"""

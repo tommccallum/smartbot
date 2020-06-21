@@ -61,8 +61,6 @@ class BasicThread():
         self.running = 0
         self.thread_pause_flag.set()
         self.thread_running_flag.clear()
-        if self.thread_id is not None:
-            threading.join()
 
     def start(self):
         """ start or resume"""

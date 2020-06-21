@@ -73,7 +73,6 @@ class ContinuousState(State):
         self.running = 0
         self.thread_pause_flag.set()
         self.thread_running_flag.clear()
-        threading.join()
 
 
     def on_empty(self):
