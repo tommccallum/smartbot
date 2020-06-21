@@ -51,6 +51,14 @@ function remove_lockfile() {
   fi
 }
 
+function evtest_and_exit() {
+    local evtest_pid
+    evtest /dev/input/event$i &
+    evtest_pid=$!
+    sleep 1  # give evtest time to produce output
+    kill $evtest_pid
+}
+
 remove_lockfile
 
 echo "User: ${USER}"
@@ -75,6 +83,7 @@ NEW_CONNECTION=0
 while true; do
 
   IS_CONNECTED=$(hcitool con | grep "${BLUETOOTH_DEVICE}" | wc -l)
+
   if [ ${IS_CONNECTED} -eq 0 ]; then
     #
     #   FULL_CONNECT_REQUIRED if device is not paired OR error 107 OR see 10 errors that are not resolved
@@ -357,16 +366,30 @@ while true; do
   ## kernel: input: D0:8A:55:00:9C:27 as /devices/virtual/input/input8
   ## this seems to take a bit of time to do so lets sleep for another 2
   msg "Checking virtual device has been setup properly"
-  sleep 2
-  A2DP_INPUT=$(journalctl --since "${WHEN_START}" | grep kernel | grep "${BLUETOOTH_DEVICE}" | grep "input:" | grep "as /devices/virtual/input" | wc -l)
-  if [ ${A2DP_INPUT} -eq 0 ]; then
-    ## hmmm.. something not quite right, lets try again as we do not have proper control
-    echo "Failed to find virtual input for bluetooth device, reconnecting"
-    NEW_CONNECTION=0
-    sudo bluetoothctl disconnect "${BLUETOOTH_DEVICE}"
-    echo $(restart_pulseaudio) >/dev/null
-    sleep 1
-    continue
+  VIRTUAL_INPUT=""
+  VIRTUAL_INPUT_PATHS=$( find /dev/input -iname "event*" )
+  for v in "${VIRTUAL_INPUT_PATHS[@]}":
+  do
+    CHECK_INPUT=$( timeout 1 evtest $v | head -n 3 | grep "${BLUETOOTH_DEVICE}" | wc -l )
+    if [ $CHECK_INPUT -gt 0 ]
+    then
+      VIRTUAL_INPUT=$v
+      break
+    fi
+  done
+  if [ "x$VIRTUAL_INPUT" == "x" ]
+  then
+    sleep 2
+    A2DP_INPUT=$(journalctl --since "${WHEN_START}" | grep kernel | grep "${BLUETOOTH_DEVICE}" | grep "input:" | grep "as /devices/virtual/input" | wc -l)
+    if [ ${A2DP_INPUT} -eq 0 ]; then
+      ## hmmm.. something not quite right, lets try again as we do not have proper control
+      echo "Failed to find virtual input for bluetooth device, reconnecting"
+      NEW_CONNECTION=0
+      sudo bluetoothctl disconnect "${BLUETOOTH_DEVICE}"
+      echo $(restart_pulseaudio) >/dev/null
+      sleep 1
+      continue
+    fi
   fi
 
   if [ $NEW_CONNECTION -gt 0 ]; then
