@@ -61,8 +61,8 @@ class UserContext(BluetoothSpeakerHandler):
         for s in self._state_objects:
             if s != self._state:
                 s.notify(quit_ev)
-        if self.configuration.alarm:
-            self.configuration.alarm.stop()
+        if self.personality.config.alarm:
+            self.personality.config.alarm.stop()
 
     def transition_to_first(self):
         """Transition to the first state"""
