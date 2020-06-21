@@ -87,7 +87,7 @@ class PlaylistStreamState(State):
         if event.id == EventEnum.DEVICE_RECONNECTED:
             self._restart_where_we_left_off()
         elif event.id == EventEnum.DEVICE_LOST:
-            self.save()
+            self.checkpoint(True)
             self.mplayer.stop()
 
     def get_track_count(self):
@@ -228,16 +228,16 @@ class PlaylistStreamState(State):
             self.mplayer.play()
         self.configuration.context.ignore_messages = False
 
-    def checkpoint(self):
+    def checkpoint(self, force=False):
         """
         Save user state every 5 seconds
         :return:
         """
         if self.mplayer.is_playing():
-            if self.last_checkpoint is None:
+            if self.last_checkpoint is None or force:
                 self._save()
                 self.last_checkpoint = time.time()
-            if time.time() - self.last_checkpoint > 5:
+            elif time.time() - self.last_checkpoint > 5:
                 self._save()
                 self.last_checkpoint = time.time()
 
