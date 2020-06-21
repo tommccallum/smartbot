@@ -83,7 +83,8 @@ class PlaylistStreamState(State):
         return values
 
     def notify(self, event):
-        if event.id == EventEnum.DEVICE_FOUND:
+        super().notify(event)
+        if event.id == EventEnum.DEVICE_RECONNECTED:
             self._restart_where_we_left_off()
         elif event.id == EventEnum.DEVICE_LOST:
             self._save_state()
