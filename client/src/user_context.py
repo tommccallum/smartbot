@@ -244,6 +244,7 @@ class UserContext(BluetoothSpeakerHandler):
             self._notify(ev)
             logging.debug("blocking thread until speaker is reconnected, checking every second")
             while not is_bluetooth_speaker_connected():
+                logging.debug("checking...")
                 time.sleep(1)
             logging.debug("speaker has been reconnected, continuing")
             ev = Event(EventEnum.DEVICE_RECONNECTED)
