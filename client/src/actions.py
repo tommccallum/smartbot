@@ -3,11 +3,20 @@ import subprocess
 import globalvars
 
 
+def expand_path(path):
+    config = globalvars.app_context.personality.config
+    if config.home_path is not None:
+        path = path.replace("%HOME%", config.home_path)
+    if config.config_path is not None:
+        path = path.replace("%CONFIG%", config.config_path)
+    return path
+
 def blocking_play(path):
     """
     Use aplay or mplayer to directly play a sound effect, this will block until
     the sound is played, so don't make it too long
     """
+    path = expand_path(path)
     (rest, ext) = os.path.splitext(path)
     if os.path.isfile(path):
         if ext == "wav":
