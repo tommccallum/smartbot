@@ -38,6 +38,8 @@ class EventDeviceAgent(BasicThread):
             self.device = None
             print("Device name is none, setting device handle to None")
             return
+
+    def _find_input_device(self):
         for path in list_devices():
             input_dev = InputDevice(path)
             if input_dev.name == self.name:
@@ -60,6 +62,15 @@ class EventDeviceAgent(BasicThread):
 
     def do_work_in_thread(self, is_first_run):
         """Override"""
+        if self.device is None:
+            try:
+                self._find_input_device()
+            except:
+                pass
+            if self.device is None:
+                logging.debug("device not found yet, will try again in a bit")
+                time.sleep(1)
+                return
         if self.device_io is None:
             try:
                 logging.debug("attempting to reopen device {}".format(self.device))
