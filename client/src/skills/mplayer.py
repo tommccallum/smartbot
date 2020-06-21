@@ -200,6 +200,17 @@ class MPlayer:
                 self.mplayer_process.send_signal(signal.SIGINT)
                 logging.debug("waiting for process to complete")
                 self.mplayer_process.wait()
+
+                ## we don't trust this so we are going to do a hacky shell check as well
+                ## we are looking for any mplayer processes that have our fifo file attached
+                cmd = "ps aux | grep mplayer | grep '{}' | grep -v grep | awk '{print $2}'".format(self.fifo)
+                output = subprocess.check_output(cmd, shell=True)
+                pids = output.decode("utf-8").split("\n")
+                if len(pids) > 0:
+                    for pid in pids:
+                        logging.debug("killing process {} as it should be dead".format(pid))
+                        os.kill( pid, signal.SIGKILL )
+
         except Exception as e:
             logging.debug(e)
         finally:
