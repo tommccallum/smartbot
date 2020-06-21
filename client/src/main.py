@@ -15,6 +15,7 @@ from fifo import make_fifo, read_fifo_in_thread
 from event import EventEnum, Event
 from globals import app_context
 
+global app_context
 terminal_old_settings = None
 app_config = None
 event_device_agent = None

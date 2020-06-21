@@ -2,6 +2,8 @@ import os
 import subprocess
 from globals import app_context
 
+global app_context
+
 
 def blocking_play(path):
     """
