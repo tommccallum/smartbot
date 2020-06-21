@@ -7,8 +7,12 @@ from event import Event, EventEnum, EVENT_KEY_UP, EVENT_KEY_RIGHT, EVENT_KEY_LEF
 import logging
 import threading
 import queue
+import os
+import time
+SPEAKER_LOCK_FILE="/tmp/smartbot_connected.lock"
 
-
+def is_bluetooth_speaker_connected():
+    return os.path.isfile(SPEAKER_LOCK_FILE)
 
 class UserContext(BluetoothSpeakerHandler):
     """Main interface to client"""
@@ -241,6 +245,12 @@ class UserContext(BluetoothSpeakerHandler):
             If this is true we are in a sensitive area and we don't want to be interrupted
             """
             return True
+        if not is_bluetooth_speaker_connected():
+            logging.debug("blocking thread until speaker is reconnected, checking every second")
+            while not is_bluetooth_speaker_connected():
+                time.sleep(1)
+            logging.debug("speaker has been reconnected, continuing")
+
         if self.keyboard_thread is None:
             self.keyboard_thread = KeyboardListener()
             self.keyboard_thread.add_listener(self)
