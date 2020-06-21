@@ -209,8 +209,9 @@ class MPlayer:
                 pids = output.decode("utf-8").split("\n")
                 if len(pids) > 0:
                     for pid in pids:
-                        logging.debug("killing process {} as it should be dead".format(pid))
-                        os.kill( int(pid), signal.SIGKILL )
+                        if pid != "":
+                            logging.debug("killing process {} as it should be dead".format(pid))
+                            os.kill( int(pid), signal.SIGKILL )
 
         except Exception as e:
             logging.debug(e)
