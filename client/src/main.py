@@ -119,8 +119,10 @@ if __name__ == "__main__":
     #
     # Main App
     #
+    global app_context
     terminal_old_settings = termios.tcgetattr(sys.stdin)
-    app_config, app_context = app_init()
+    app_config, local_context = app_init()
+    app_context = local_context
     app_context._listeners.append(MainListener(app_config, app_context))
 
     # begin listening to device events such as
