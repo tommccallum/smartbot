@@ -87,7 +87,7 @@ class PlaylistStreamState(State):
         if event.id == EventEnum.DEVICE_RECONNECTED:
             self._restart_where_we_left_off()
         elif event.id == EventEnum.DEVICE_LOST:
-            self._save_state()
+            self.save()
             self.mplayer.stop()
 
     def get_track_count(self):
