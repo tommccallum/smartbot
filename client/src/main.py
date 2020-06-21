@@ -13,7 +13,7 @@ from personality import Personality
 from user_context import UserContext
 from fifo import make_fifo, read_fifo_in_thread
 from event import EventEnum, Event
-from globals import app_context
+import globalvars
 
 global app_context
 terminal_old_settings = None
@@ -120,10 +120,9 @@ if __name__ == "__main__":
     #
     # Main App
     #
-    global app_context
     terminal_old_settings = termios.tcgetattr(sys.stdin)
     app_config, local_context = app_init()
-    app_context = local_context
+    globalvars.app_context = local_context
     app_context._listeners.append(MainListener(app_config, app_context))
 
     # begin listening to device events such as

@@ -1,8 +1,6 @@
 import os
 import subprocess
-from globals import app_context
-
-global app_context
+import globalvars
 
 
 def blocking_play(path):
@@ -29,14 +27,13 @@ def inline_action(item, default=None):
     :param default:     what to do if no item given
     :return:
     """
-    global app_context
     if item is None:
         if default is None:
             return False
         else:
             item = default
     if type(item) is str:
-        app_context.personality.voice_library.say(item)
+        globalvars.app_context.personality.voice_library.say(item)
         return True
     elif type(item) is dict:
         if "type" in item:
@@ -48,7 +45,7 @@ def inline_action(item, default=None):
                     return False
             if item["type"].lower() == "speech":
                 if "text" in item:
-                    app_context.personality.voice_library.say(item)
+                    globalvars.app_context.personality.voice_library.say(item)
                     return True
                 else:
                     return False
