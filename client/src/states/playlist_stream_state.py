@@ -29,6 +29,7 @@ class PlaylistStreamState(State):
         self.playlist = None
         self.playlist_config = None
         self.last_checkpoint = None
+        self.has_entry_completed = False
 
         print("Creating a PlaylistStreamState")
         self.mplayer = MPlayer(configuration)
@@ -123,6 +124,7 @@ class PlaylistStreamState(State):
                     self.current_track = track
                     self.playlist.set_current(track)
         self._play_next_track(track, seek)
+        self.has_entry_completed = True
 
     def on_exit(self):
         logging.debug("state exiting")
@@ -189,6 +191,7 @@ class PlaylistStreamState(State):
             logging.debug("asked to play next track when mplayer was still stopping")
             time.sleep(3) # hack!
 
+        self.personality.context.ignore_messages = True
         if self.mplayer.is_playing():
             logging.debug("mplayer is playing, quick load")
             if track is None:
@@ -213,6 +216,7 @@ class PlaylistStreamState(State):
         elif self.mplayer.is_paused():
             logging.debug("mplayer is paused, play")
             self.mplayer.play()
+        self.personality.context.ignore_messages = False
 
     def checkpoint(self):
         """
@@ -230,5 +234,6 @@ class PlaylistStreamState(State):
     def is_finished(self):
         self.checkpoint()
         if self.mplayer.is_finished():
-            self.on_next_track_down()
+            if self.playlist.size() > 0: # we want to stop it infinitely repeating its got no entries
+                self.on_next_track_down()
         return False

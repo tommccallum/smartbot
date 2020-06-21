@@ -26,6 +26,7 @@ class UserContext(BluetoothSpeakerHandler):
         self.interrupted = False
         self.interrupted_state = []
         self.bluetooth_event_fifo = None
+        self.ignore_messages = False
         self.queue = queue.Queue()
         self.thread_id = threading.get_ident()
         self.keyboard_thread = None
@@ -235,6 +236,11 @@ class UserContext(BluetoothSpeakerHandler):
         Should be called in an infinite loop
         :return:
         """
+        if self.ignore_messages:
+            """
+            If this is true we are in a sensitive area and we don't want to be interrupted
+            """
+            return True
         if self.keyboard_thread is None:
             self.keyboard_thread = KeyboardListener()
             self.keyboard_thread.add_listener(self)
