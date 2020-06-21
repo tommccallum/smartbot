@@ -70,7 +70,7 @@ class FactsState(ContinuousState):
         if "*" in full_path:
             counter = 1
             while True:
-                p = full_path.replace("*",counter)
+                p = full_path.replace("*",str(counter))
                 if os.path.isfile(p):
                     valid_files.append(p)
                 else:
