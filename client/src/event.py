@@ -24,7 +24,6 @@ class EventEnum(Enum):
     KEY_PRESS=10,
     BUTTON_DOWN=11,
     BUTTON_UP=12,
-    DEVICE_LOST=13,
     DEVICE_RECONNECTED=14,
     QUIT=255
 
