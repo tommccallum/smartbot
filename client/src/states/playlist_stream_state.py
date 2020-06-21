@@ -216,7 +216,7 @@ class PlaylistStreamState(State):
         elif self.mplayer.is_paused():
             logging.debug("mplayer is paused, play")
             self.mplayer.play()
-        self.personality.context.ignore_messages = False
+        self.configuration.context.ignore_messages = False
 
     def checkpoint(self):
         """
