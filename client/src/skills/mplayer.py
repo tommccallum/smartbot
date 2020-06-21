@@ -63,8 +63,9 @@ class MPlayer:
         Stop play timer and get value
         :return:
         """
-        duration = time.time() - self.last_start_play
-        self.play_duration += duration
+        if self.last_start_play:
+            duration = time.time() - self.last_start_play
+            self.play_duration += duration
         return self.play_duration
 
     def get_play_duration(self):

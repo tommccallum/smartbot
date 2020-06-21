@@ -56,8 +56,11 @@ class EventDeviceAgent():
 
 
     def _async_read_event(self, dev):
-        self.loop = asyncio.get_event_loop()
-        self.loop.run_until_complete(self._signalcontext(dev))
+        try:
+            self.loop = asyncio.get_event_loop()
+            self.loop.run_until_complete(self._signalcontext(dev))
+        except:
+            pass
 
     def close(self):
         if self.loop:
