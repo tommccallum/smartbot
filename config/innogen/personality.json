@@ -62,7 +62,7 @@
         {
             "type": "facts",
             "title": "Funky Facts",
-            "filename":"facts.json",
+            "filename":"facts_*.json",
             "on_enter": {
                 "type":"sound",
                 "path":"%HOME%/smartbot/sounds/gojetters-funkyfacts.wav"

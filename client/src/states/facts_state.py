@@ -6,6 +6,7 @@ import signal
 import threading
 import time
 
+
 from config_io import Configuration
 from html_stripper import strip_tags
 from states.continuous_state import ContinuousState
@@ -44,6 +45,8 @@ class FactsState(ContinuousState):
         if not "filename" in self.state_config:
             return None
         full_path = os.path.join(self.configuration.get_config_path(), self.state_config["filename"])
+        all_fact_files=self.get_all_fact_files(full_path)
+        full_path = random.choice(all_fact_files)
         if os.path.isfile(full_path):
             with open(full_path, "r") as in_file:
                 data = json.load(in_file)
@@ -55,6 +58,27 @@ class FactsState(ContinuousState):
             text = strip_tags(r["fact"])
             return text
         return None
+
+    def get_all_fact_files(self):
+        """
+        Get all files of the form where * is replaced with a number
+        will stop when there is a gap, starts at 1
+        :return:
+        """
+        full_path = os.path.join(self.configuration.get_config_path(), self.state_config["filename"])
+        valid_files = []
+        if "*" in full_path:
+            counter = 1
+            while True:
+                p = full_path.replace("*",counter)
+                if os.path.isfile(p):
+                    valid_files.append(p)
+                else:
+                    break
+                counter += 1
+        else:
+            valid_files.append(full_path)
+        return valid_files
 
     def pick(self, data, id):
         for d in data:
