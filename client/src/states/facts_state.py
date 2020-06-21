@@ -45,7 +45,7 @@ class FactsState(ContinuousState):
         if not "filename" in self.state_config:
             return None
         full_path = os.path.join(self.configuration.get_config_path(), self.state_config["filename"])
-        all_fact_files=self.get_all_fact_files(full_path)
+        all_fact_files=self.get_all_fact_files()
         full_path = random.choice(all_fact_files)
         if os.path.isfile(full_path):
             with open(full_path, "r") as in_file:
