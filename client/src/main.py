@@ -22,14 +22,13 @@ event_device_agent = None
 
 @atexit.register
 def clean_exit():
-    global app_context
     logging.debug("clean exit")
     # the above will send to the current state but not the rest
     # so we also loop through to ensure everything shutsdown cleaning
     if event_device_agent:
         event_device_agent.stop()
-    if app_context:
-        app_context.stop()
+    if globalvars.app_context:
+        globalvars.app_context.stop()
     logging.debug("making terminal sane again")
     if terminal_old_settings:
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, terminal_old_settings)
@@ -123,7 +122,7 @@ if __name__ == "__main__":
     terminal_old_settings = termios.tcgetattr(sys.stdin)
     app_config, local_context = app_init()
     globalvars.app_context = local_context
-    app_context._listeners.append(MainListener(app_config, globalvars.app_context))
+    globalvars.app_context._listeners.append(MainListener(app_config, globalvars.app_context))
 
     # begin listening to device events such as
     # vol up, vol down etc.
