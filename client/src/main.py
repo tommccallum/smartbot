@@ -26,8 +26,8 @@ def clean_exit():
     # so we also loop through to ensure everything shutsdown cleaning
     if event_device_agent:
         event_device_agent.close()
-    if app_config:
-        app_config.stop()
+    if app_context:
+        app_context.stop()
     logging.debug("making terminal sane again")
     if terminal_old_settings:
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, terminal_old_settings)
@@ -128,16 +128,16 @@ if __name__ == "__main__":
     # is not found
     start_event_device_agent(app_config,app_context)
     # start listening to bluetooth events
-    read_fifo_in_thread(app_context.bluetooth_event_fifo, app_context)
-    # start main loop through states
-    app_context.start()
-    app_config.alarm.start();
-    # scanner for LE bluetooth devices needs to run as root
-    # so we listen to a FIFO for an indication of who's here
-    while True:
-        #logging.debug("listening")
-        if not app_context.update():
-            break
-        # sleep the main process
-        time.sleep(0.25)
-    # when this loop exit then the atexit.register function will be called
+    # read_fifo_in_thread(app_context.bluetooth_event_fifo, app_context)
+    # # start main loop through states
+    # app_context.start()
+    # app_config.alarm.start();
+    # # scanner for LE bluetooth devices needs to run as root
+    # # so we listen to a FIFO for an indication of who's here
+    # while True:
+    #     #logging.debug("listening")
+    #     if not app_context.update():
+    #         break
+    #     # sleep the main process
+    #     time.sleep(0.25)
+    # # when this loop exit then the atexit.register function will be called
