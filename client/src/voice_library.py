@@ -276,7 +276,7 @@ class VoiceLibrary:
         logging.debug("creating new saying '{}' in '{}'".format(text, file_path))
         if not os.path.isfile(file_path):
             #cmd = "echo \"" + text + "\" | text2wave -eval \"("+self.personality.get_voice()+")\" -o \"" + file_path + "\""
-            cmd = "/home/pi/flite/bin/flite -v slt -t \"{}\" -o \"{}\"".format(text, file_path)
+            cmd = "/home/pi/flite/bin/flite -voice slt -t \"{}\" -o \"{}\"".format(text, file_path)
             logging.debug("Cmd: {}".format(cmd))
             subprocess.run(cmd, shell=True)
             logging.debug("waiting for sound file to process")
