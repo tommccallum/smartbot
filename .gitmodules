@@ -1,0 +1,6 @@
+[submodule "submodules/get_iplayer"]
+	path = submodules/get_iplayer
+	url = https://github.com/get-iplayer/get_iplayer
+[submodule "submodules/flite"]
+	path = submodules/flite
+	url = https://github.com/festvox/flite
