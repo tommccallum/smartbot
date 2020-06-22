@@ -25,8 +25,18 @@ def clean_exit():
     logging.debug("clean exit")
     # the above will send to the current state but not the rest
     # so we also loop through to ensure everything shutsdown cleaning
+
+    ## add a message to say that user should hit any key to close
+    ## this is as we cannot interrupt the keyboard sys.stdin.read without the
+    ## the user having to press a key
+    ## could use sys.stdin.readline but that requires a newline
+    ## could use select.select, but thiat requires a newline
+    ## ?????
+    logging.debug("see this message before key hit required")
     if event_device_agent:
+        logging.debug("see this message 1 before key hit required")
         event_device_agent.stop()
+    logging.debug("see this message 2 before key hit required")
     if globalvars.app_context:
         globalvars.app_context.stop()
     logging.debug("making terminal sane again")
