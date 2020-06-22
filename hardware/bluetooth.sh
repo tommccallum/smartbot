@@ -170,7 +170,7 @@ while true; do
 
           # if was not successful check why then loop
           DO_QUICK_CONNECT_AGAIN=0
-          VALUES=$(journalctl --since "${WHEN_START}" | grep bluetoothd | grep -oP "\(\d+\)$" | sed "s/(//" | sed "s/)//")
+          VALUES=( $(journalctl --since "${WHEN_START}" | grep bluetoothd | grep -oP "\(\d+\)$" | sed "s/(//" | sed "s/)//") )
           for v in "${VALUES[@]}"; do
             echo "journalctl error code: ${v}"
             if [ "x$v" == "x111" ]; then
@@ -342,14 +342,14 @@ while true; do
   ## this is what the module-switch-on-connect is supposed to prevent in /etc/pulse/default.pa
   msg "Checking all applications are using the correct speaker device"
   PULSE_SINK=$(pactl list sinks short | grep "module-bluez5-device.c" | grep "a2dp_sink" | awk '{print $1}')
-  INPUTS=$(pactl list sink-inputs | grep "Sink Input #" | sed "s/Sink Input #//g")
-  CURRENT_SINKS=$(pactl list sink-inputs | grep "Sink:" | awk '{print $2}')
+  INPUTS=( $(pactl list sink-inputs | grep "Sink Input #" | sed "s/Sink Input #//g") )
+  CURRENT_SINKS=( $(pactl list sink-inputs | grep "Sink:" | awk '{print $2}') )
 
   for ii in "${!INPUTS[@]}"; do
     input=${INPUTS[$ii]}
     current_sink=${CURRENT_SINKS[$ii]}
     if [ "x${input}" != "x" ]; then
-      if [ ${current_sink} -ne $PULSE_SINK ]; then
+      if [ ${current_sink} -ne $PULSE_SINK ]; then ## @todo this is still causing "too many argument errors"
         echo "Moving Sink Input #${input} from ${current_sink} to $PULSE_SINK"
         pactl move-sink-input ${input} ${PULSE_SINK}
         if [ $? -gt 0 ]; then
