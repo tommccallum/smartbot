@@ -188,18 +188,24 @@ class UserContext(BluetoothSpeakerHandler):
             event = self.queue.get()
             if self._is_mode_event(event):
                 logging.debug("is play down event")
-                n = 1 # start from one as its the default for _state_increment
-                last_event = event # save current event
-                event = self.queue.get()
-                while self._is_mode_event(event):
-                    n += 1
-                    # ignore this new event
+                if not self.queue.empty():
+                    logging.debug("more than 1 event found in queue")
+                    n = 1  # start from one as its the default for _state_increment
+                    last_event = event  # save current event
                     event = self.queue.get()
-                logging.debug("is play down event {}".format(n))
-                if last_event:
-                    logging.debug("doing last play event")
-                    self._state_increment = n
-                    self._process_message(last_event)
+                    while self._is_mode_event(event):
+                        n += 1
+                        # ignore this new event
+                        if not self.queue.empty():
+                            event = self.queue.get()
+                        else:
+                            event = None
+                            break
+                    logging.debug("is play down event {}".format(n))
+                    if last_event:
+                        logging.debug("doing last play event")
+                        self._state_increment = n
+                        self._process_message(last_event)
             logging.debug("doing event")
             ret = self._process_message(event)
             if ret == False:
