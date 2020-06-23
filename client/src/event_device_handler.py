@@ -69,7 +69,7 @@ class EventDeviceAgent(BasicThread):
             except:
                 pass
             if self.device is None:
-                logging.debug("device not found yet, will try again in a bit")
+                logging.debug("devicqe not found yet, will try again in a bit")
                 time.sleep(1)
                 return
         if self.device_io is None:
@@ -114,9 +114,10 @@ class EventDeviceAgent(BasicThread):
                         if ev.value == 1:
                             new_event = Event(EventEnum.BUTTON_DOWN)
                             new_event.data = EVENT_BUTTON_PLAY;
-                        else:
-                            new_event = Event(EventEnum.BUTTON_UP)
-                            new_event.data = EVENT_BUTTON_PLAY;
+                        # TM - we have removed this so we can detect skipping modes by multiple presses of play
+                        # else:
+                        #     new_event = Event(EventEnum.BUTTON_UP)
+                        #     new_event.data = EVENT_BUTTON_PLAY;
                     if new_event is not None:
                         logging.debug("adding device event to queue")
                         self.context.add_event(new_event)
