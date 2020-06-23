@@ -30,7 +30,7 @@ class PlaylistStreamState(State):
         self.playlist_config = None
         self.last_checkpoint = None
         self.has_entry_completed = False
-        self.mplayer = self.configuration.context.mplayer
+        self.mplayer = None
 
         print("Creating a PlaylistStreamState")
         PlaylistStreamState.mplayer = MPlayer(configuration)
@@ -41,6 +41,9 @@ class PlaylistStreamState(State):
             playlist = self.state_config["playlist"]
         logging.debug(playlist)
         self.load_playlist(playlist)
+
+    def get_mplayer(self):
+        return self.configuration.context.mplayer
 
     def load_playlist(self, playlist_config):
         """
@@ -79,7 +82,7 @@ class PlaylistStreamState(State):
         values["user_state"] = {}
         if self.current_track and self.mplayer:
             values["user_state"]["track"] = self.current_track
-            values["user_state"]["seek"] = self.mplayer.get_play_duration()
+            values["user_state"]["seek"] = self.get_mplayer().get_play_duration()
         #logging.debug("saving state as {}".format(values["user_state"]))
         return values
 
@@ -89,7 +92,7 @@ class PlaylistStreamState(State):
             self._restart_where_we_left_off()
         elif event.id == EventEnum.DEVICE_LOST:
             self.checkpoint(True)
-            self.mplayer.stop()
+            self.get_mplayer().stop()
 
     def get_track_count(self):
         return self.playlist.size()
@@ -123,7 +126,7 @@ class PlaylistStreamState(State):
         # load an existing state if one exists
         seek = 0
         track = None
-        # TM - no longer required once we are sharing an mplayer instance if not self.mplayer.is_paused():
+        # TM - no longer required once we are sharing an mplayer instance if not self.get_mplayer().is_paused():
         # if the mplayer is not paused then this must be a new session
         # so we want to load where we were last time for this mode
         # if we have a saved session that is
@@ -139,19 +142,19 @@ class PlaylistStreamState(State):
 
     def on_exit(self):
         logging.debug("state exiting")
-        if not self.mplayer.is_paused():
+        if not self.get_mplayer().is_paused():
             logging.debug("pausing play")
-            self.mplayer.pause()
+            self.get_mplayer().pause()
         self._save()
 
     def on_previous_track_down(self):
         """In this mode, the previous button pauses the currently playing song"""
         if self.current_track is not None:
-            if self.mplayer.is_paused():
+            if self.get_mplayer().is_paused():
                 self.personality.voice_library.say("Continuing with {}".format(self.current_track["name"]))
-                self.mplayer.play()
+                self.get_mplayer().play()
             else:
-                self.mplayer.pause()
+                self.get_mplayer().pause()
                 self.personality.voice_library.say("Pausing playlist, press the same button to continue")
                 self._save()
 
@@ -159,21 +162,21 @@ class PlaylistStreamState(State):
 
     def on_next_track_down(self):
         logging.debug("LiveStreamState::next track")
-        #self.mplayer.stop()
+        #self.get_mplayer().stop()
         self._play_next_track()
-        #self.mplayer.next_track(self.play)
+        #self.get_mplayer().next_track(self.play)
         self._save()
 
     def on_play_down(self):
         logging.debug("user requested to move to next state")
-        if not self.mplayer.is_paused():
+        if not self.get_mplayer().is_paused():
             logging.debug("pausing play")
-            self.mplayer.pause()
+            self.get_mplayer().pause()
         self._save()
         self.context.transition_to_next()
 
     def on_interrupt(self):
-        self.mplayer.on_interrupt()
+        self.get_mplayer().on_interrupt()
         self._save()
         self.state_is_interrupted = True
 
@@ -183,7 +186,7 @@ class PlaylistStreamState(State):
         self.state_is_interrupted = False
 
     def on_quit(self):
-        self.mplayer.stop()
+        self.get_mplayer().stop()
         self._save()
 
     def _say_track(self, track, seek_value):
@@ -202,7 +205,7 @@ class PlaylistStreamState(State):
 
 
     def _play_next_track(self, track=None, seek_value=0):
-        if self.mplayer.is_stopping():
+        if self.get_mplayer().is_stopping():
             logging.debug("asked to play next track when mplayer was still stopping")
             time.sleep(3) # hack!
 
@@ -213,18 +216,18 @@ class PlaylistStreamState(State):
         if track is None:
             self.on_empty_playlist()
         else:
-            # if self.mplayer.is_playing():
+            # if self.get_mplayer().is_playing():
             #     logging.debug("mplayer is playing, quick load")
-            #     self.mplayer.pause()
+            #     self.get_mplayer().pause()
             #     self._say_track(track, seek_value)
-            #     self.mplayer.next_track(track["url"])
-            # elif self.mplayer.is_stopped():
+            #     self.get_mplayer().next_track(track["url"])
+            # elif self.get_mplayer().is_stopped():
             #     logging.debug("mplayer is stopped, long load")
             #     self._say_track(track, seek_value)
-            self.mplayer.start(track["url"], seek_value)
-            # elif self.mplayer.is_paused():
+            self.get_mplayer().start(track["url"], seek_value)
+            # elif self.get_mplayer().is_paused():
             #     logging.debug("mplayer is paused, play")
-            #     self.mplayer.play()
+            #     self.get_mplayer().play()
         self.configuration.context.ignore_messages = False
 
     def checkpoint(self, force=False):
@@ -232,7 +235,7 @@ class PlaylistStreamState(State):
         Save user state every 5 seconds
         :return:
         """
-        if self.mplayer.is_playing():
+        if self.get_mplayer().is_playing():
             if self.last_checkpoint is None or force:
                 self._save()
                 self.last_checkpoint = time.time()
@@ -242,7 +245,7 @@ class PlaylistStreamState(State):
 
     def is_finished(self):
         self.checkpoint()
-        if self.mplayer.is_finished():
+        if self.get_mplayer().is_finished():
             if self.playlist.size() > 0: # we want to stop it infinitely repeating its got no entries
                 self.on_next_track_down()
         return False
