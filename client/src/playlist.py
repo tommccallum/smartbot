@@ -9,13 +9,14 @@ import numpy
 #     local_path = local_path.replace("%CONFIG%", self.configuration.config_path)
 
 class Playlist:
-    def __init__(self, list_of_tracks, home_path=None, config_path=None ):
+    def __init__(self, list_of_tracks, home_path=None, config_path=None, smartbot_path=None ):
         """Set up playlist"""
         self.playlist = []
         self.ordering = []
         self.position = -1
         self.home_path = home_path
         self.config_path = config_path
+        self.smartbot_path = smartbot_path
         self._load(list_of_tracks)
 
     def size(self):
@@ -42,8 +43,8 @@ class Playlist:
                         directory = directory.replace("%HOME%", self.home_path)
                     if self.config_path is not None:
                         directory = directory.replace("%CONFIG%", self.config_path)
-                    if self.SMARTBOT_HOME is not None:
-                        directory = directory.replace("%SMARTBOT%", self.SMARTBOT_HOME)
+                    if self.smartbot_path is not None:
+                        directory = directory.replace("%SMARTBOT%", self.smartbot_path)
                     recursive = True
                     extensions = None
                     if "include-subdir" in track:
