@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import getpodcast
+import podcasts
 import json
 import sys
 import os
@@ -24,8 +24,12 @@ if "podcasts" in config:
     podcast_list = config["podcasts"]
 
 for podcast in podcast_list:
-    opt = getpodcast.options(
-        root_dir=config["download_directory"]
+    opt = pods.options(
+        run=True,
+        onlynew=True,
+        root_dir=config["download_directory"],
+		template="{rootdir}/{podcast}/{date} - {title}{ext}",
+        list=True
     )
 
     podcasts = {
@@ -35,4 +39,4 @@ for podcast in podcast_list:
     print(opt)
     print(podcasts)
 
-    getpodcast.getpodcast(podcasts, opt)
+    pods.getpodcast(podcasts, opt)
