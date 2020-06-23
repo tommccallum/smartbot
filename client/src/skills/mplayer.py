@@ -270,7 +270,7 @@ class MPlayer:
             # mplayer is quite slow to start so
             # so wait before we execute anything else
             logging.debug("sleeping for 10 while we wait for mplayer to load")
-            time.sleep(10)
+            time.sleep(2)
             logging.debug("wakey wakey time")
         else:
             load_command = self.config["commands"]["load"] + " \"{}\" {}".format(track, seek)
