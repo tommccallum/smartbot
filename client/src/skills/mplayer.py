@@ -272,7 +272,7 @@ class MPlayer:
         else:
             load_command = self.config["commands"]["load"] + " \"{}\" 0".format(track)
             self._send_command_to(load_command)
-            seek(seek)
+            self.seek(seek)
         if seek > 0:
             self.set_play_duration(seek)
             self.continue_play_timer()
