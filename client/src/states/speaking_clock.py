@@ -35,6 +35,7 @@ class SpeakingClockState(ContinuousState):
 
     def do_work_in_thread(self, is_first_run):
         when = datetime.datetime.now()
+        logging.debug("minute={} last_time={}".format(when.minute, self.last_date_said))
         if self.status == ContinuousState.RESUMING or self.last_date_said is None or when.strftime("%Y-%m-%d %H:%M") != self.last_date_said.strftime("%Y-%m-%d %H:%M"): # dont say the same datetime twice
             if self.status == ContinuousState.RESUMING or when.minute == 0 or is_first_run: # ensure we say immediately when first loaded
                 logging.debug("time is now: {}".format(when))
