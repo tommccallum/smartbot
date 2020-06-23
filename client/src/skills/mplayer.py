@@ -252,23 +252,29 @@ class MPlayer:
         Creates fifo file on startup with unique pid
         """
         logging.debug("{} {}".format(track,seek))
-        self._make_fifo()
-        shell_cmd = self.config["shell"]
-        shell_cmd = shell_cmd.replace("%fifo%", self.fifo)
-        shell_cmd = shell_cmd.replace("%track%", track)
-        if seek > 0:
-            shell_cmd = shell_cmd.replace("%seek%", "-ss {}".format(int(seek)))
+        if self.mplayer_process is None:
+            self._make_fifo()
+            shell_cmd = self.config["shell"]
+            shell_cmd = shell_cmd.replace("%fifo%", self.fifo)
+            shell_cmd = shell_cmd.replace("%track%", track)
+            if seek > 0:
+                shell_cmd = shell_cmd.replace("%seek%", "-ss {}".format(int(seek)))
+            else:
+                shell_cmd = shell_cmd.replace("%seek%", "")
+            logging.debug(shell_cmd)
+            if self.mplayer_process:
+                self.stop()
+            self.mplayer_process = subprocess.Popen("exec "+shell_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            logging.info("PID of mplayer process:" + str(self.mplayer_process.pid))
+            self.state = MPlayer.STATE_PLAYING
+            # mplayer is quite slow to start so
+            # so wait before we execute anything else
+            logging.debug("sleeping for 10 while we wait for mplayer to load")
+            time.sleep(10)
+            logging.debug("wakey wakey time")
         else:
-            shell_cmd = shell_cmd.replace("%seek%", "")
-        logging.debug(shell_cmd)
-        if self.mplayer_process:
-            self.stop()
-        self.mplayer_process = subprocess.Popen("exec "+shell_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        logging.info("PID of mplayer process:" + str(self.mplayer_process.pid))
-        self.state = MPlayer.STATE_PLAYING
-        # mplayer is quite slow to start so
-        # so wait before we execute anything else
-        time.sleep(10)
+            load_command = self.config["commands"]["load"] + " \"{}\" {}".format(track, seek)
+            self._send_command_to(load_command)
         if seek > 0:
             self.set_play_duration(seek)
             self.continue_play_timer()

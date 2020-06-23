@@ -14,6 +14,8 @@ class PlaylistStreamState(State):
     """
         Plays a set of live streams
     """
+    mplayer = None
+
     @staticmethod
     def create(configuration: Configuration, personality: "Personality", state_configuration):
         return PlaylistStreamState(configuration, personality, state_configuration)
@@ -32,7 +34,7 @@ class PlaylistStreamState(State):
         self.has_entry_completed = False
 
         print("Creating a PlaylistStreamState")
-        self.mplayer = MPlayer(configuration)
+        PlaylistStreamState.mplayer = MPlayer(configuration)
 
         playlist = self.json
         if "playlist" in self.state_config:
@@ -122,18 +124,18 @@ class PlaylistStreamState(State):
         # load an existing state if one exists
         seek = 0
         track = None
-        if not self.mplayer.is_paused():
-            # if the mplayer is not paused then this must be a new session
-            # so we want to load where we were last time for this mode
-            # if we have a saved session that is
-            user_state = self._get_user_state()
-            if user_state is not None:
-                if "seek" in user_state:
-                    seek = user_state["seek"]
-                if "track" in user_state:
-                    track = user_state["track"]
-                    self.current_track = track
-                    self.playlist.set_current(track)
+        # TM - no longer required once we are sharing an mplayer instance if not self.mplayer.is_paused():
+        # if the mplayer is not paused then this must be a new session
+        # so we want to load where we were last time for this mode
+        # if we have a saved session that is
+        user_state = self._get_user_state()
+        if user_state is not None:
+            if "seek" in user_state:
+                seek = user_state["seek"]
+            if "track" in user_state:
+                track = user_state["track"]
+                self.current_track = track
+                self.playlist.set_current(track)
         self._play_next_track(track, seek)
 
     def on_exit(self):
@@ -177,7 +179,8 @@ class PlaylistStreamState(State):
         self.state_is_interrupted = True
 
     def on_continue(self):
-        self.mplayer.on_continue()
+        ## cannot guarantee mplayer was asked to do something else
+        self._restart_where_we_left_off()
         self.state_is_interrupted = False
 
     def on_quit(self):
@@ -211,18 +214,18 @@ class PlaylistStreamState(State):
         if track is None:
             self.on_empty_playlist()
         else:
-            if self.mplayer.is_playing():
-                logging.debug("mplayer is playing, quick load")
-                self.mplayer.pause()
-                self._say_track(track, seek_value)
-                self.mplayer.next_track(track["url"])
-            elif self.mplayer.is_stopped():
-                logging.debug("mplayer is stopped, long load")
-                self._say_track(track, seek_value)
-                self.mplayer.start(track["url"], seek_value)
-            elif self.mplayer.is_paused():
-                logging.debug("mplayer is paused, play")
-                self.mplayer.play()
+            # if self.mplayer.is_playing():
+            #     logging.debug("mplayer is playing, quick load")
+            #     self.mplayer.pause()
+            #     self._say_track(track, seek_value)
+            #     self.mplayer.next_track(track["url"])
+            # elif self.mplayer.is_stopped():
+            #     logging.debug("mplayer is stopped, long load")
+            #     self._say_track(track, seek_value)
+            self.mplayer.start(track["url"], seek_value)
+            # elif self.mplayer.is_paused():
+            #     logging.debug("mplayer is paused, play")
+            #     self.mplayer.play()
         self.configuration.context.ignore_messages = False
 
     def checkpoint(self, force=False):
@@ -234,7 +237,7 @@ class PlaylistStreamState(State):
             if self.last_checkpoint is None or force:
                 self._save()
                 self.last_checkpoint = time.time()
-            elif time.time() - self.last_checkpoint > 5:
+            elif time.time() - self.last_checkpoint > 2:
                 self._save()
                 self.last_checkpoint = time.time()
 
