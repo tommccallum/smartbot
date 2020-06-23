@@ -118,9 +118,9 @@ if [ ! -e "${HELLOWORLD}" ]; then
   exit 1
 fi
 
-if [ "x${USER}" != "root" ]
+if [ "x${USER}" != "xroot" ]
 then
-  error "This script needs to run as 'root', not ${USER}."
+  error "This script needs to run as 'root', not '${USER}'."
   exit 1
 fi
 
