@@ -68,7 +68,7 @@ class KeyboardListener(threading.Thread):
                 tty.setcbreak(sys.stdin.fileno())
                 #logging.debug("waiting for 3 bytes")
                 key = None
-                if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+                if sys.stdin in select.select([sys.stdin], [], [], 10)[0]:
                     key = sys.stdin.read(1) # blocks until reads 3 bytes, which is correct for arrow keys, will detect CTRL+C
                     if key == chr(27):
                         key += sys.stdin.read(2)
@@ -97,17 +97,5 @@ class KeyboardListener(threading.Thread):
         logging.debug("stop")
         self._continue.clear()  # R# estores a thread from a paused state. How to have paused
         self._running.clear()  # set to False
-        self.raise_exception() # attempt to get us out of our io block
+        logging.debug("waiting for keyboard thread to shutdown")
         self.join() # wait for exit
-
-
-
-    def raise_exception(self):
-        logging.debug("interrupting thread {}".format(self.thread_id))
-        res = ctypes.pythonapi.PyThreadState_SetAsyncExc(self.thread_id,
-                                                         ctypes.py_object(SystemExit))
-        if res > 1:
-            ctypes.pythonapi.PyThreadState_SetAsyncExc(self.thread_id, 0)
-            logging.debug('Exception raise failure')
-        else:
-            logging.debug("exception worked?")
