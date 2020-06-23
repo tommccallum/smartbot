@@ -33,7 +33,6 @@ class PlaylistStreamState(State):
         self.mplayer = None
 
         print("Creating a PlaylistStreamState")
-        PlaylistStreamState.mplayer = MPlayer(configuration)
 
         playlist = self.json
         if "playlist" in self.state_config:
