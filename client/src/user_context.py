@@ -85,6 +85,7 @@ class UserContext(BluetoothSpeakerHandler):
         we may skip modes. this is handled by manipulating the self._state_increment variable
         :return:
         """
+        logging.debug("transitioning by {}".format(self._state_increment))
         self._current_state_index += self._state_increment
         self._current_state_index = self._current_state_index % len(self._state_objects)
         self._state_increment = 1
