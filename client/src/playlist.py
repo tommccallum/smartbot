@@ -42,6 +42,8 @@ class Playlist:
                         directory = directory.replace("%HOME%", self.home_path)
                     if self.config_path is not None:
                         directory = directory.replace("%CONFIG%", self.config_path)
+                    if self.SMARTBOT_HOME is not None:
+                        directory = directory.replace("%SMARTBOT%", self.SMARTBOT_HOME)
                     recursive = True
                     extensions = None
                     if "include-subdir" in track:

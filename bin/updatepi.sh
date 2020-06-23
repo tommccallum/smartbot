@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LOG="/tmp/upgrade-$(date '+%Y%m%d%H%M%S').log"
+LOG="/home/pi/smartbot/log/upgrade-$(date '+%Y%m%d%H%M%S').log"
 date > $LOG
 echo "[TASK] CLEANUP $(date '+%Y-%m-%d %H:%M:%S')" >> $LOG
 sudo find /tmp -type f -mtime +7 -iname "upgrade-*" -exec sh -c 'echo {} && rm {}' \; >> $LOG 2>&1
@@ -13,6 +13,6 @@ sudo apt-get autoremove >> $LOG 2>&1
 echo "[TASK] AUTOCLEAN $(date '+%Y-%m-%d %H:%M:%S')" >> $LOG
 sudo apt-get autoclean >> $LOG 2>&1
 echo "[TASK] REBOOT $(date '+%Y-%m-%d %H:%M:%S')" >> $LOG
-#wsudo reboot
+sudo reboot
 
 

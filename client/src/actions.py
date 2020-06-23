@@ -9,6 +9,8 @@ def expand_path(path):
         path = path.replace("%HOME%", config.HOME_DIRECTORY)
     if config.config_path is not None:
         path = path.replace("%CONFIG%", config.config_path)
+    if config.SMARTBOT_HOME is not None:
+        path = path.replace("%SMARTBOT%", config.SMARTBOT_HOME)
     return path
 
 def blocking_play(path):

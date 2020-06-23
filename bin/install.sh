@@ -39,7 +39,7 @@ done
 
 if [ -e "${LOCAL_CONFIG}" -a $FORCE_INSTALL -eq 0 ]
 then
-  echo "Installation already found, to reinstall type './smartbot reset' argument"
+  echo "Installation already found, to reinstall use '-r' argument"
   exit 1
 fi
 

@@ -34,6 +34,7 @@ pip3 install numpy
 pip3 install psutil
 pip3 install python-dateutil
 pip3 install pynput
+pip3 install getpodcast
 
 # prepare to copy over a default configuration of some type
 if [ "x${DEFAULT_CONF}" == "x" ]
@@ -146,6 +147,11 @@ else
   popd
 fi
 
+echo "Download some factsheets to start us off"
+$DIR/bin/download_facts.sh
+
+echo "Download podcasts"
+## todo
 
 
 
