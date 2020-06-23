@@ -107,9 +107,10 @@ class EventDeviceAgent(BasicThread):
                         if ev.value == 1:
                             new_event = Event(EventEnum.BUTTON_DOWN)
                             new_event.data = EVENT_BUTTON_PLAY;
-                        else:
-                            new_event = Event(EventEnum.BUTTON_UP)
-                            new_event.data = EVENT_BUTTON_PLAY;
+                        # TM - we have removed this so we can detect skipping modes by multiple presses of play
+                        # else:
+                        #     new_event = Event(EventEnum.BUTTON_UP)
+                        #     new_event.data = EVENT_BUTTON_PLAY;
                     if ev.code == 201: # KEY_PAUSECD but we use it to change mode as well
                         if ev.value == 1:
                             new_event = Event(EventEnum.BUTTON_DOWN)
