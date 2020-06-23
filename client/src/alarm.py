@@ -56,7 +56,7 @@ class Alarm:
                     at = [at]
                 action = alarm["action"]
                 args = alarm["args"]
-                alarm_event = create_alarm_event(action, args)
+                alarm_event = create_alarm_event(action, args, self.config_object)
                 alarm_event.validate()  # will throw exception if not correct
                 self._schedule_task(at, alarm_event)
                 schedule.run_pending()
