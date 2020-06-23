@@ -68,7 +68,7 @@ class KeyboardListener(threading.Thread):
                 tty.setcbreak(sys.stdin.fileno())
                 #logging.debug("waiting for 3 bytes")
                 key = None
-                if sys.stdin in select.select([sys.stdin], [], [], 10)[0]:
+                if sys.stdin in select.select([sys.stdin], [], [], 1)[0]:
                     key = sys.stdin.read(1) # blocks until reads 3 bytes, which is correct for arrow keys, will detect CTRL+C
                     if key == chr(27):
                         key += sys.stdin.read(2)
