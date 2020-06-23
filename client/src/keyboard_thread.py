@@ -103,6 +103,7 @@ class KeyboardListener(threading.Thread):
         for id, thread in threading._active.items():
             if thread is self:
                 return id
+        return threading.currentThread().get_ident()
 
     def raise_exception(self):
         thread_id = self.get_id()
