@@ -32,11 +32,8 @@ def clean_exit():
     ## could use sys.stdin.readline but that requires a newline
     ## could use select.select, but thiat requires a newline
     ## ?????
-    logging.debug("see this message before key hit required")
     if event_device_agent:
-        logging.debug("see this message 1 before key hit required")
         event_device_agent.stop()
-    logging.debug("see this message 2 before key hit required")
     if globalvars.app_context:
         globalvars.app_context.stop()
     logging.debug("making terminal sane again")

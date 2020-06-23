@@ -20,10 +20,10 @@ class UserContext(BluetoothSpeakerHandler):
     """Reference to the current state"""
 
     def __init__(self, state_objects: list) -> None:
-        self.queue = []
         self._state = None
         self._state_objects = state_objects
         self._current_state_index = -1
+        self._state_increment = 1
         self.running = {}
         self.personality = None
         self._listeners = []
@@ -80,10 +80,14 @@ class UserContext(BluetoothSpeakerHandler):
         self.transition_to(self._state_objects[self._current_state_index])
 
     def transition_to_next(self):
-        self._current_state_index += 1
-        if self._current_state_index >= len(self._state_objects):
-            logging.debug("returning to first state")
-            self._current_state_index = 0
+        """
+        transition to next, HOWEVER if the user has say pressed the mode button multiple times
+        we may skip modes. this is handled by manipulating the self._state_increment variable
+        :return:
+        """
+        self._current_state_index += self._state_increment
+        self._current_state_index %= self._state_objects
+        self._state_increment = 1
         self.transition_to(self._state_objects[self._current_state_index])
 
     def transition_to(self, state: State):
@@ -163,45 +167,77 @@ class UserContext(BluetoothSpeakerHandler):
                 if self.is_interrupted():
                     self.do_continue()
 
+    def _is_mode_event(self, event):
+        if event is None: return False
+        if event.id == EventEnum.KEY_PRESS:
+            if event.data == EVENT_KEY_UP:
+                return True
+        elif event.id == EventEnum.BUTTON_DOWN:
+            if event.data == EVENT_BUTTON_PLAY:
+                return True
+        return False
+
     def _handle_messages(self):
+        """
+        Handle messages
+        :return: True, unless we want to quit
+        """
         while not self.queue.empty():
             logging.debug("queue not empty")
             event = self.queue.get()
-            logging.debug("pulling event off queue {}".format(event))
-            if event.id == EventEnum.INTERRUPT:
-                logging.debug("interrupting")
-                self.do_interrupt(event)
-            elif event.id == EventEnum.BLUETOOTH_EVENT:
-                self._handle_bluetooth_detector(event)
-            elif event.id == EventEnum.ENTER_OWNER:
-                self._notify(event)
-            elif event.id == EventEnum.EXIT_OWNER:
-                self._notify(event)
-            elif event.id == EventEnum.KEY_PRESS:
-                logging.debug("keyboard event detected")
-                if event.data == EVENT_KEY_UP:
-                    self._state.on_play_down()
-                if event.data == EVENT_KEY_RIGHT:
-                    self._state.on_next_track_down()
-                if event.data == EVENT_KEY_LEFT:
-                    self._state.on_previous_track_down()
-                if event.data == EVENT_KEY_Q:
-                    self.stop()
-            elif event.id == EventEnum.BUTTON_DOWN:
-                logging.debug("device event detected")
-                if event.data == EVENT_BUTTON_PLAY:
-                    self._state.on_play_down()
-                if event.data == EVENT_BUTTON_NEXT:
-                    self._state.on_next_track_down()
-                if event.data == EVENT_BUTTON_PREV:
-                    self._state.on_previous_track_down()
-
-            elif event.id == EventEnum.QUIT:
-                ## shut everything down
-                self._notify(event)
+            if self._is_mode_event(event):
+                n = 1 # start from one as its the default for _state_increment
+                last_event = event # save current event
+                event = self.queue.get()
+                while self._is_mode_event(event):
+                    n += 1
+                    # ignore this new event
+                    event = self.queue.get()
+                if last_event:
+                    self._state_increment = n
+                    self._process_message(last_event)
+            ret = self._process_message(event)
+            if ret == False:
                 return False
-            else:
-                logging.debug("dropped event {}".format(event))
+        return True
+
+    def _process_message(self, event):
+        if event is None: return True
+        logging.debug("pulling event off queue {}".format(event))
+        if event.id == EventEnum.INTERRUPT:
+            logging.debug("interrupting")
+            self.do_interrupt(event)
+        elif event.id == EventEnum.BLUETOOTH_EVENT:
+            self._handle_bluetooth_detector(event)
+        elif event.id == EventEnum.ENTER_OWNER:
+            self._notify(event)
+        elif event.id == EventEnum.EXIT_OWNER:
+            self._notify(event)
+        elif event.id == EventEnum.KEY_PRESS:
+            logging.debug("keyboard event detected")
+            if event.data == EVENT_KEY_UP:
+                self._state.on_play_down()
+            if event.data == EVENT_KEY_RIGHT:
+                self._state.on_next_track_down()
+            if event.data == EVENT_KEY_LEFT:
+                self._state.on_previous_track_down()
+            if event.data == EVENT_KEY_Q:
+                self.stop()
+        elif event.id == EventEnum.BUTTON_DOWN:
+            logging.debug("device event detected")
+            if event.data == EVENT_BUTTON_PLAY:
+                self._state.on_play_down()
+            if event.data == EVENT_BUTTON_NEXT:
+                self._state.on_next_track_down()
+            if event.data == EVENT_BUTTON_PREV:
+                self._state.on_previous_track_down()
+
+        elif event.id == EventEnum.QUIT:
+            ## shut everything down
+            self._notify(event)
+            return False
+        else:
+            logging.debug("dropped event {}".format(event))
         return True
 
 

@@ -12,7 +12,7 @@ import time
 import sys, select, tty, termios
 
 from event import EventEnum, Event, EVENT_KEY_UP, EVENT_KEY_DOWN, EVENT_KEY_LEFT, EVENT_KEY_RIGHT, EVENT_KEY_Q
-
+import ctypes
 
 class KeyboardListener(threading.Thread):
 
@@ -91,6 +91,25 @@ class KeyboardListener(threading.Thread):
 
     def stop(self):
         logging.debug("stop")
-        self._continue.clear()  # Restores a thread from a paused state. How to have paused
+        self._continue.clear()  # R# estores a thread from a paused state. How to have paused
         self._running.clear()  # set to False
-        self.join(3) # wait for exit
+        self.raise_exception() # attempt to get us out of our io block
+        self.join() # wait for exit
+
+    def get_id(self):
+        # returns id of the respective thread
+        if hasattr(self, '_thread_id'):
+            return self._thread_id
+        for id, thread in threading._active.items():
+            if thread is self:
+                return id
+
+    def raise_exception(self):
+        thread_id = self.get_id()
+        res = ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id,
+                                                         ctypes.py_object(SystemExit))
+        if res > 1:
+            ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, 0)
+            logging.debug('Exception raise failure')
+        else:
+            logging.debug("exception worked?")
