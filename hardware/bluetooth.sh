@@ -307,6 +307,7 @@ while true; do
   FULL_CONNECT_REQUIRED=0
   QUICK_CONNECT_COUNT=0
 
+  pactl list sinks short
   PULSE_SINK=$(pactl list sinks short | grep "module-bluez5-device.c" | awk '{print $1}')
   if [ "x$PULSE_SINK" == "x" ]; then
     error "pulseaudio '${PULSE_SINK}' has not picked up a bluetooth device, restarting pulseaudio and trying again"
