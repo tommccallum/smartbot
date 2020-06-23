@@ -264,7 +264,7 @@ class MPlayer:
             logging.debug(shell_cmd)
             if self.mplayer_process:
                 self.stop()
-            self.mplayer_process = subprocess.Popen("exec "+shell_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.mplayer_process = subprocess.Popen("exec "+shell_cmd+" > /home/pi/smartbot/log/mplayer.log", shell=True, stdout=None, stderr=None)
             logging.info("PID of mplayer process:" + str(self.mplayer_process.pid))
             self.state = MPlayer.STATE_PLAYING
             # mplayer is quite slow to start so
