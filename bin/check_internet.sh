@@ -7,6 +7,16 @@ INTERNET_LOCKFILE="/tmp/smartbot_internet.lock"
 INTERNET_CONNECTED=0
 LOCAL_NETWORK_CONNECTED=0
 
+if [ -e "$NETWORK_LOCKFILE" ]
+then
+  LOCAL_NETWORK_CONNECTED=1
+fi
+if [ -e "$INTERNET_LOCKFILE" ]
+then
+  INTERNET_CONNECTED=1
+fi
+
+
 while true
 do
   IPV4=( $( ifconfig | grep "inet " | grep -v "127.0.0.1" | awk '{print $2}' ) )
@@ -29,13 +39,19 @@ do
 
   if [ $CHECK_LOCAL_NETWORK -gt 1 ]
   then
-    echo "$NOW" > $NETWORK_LOCKFILE
-    LOCAL_NETWORK_CONNECTED=1
-    echo "[${NOW}] local network restored with IP ${addr}"
+    if [ $LOCAL_NETWORK_CONNECTED -eq 0 ]
+    then
+      echo "$NOW" > $NETWORK_LOCKFILE
+      LOCAL_NETWORK_CONNECTED=1
+      echo "[${NOW}] local network restored with IP ${addr}"
+    fi
   else
-    echo "[${NOW}] local network lost"
-    LOCAL_NETWORK_CONNECTED=0
-    rm -f $NETWORK_LOCKFILE
+    if [ $LOCAL_NETWORK_CONNECTED -gt 0 ]
+    then
+      echo "[${NOW}] local network lost"
+      LOCAL_NETWORK_CONNECTED=0
+      rm -f $NETWORK_LOCKFILE
+    fi
   fi
 
   if [ $LOCAL_NETWORK_CONNECTED -gt 0 ]
@@ -47,9 +63,12 @@ do
 
     if [ $PING -eq 0 ]
     then
-      echo "[${NOW}] internet lost"
-      INTERNET_CONNECTED=0
-      rm -f $INTERNET_LOCKFILE
+      if [ $INTERNET_CONNECTED -gt 0 ]
+      then
+        echo "[${NOW}] internet lost"
+        INTERNET_CONNECTED=0
+        rm -f $INTERNET_LOCKFILE
+      fi
     else
       if [ $INTERNET_CONNECTED -eq 0 ]
       then
