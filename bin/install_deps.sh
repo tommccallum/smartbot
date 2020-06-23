@@ -34,7 +34,8 @@ pip3 install numpy
 pip3 install psutil
 pip3 install python-dateutil
 pip3 install pynput
-pip3 install getpodcast
+# this has a bug which means it won't run from script, have copied and fixed.
+#pip3 install getpodcast
 
 # prepare to copy over a default configuration of some type
 if [ "x${DEFAULT_CONF}" == "x" ]

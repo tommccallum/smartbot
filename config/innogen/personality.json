@@ -56,6 +56,32 @@
             "on_empty": "There are no songs available yet."
         },
         {
+            "type": "audio",
+            "title": "The History of China",
+            "filename": "podcast_history_of_china.json",
+            "playlist": {
+                "tracks": [
+                    { "directory": "%SMARTBOT%/media/podcasts/The History Of China", "extensions": "m4a", "include-subdir": true }
+                ],
+                "orderby": ["name", "asc"]
+            },
+            "on_enter": "Welcome to the History of China podcast",
+            "on_empty": "There are no episodes available yet."
+        },
+        {
+            "type": "audio",
+            "title": "Strictly Come Dancing",
+            "filename": "podcast_stricty_come_dancing.json",
+            "playlist": {
+                "tracks": [
+                    { "directory": "%SMARTBOT%/media/podcasts/Strictly Come Dancing", "extensions": "m4a", "include-subdir": true }
+                ],
+                "orderby": ["name", "asc"]
+            },
+            "on_enter": "Welcome to the Strict Come Dancing podcast",
+            "on_empty": "There are no episodes available yet."
+        },
+        {
             "type": "speakingclock",
             "title": "Speaking Clock",
             "on_enter": false
