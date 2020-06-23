@@ -19,6 +19,11 @@ class ContinuousState(State):
         Threading example used is
         https://topic.alibabacloud.com/a/python-thread-pause-resume-exit-detail-and-example-_python_1_29_20095165.html
     """
+    STOPPED=0
+    RESUMING=1 # on entry
+    ACTIVE = 2
+    PAUSED=3
+
     def __init__(self,
                  configuration: Configuration,
                  personality: "Personality",
@@ -32,6 +37,7 @@ class ContinuousState(State):
         self.thread_pause_flag.set()
         self.thread_running_flag = threading.Event()
         self.thread_running_flag.set()
+        self.status = 0
 
     def do_work_in_thread(self, is_first_run):
         """Override"""
@@ -46,6 +52,7 @@ class ContinuousState(State):
             self.thread_pause_flag.wait()
             logging.debug("do work")
             self.do_work_in_thread(first_run)
+            self.status = ContinuousState.ACTIVE
             first_run = False
             logging.debug("finished work")
             time.sleep(0.5) # add a minimal amount to existing timer that should be in child class
@@ -62,10 +69,12 @@ class ContinuousState(State):
         logging.debug("pausing")
         self.running = 0
         self.thread_pause_flag.clear()
+        self.status = ContinuousState.PAUSED
 
     def _resume_thread(self):
         logging.debug("resuming")
         self.running = 1
+        self.status = ContinuousState.RESUMING
         self.thread_pause_flag.set()
 
     def _stop_thread(self):
@@ -73,6 +82,7 @@ class ContinuousState(State):
         self.running = 0
         self.thread_pause_flag.set()
         self.thread_running_flag.clear()
+        self.status = self.STOPPED
 
 
     def on_empty(self):

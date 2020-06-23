@@ -186,9 +186,12 @@ class PlaylistStreamState(State):
 
     def _say_track(self, track, seek_value):
         what_to_call_track = "track"
+        announce_seek_time = True
+        if "announce-seek" in self.state_config:
+            announce_seek_time = self.state_config["announce-seek"]
         if "word-for-track" in self.playlist_config:
             what_to_call_track = self.playlist_config["word-for-track"]
-        if seek_value < 1:
+        if announce_seek_time == False or seek_value < 1:
             self.personality.voice_library.say("Next {} is {}".format(what_to_call_track, track["name"]))
         else:
             time_string = self.personality.voice_library.convert_seconds_to_saying(seek_value)
@@ -202,30 +205,24 @@ class PlaylistStreamState(State):
             time.sleep(3) # hack!
 
         self.configuration.context.ignore_messages = True
-        if self.mplayer.is_playing():
-            logging.debug("mplayer is playing, quick load")
-            if track is None:
-                track = self.get_next_track()
-                seek_value = 0
-            if track is None:
-                self.on_empty_playlist()
-            else:
+        if track is None:
+            track = self.get_next_track()
+            seek_value = 0
+        if track is None:
+            self.on_empty_playlist()
+        else:
+            if self.mplayer.is_playing():
+                logging.debug("mplayer is playing, quick load")
                 self.mplayer.pause()
                 self._say_track(track, seek_value)
                 self.mplayer.next_track(track["url"])
-        elif self.mplayer.is_stopped():
-            logging.debug("mplayer is stopped, long load")
-            if track is None:
-                track = self.get_next_track()
-                seek_value = 0
-            if track is None:
-                self.on_empty_playlist()
-            else:
+            elif self.mplayer.is_stopped():
+                logging.debug("mplayer is stopped, long load")
                 self._say_track(track, seek_value)
                 self.mplayer.start(track["url"], seek_value)
-        elif self.mplayer.is_paused():
-            logging.debug("mplayer is paused, play")
-            self.mplayer.play()
+            elif self.mplayer.is_paused():
+                logging.debug("mplayer is paused, play")
+                self.mplayer.play()
         self.configuration.context.ignore_messages = False
 
     def checkpoint(self, force=False):

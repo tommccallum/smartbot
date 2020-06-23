@@ -13,6 +13,7 @@
             "type": "audio",
             "title": "Live Radio",
             "filename": "live_stream.json",
+            "announce-seek": false,
             "on_enter": "You are now listening to live radio.",
             "on_empty": "There are no radio stations available."
         }, {
