@@ -66,15 +66,11 @@ function debug() {
 }
 
 function error() {
-  if [ $VERBOSE -gt 0 ]; then
-    echo "[$(date "+%Y-%m-%d %H:%M:%S")] [ERROR] $1"
-  fi
+  echo "[$(date "+%Y-%m-%d %H:%M:%S")] [ERROR] $1"
 }
 
 function warn() {
-  if [ $VERBOSE -gt 0 ]; then
-    echo "[$(date "+%Y-%m-%d %H:%M:%S")] [WARN ] $1"
-  fi
+  echo "[$(date "+%Y-%m-%d %H:%M:%S")] [WARN ] $1"
 }
 
 ## check if we are already paired with device
