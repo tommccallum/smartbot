@@ -106,6 +106,7 @@ class KeyboardListener(threading.Thread):
 
     def raise_exception(self):
         thread_id = self.get_id()
+        logging.debug("interrupting thread {}".format(thread_id))
         res = ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id,
                                                          ctypes.py_object(SystemExit))
         if res > 1:
