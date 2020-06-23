@@ -120,6 +120,7 @@ fi
 
 if [ "x${USER}" == "xroot" ]
 then
+  ## this is required by pulseaudio which does not like running as root.
   error "This script needs to run as a user not 'root'. User needs to be in sudo group."
   exit 1
 fi
@@ -307,17 +308,17 @@ while true; do
   FULL_CONNECT_REQUIRED=0
   QUICK_CONNECT_COUNT=0
 
-  pactl list sinks short
   PULSE_SINK=$(pactl list sinks short | grep "module-bluez5-device.c" | awk '{print $1}')
   if [ "x$PULSE_SINK" == "x" ]; then
     error "pulseaudio '${PULSE_SINK}' has not picked up a bluetooth device, restarting pulseaudio and trying again"
+    pactl list sinks short
     NEW_CONNECTION=0
     sudo bluetoothctl disconnect "${BLUETOOTH_DEVICE}"
     echo $(restart_pulseaudio) >/dev/null
     sleep 1
     continue
   else
-    info "detected pulseaudio bluetooth device (${PULSE_SINK})"
+    msg "detected pulseaudio bluetooth device (${PULSE_SINK})"
   fi
 
   #    A2DP=$(pactl list | grep -A 18 "bluez" | grep "Active Profile" | awk '{print $3}')
