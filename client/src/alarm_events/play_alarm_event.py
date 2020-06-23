@@ -7,7 +7,6 @@ from alarm_events.alarm_event import AlarmEvent
 class PlayAlarmEvent(AlarmEvent):
     def __init__(self, data: object, config: "Configuration"):
         AlarmEvent.__init__(self, data)
-        self.mplayer = None
         self.config = config
 
     def validate(self):
@@ -21,12 +20,14 @@ class PlayAlarmEvent(AlarmEvent):
         return True
 
     def begin_action(self):
-        self.mplayer = MPlayer(self.config)
-        self.mplayer.start(self.data["track"])
+        mplayer = self.config.mplayer
+        mplayer.start(self.data["track"])
 
     def test_is_finished(self):
-        return self.mplayer.is_finished()
+        mplayer = self.config.mplayer
+        return mplayer.is_finished()
 
     def on_finish(self):
         logging.debug("stopping alarm mplayer")
-        self.mplayer.stop()
+        mplayer = self.config.mplayer
+        mplayer.stop()

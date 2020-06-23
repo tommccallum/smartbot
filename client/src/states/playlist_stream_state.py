@@ -14,8 +14,6 @@ class PlaylistStreamState(State):
     """
         Plays a set of live streams
     """
-    mplayer = None
-
     @staticmethod
     def create(configuration: Configuration, personality: "Personality", state_configuration):
         return PlaylistStreamState(configuration, personality, state_configuration)
@@ -32,6 +30,7 @@ class PlaylistStreamState(State):
         self.playlist_config = None
         self.last_checkpoint = None
         self.has_entry_completed = False
+        self.mplayer = self.configuration.context.mplayer
 
         print("Creating a PlaylistStreamState")
         PlaylistStreamState.mplayer = MPlayer(configuration)

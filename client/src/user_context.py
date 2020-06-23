@@ -1,6 +1,7 @@
 from bluetooth_speaker_handler import BluetoothSpeakerHandler
 from fifo import read_fifo_nonblocking
 from keyboard_thread import KeyboardListener
+from skills.mplayer import MPlayer
 from states.state import State
 from event import Event, EventEnum, EVENT_KEY_UP, EVENT_KEY_RIGHT, EVENT_KEY_LEFT, EVENT_KEY_Q, EVENT_BUTTON_PLAY, \
     EVENT_BUTTON_NEXT, EVENT_BUTTON_PREV
@@ -19,13 +20,14 @@ class UserContext(BluetoothSpeakerHandler):
 
     """Reference to the current state"""
 
-    def __init__(self, state_objects: list) -> None:
+    def __init__(self, state_objects: list, config: "Configuration", personality: "Personality") -> None:
+        super().__init__()
         self._state = None
         self._state_objects = state_objects
         self._current_state_index = -1
         self._state_increment = 1
         self.running = {}
-        self.personality = None
+        self.personality = personality
         self._listeners = []
         self.interrupted = False
         self.interrupted_state = []
@@ -34,6 +36,8 @@ class UserContext(BluetoothSpeakerHandler):
         self.queue = queue.Queue()
         self.thread_id = threading.get_ident()
         self.keyboard_thread = None
+        self.config = config
+        self.mplayer = MPlayer(self.config)
         logging.debug("Context setup in thread {}".format(self.thread_id))
 
     def transition_to_named_state(self, name):
