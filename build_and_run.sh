@@ -8,6 +8,7 @@ if [ $APRIL_EXISTS -gt 0 ]
 then
   echo "Stopping existing docker container called 'april'"
   docker stop april
+  sleep 2
   APRIL_EXISTS=$( docker ps -a | grep "april$" | wc -l )
   if [ $APRIL_EXISTS -gt 0 ]
   then
@@ -26,7 +27,7 @@ echo "Running container named 'april'"
 docker run --name april --volume=/run/user/${USER_ID}/pulse:/run/user/1000/pulse --rm --privileged --net=host -dit ${CONTAINER_ID} bash
 docker ps -a | grep april
 echo "Running smartbot for first time to install"
-docker exec --user pi -i -t april bash -c "cd /home/pi/smartbot/bin && ./smartbot"
+docker exec --user pi -i -t april bash -c "cd /home/pi/smartbot/bin && ./install.sh"
 echo
 echo "*** Use 'docker attach april' to get to command prompt for container ***"
 echo "*** Use CTRL-P CTRL-Q to quit docker instance without removing container ***"

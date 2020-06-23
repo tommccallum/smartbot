@@ -58,14 +58,16 @@ class SpeakingClockState(ContinuousState):
 
         day_of_week_name = day_of_week_name.replace("<DAYTH>", dayth)
 
-        if when.hour > 21:
+        if when.hour >= 21:
             postfix = " at night."
-        elif when.hour > 18:
+        elif when.hour >= 18:
             postfix = " in the evening."
         elif when.hour >= 12:
             postfix = " in the afternoon."
-        elif when.hour < 1:
+        elif when.hour < 2:
             postfix = " at night"
+        elif when.hour < 6:
+            postfix = " in the early morning"
         else:
             postfix = " in the morning."
 

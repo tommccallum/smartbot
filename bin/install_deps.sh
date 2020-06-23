@@ -104,7 +104,7 @@ else
   cd /home/pi/flite
   ./configure
   make
-  make get-voices
+  make get_voices
 fi
 popd
 
@@ -122,10 +122,10 @@ fi
 echo "[INFO] Installing logrotate configuration"
 sudo cp $DIR/etc/smartbot.logrotate /etc/logrotate.d/smartbot
 echo "[INFO] Installing daily cron task"
-crontab -l | grep -v smartbot > existing_crontab~
-cat ${DIR}/scheduled_tasks/pi.cron >> existing_crontab~
-crontab existing_crontab~
-rm existing_crontab~
+crontab -l | grep -v smartbot > /tmp/existing_crontab~
+cat ${DIR}/scheduled_tasks/pi.cron >> /tmp/existing_crontab~
+crontab /tmp/existing_crontab~
+rm /tmp/existing_crontab~
 echo "New crontab file is:"
 crontab -l
 

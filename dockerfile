@@ -22,6 +22,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install usbutils
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install expect
 # this is required for numpy
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install libatlas-base-dev
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install cron
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install wget
 ENV TZ=Europe/London
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
