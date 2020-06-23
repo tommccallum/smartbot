@@ -94,6 +94,7 @@ class EventDeviceAgent(BasicThread):
                         if ev.value == 1:
                             new_event = Event(EventEnum.BUTTON_DOWN)
                             new_event.data = EVENT_BUTTON_PREV;
+                            inline_action({"type": "sound", "path": "%SMARTBOT%/sounds/beep.wav"})
                         else:
                             new_event = Event(EventEnum.BUTTON_UP)
                             new_event.data = EVENT_BUTTON_PREV;
@@ -101,6 +102,7 @@ class EventDeviceAgent(BasicThread):
                         if ev.value == 1:
                             new_event = Event(EventEnum.BUTTON_DOWN)
                             new_event.data = EVENT_BUTTON_NEXT;
+                            inline_action({"type": "sound", "path": "%SMARTBOT%/sounds/beep.wav"})
                         else:
                             new_event = Event(EventEnum.BUTTON_UP)
                             new_event.data = EVENT_BUTTON_NEXT;
@@ -108,6 +110,7 @@ class EventDeviceAgent(BasicThread):
                         if ev.value == 1:
                             new_event = Event(EventEnum.BUTTON_DOWN)
                             new_event.data = EVENT_BUTTON_PLAY;
+                            inline_action({"type": "sound", "path": "%SMARTBOT%/sounds/beep.wav"})
                         # TM - we have removed this so we can detect skipping modes by multiple presses of play
                         # else:
                         #     new_event = Event(EventEnum.BUTTON_UP)
@@ -116,13 +119,13 @@ class EventDeviceAgent(BasicThread):
                         if ev.value == 1:
                             new_event = Event(EventEnum.BUTTON_DOWN)
                             new_event.data = EVENT_BUTTON_PLAY;
+                            inline_action({"type": "sound", "path": "%SMARTBOT%/sounds/beep.wav"})
                         # TM - we have removed this so we can detect skipping modes by multiple presses of play
                         # else:
                         #     new_event = Event(EventEnum.BUTTON_UP)
                         #     new_event.data = EVENT_BUTTON_PLAY;
                     if new_event is not None:
                         logging.debug("adding device event to queue")
-                        inline_action( { "type": "sound", "path": "%SMARTBOT%/sounds/beep.wav" } )
                         self.context.add_event(new_event)
         except OSError as err:
             ## mostly likely we lost the device
