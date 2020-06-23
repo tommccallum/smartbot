@@ -2,7 +2,8 @@
 
 # Check that Pulseaudio is loaded, if not start it
 HOMEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
-CONFIGDIR="$HOME/.config/smartbot"
+USERHOME=$( echo "$HOMEDIR" | awk -F '/' '{print "/" $2 "/" $3}' )
+CONFIGDIR="$USERHOME/.config/smartbot"
 VERBOSE=0
 EXPECTED_PULSE_APP="pulseaudio"
 
