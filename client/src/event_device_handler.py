@@ -10,6 +10,7 @@ import logging
 from evdev import ecodes, InputDevice, categorize, list_devices
 
 from BasicThread import BasicThread
+from actions import inline_action
 from event import Event, EventEnum, EVENT_BUTTON_PREV, EVENT_BUTTON_NEXT, EVENT_BUTTON_PLAY
 import time
 
@@ -121,6 +122,7 @@ class EventDeviceAgent(BasicThread):
                         #     new_event.data = EVENT_BUTTON_PLAY;
                     if new_event is not None:
                         logging.debug("adding device event to queue")
+                        inline_action( { "type": "sound", "path": "%SMARTBOT%/sounds/beep.wav" } )
                         self.context.add_event(new_event)
         except OSError as err:
             ## mostly likely we lost the device
