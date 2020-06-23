@@ -17,7 +17,8 @@ fi
 
 function run_application() {
   echo "Starting bluetooth speaker scanner"
-  sudo $DIR/hardware/bluetooth.sh >> $DIR/log/bluetooth.log 2>&1 &
+  $DIR/hardware/bluetooth.sh >> $DIR/log/bluetooth.log 2>&1 &
+  BLUETOOTH_PID=$( ps aux | grep "hardware/bluetooth.sh" | awl '{print $2}' )
 
   # wait until the speaker is attached before running application
   while true
@@ -57,6 +58,7 @@ function run_application() {
   # due to some silly coding error
   $DIR/bin/kill_all_mplayer_jobs.sh
   $DIR/bin/kill_all_lescanner_jobs.sh
+  kill -9 ${BLUETOOTH_PID}
 }
 
 run_application
