@@ -14,7 +14,7 @@ from alarm import Alarm
 class Configuration:
     """Handles configuration"""
     HOME_DIRECTORY = str(Path.home())
-    SMARTBOT_HOME=os.path.abspath(os.path.join(os.path.realpath(__file__),"..",".."))
+    SMARTBOT_HOME=os.path.abspath(os.path.join(os.path.realpath(__file__),"..","..",".."))
     _DEFAULT_CONFIG_DIRECTORY = "smartbot"
     _DEFAULT_CONFIG_LOCATION = os.path.join(".config", _DEFAULT_CONFIG_DIRECTORY)
     _DEFAULT_CONFIG_NAME = "config.json"
