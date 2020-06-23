@@ -7,114 +7,29 @@ IS_BLUETOOTH=$( ps aux | grep bluetoothd | wc -l )
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && cd .. && pwd )"
 PYTHON=$( which python3 )
 LOCAL_CONFIG="$HOME/.config/smartbot"
-FIRST=0
-
-if [ "x$1" == "xreset" ]
-then
-  if [ -e "$LOCAL_CONFIG" ]
-  then
-    rm -rf $LOCAL_CONFIG
-    echo "[INFO] Configuration removed from ${LOCAL_CONFIG}"
-  else
-    echo "[ERROR] Could not find ${LOCAL_CONFIG}, configuration was not reset. No changes made."
-    exit 1
-  fi
-fi
+LOCKFILE="/tmp/smartbot_connected.lock"
 
 if [ ! -e "${LOCAL_CONFIG}" ]
 then
-  FIRST=1
-  echo "[INFO] First run detected - installing components"
-
-  SCHEDULE_INSTALLED=$( pip3 list | grep schedule | wc -l )
-  if [ ${SCHEDULE_INSTALLED} -eq 0 ]
-  then
-    pip3 install schedule
-  fi
-
-  echo "Installing bluetooth library"
-  sudo apt-get -y install libbluetooth-dev
-  echo "Installing python libraries"
-  pip3 install pybluez
-  pip3 install evdev
-  pip3 install numpy
-  pip3 install psutil
-  pip3 install python-dateutil
-  pip3 install pynput
-
-  # prepare to copy over a default configuration of some type
-  DEFAULT_CONF="$DIR/config/default"
-  if [ $IS_DOCKER -gt 0 ]
-  then
-    DEFAULT_CONF="$DIR/config/docker"
-  fi
-  echo "[INFO] Installing configuration from '${DEFAULT_CONF}'"
-
-  if [ ! -e "$DEFAULT_CONF" ]
-  then
-    echo "[ERROR] Could not find configuration at $DEFAULT_CONF"
-    exit 1
-  fi
-
-  echo "[INFO] Installing configuration into ${LOCAL_CONFIG}"
-  mkdir -p "${LOCAL_CONFIG}"
-  cp -R "${DEFAULT_CONF}/"* "${LOCAL_CONFIG}/"
-
-  echo "[INFO] Creating radio storage directories in '$HOME/Radio_Uncompressed"
-  mkdir -p $HOME/Radio_Uncompressed/tmp
-  mkdir -p $HOME/Radio_Uncompressed/keep
-
-  echo "[INFO] Creating get_iplayer database in /opt/smartbot"
-  sudo mkdir /opt/smartbot
-  sudo chown -R pi:www-data /opt/smartbot
-  sudo chmod g+rw /opt/smartbot
-  if [ $IS_DOCKER -gt 0 ]
-  then
-    cp ../get_iplayer/programs-docker.txt /opt/smartbot/programs.txt
-  else
-    cp ../get_iplayer/programs-default.txt /opt/smartbot/programs.txt
-  fi
-
-  pushd .
-  if [ -e "/home/pi/get_iplayer" ]
-  then
-    echo "[INFO] Updating get_iplayer"
-    cd /home/pi/get_iplayer
-    git pull
-  else
-    echo "[INFO] Installing get_iplayer and its dependencies"
-    cd /home/pi
-    sudo apt-get -y install ffmpeg perl build-essential curl libhtml-parser-perl \
-                              libhttp-cookies-perl libwww-perl libxml-libxml-perl libmojolicious-perl atomicparsley
-    git clone https://github.com/get-iplayer/get_iplayer
-  fi
-  popd
-
-  if [ $IS_DOCKER -gt 0 ]
-  then
-    echo "[WARN] Moving existing radio shows to Radio_Uncompressed"
-    if [ -e "./tmp" ]
-    then
-      mv ./tmp/*.m4a /home/pi/Radio_Uncompressed/tmp
-    fi
-  else
-    pushd .
-    echo "[INFO] Downloading initial set of radio podcasts - please wait, this may take some time"
-    cd ../get_iplayer/
-    python3 get_radio_shows.py
-    popd
-  fi
-
-  if [ ! -e "$DIR/log" ]
-  then
-    echo "Creating log directory in '$DIR/log'"
-    mkdir $DIR/log
-  else
-    echo "Log directory found at '$DIR/log'"
-  fi
+  echo "Please run bin/install.sh first."
+  exit 1
 fi
 
 function run_application() {
+  echo "Starting bluetooth speaker scanner"
+  sudo $DIR/hardware/bluetooth.sh >> $DIR/log/bluetooth.log 2>&1 &
+
+  # wait until the speaker is attached before running application
+  while true
+  do
+    if [ -e "$LOCKFILE" ]
+    then
+      break
+    else
+      sleep 1
+    fi
+  done
+
   if [ $IS_BLUETOOTH -eq 0 -a $IS_DOCKER -gt 0 ]
   then
     echo "Starting bluetoothd and dbus in docker"
@@ -134,25 +49,14 @@ function run_application() {
     echo "Bluetooth was not detected."
   fi
 
-  echo "Starting smartbot"
   # start us off
+  echo "Starting smartbot"
   $PYTHON $DIR/client/src/main.py
 
   # ensure we have removed all mplayer jobs that might have been kept around
   # due to some silly coding error
   $DIR/bin/kill_all_mplayer_jobs.sh
+  $DIR/bin/kill_all_lescanner_jobs.sh
 }
 
-if [ $IS_DOCKER -gt 0 ]
-then
-  echo "Detected docker"
-  if [ $FIRST -eq 1 ]
-  then
-    echo "Run ./smartbot again inside container to start."
-    exit 0
-  else
-    run_application
-  fi
-else
-  run_application
-fi
+run_application

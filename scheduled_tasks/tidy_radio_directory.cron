@@ -1,4 +1,26 @@
 #!/bin/bash
 
-# Say when we want to remove files from Radio directory
-/usr/bin/find /home/pi/Radio_Uncompressed/tmp -mtime +10 -exec rm -f {} \;
+CONFIG="/home/pi/smartbot/recent-config.sh"
+if [ "x${CONFIG}" == "x" ]
+then
+  echo "empty configuration path"
+  exit 1
+fi
+if [ ! -e "${CONFIG}" ]
+then
+  echo "configuration file not found (${CONFIG})"
+  exit 1
+fi
+
+. $CONFIG
+
+
+if [ "x${LOCATION}" != "x" ]
+then
+  if [ "x${KEEP_FOR_N_DAYS}" == "x" ]
+  then
+    KEEP_FOR_N_DAYS=10
+  fi
+  # Say when we want to remove files from recent directory
+  /usr/bin/find "$LOCATION" -mtime +${KEEP_FOR_N_DAYS} -exec echo {} \; -exec rm -f {} \;
+fi

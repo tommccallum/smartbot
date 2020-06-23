@@ -264,7 +264,14 @@ class MPlayer:
             logging.debug(shell_cmd)
             if self.mplayer_process:
                 self.stop()
-            self.mplayer_process = subprocess.Popen("exec "+shell_cmd+" > /home/pi/smartbot/log/mplayer.log", shell=True, stdout=None, stderr=None)
+
+            # if user wanted output to be diverted to a log file then do so otherwise do not
+            # as its quite a lot of stuff not much use to anyone
+            logfile = ""
+            if "logfile" in self.config:
+                if self.config["logfile"]:
+                    logfile = " > {} 2>&1".format(self.config["logfile"])
+            self.mplayer_process = subprocess.Popen("exec "+shell_cmd+logfile, shell=True, stdout=None, stderr=None)
             logging.info("PID of mplayer process:" + str(self.mplayer_process.pid))
             self.state = MPlayer.STATE_PLAYING
             # mplayer is quite slow to start so

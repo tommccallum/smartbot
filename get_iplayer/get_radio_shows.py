@@ -7,7 +7,7 @@ from multiprocessing import Pool
 from sys import stdout
 
 file="/opt/smartbot/programs.txt"
-dest_dir="/home/pi/Radio_Uncompressed/tmp"
+dest_dir="/home/pi/smartbot/media/recent"
 get_iplayer="/home/pi/get_iplayer/get_iplayer"
 
 if not os.path.isfile(file):

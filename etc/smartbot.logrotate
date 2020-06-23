@@ -1,0 +1,10 @@
+/home/pi/smartbot/log/*.log {
+        daily
+        missingok
+        rotate 5
+        compress
+        delaycompress
+        notifempty
+        create 640 pi pi
+        sharedscripts
+}

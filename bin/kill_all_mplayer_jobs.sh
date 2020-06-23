@@ -1,7 +1,7 @@
 #!/bin/bash
 
-PIDS_COUNT=$( ps ax | grep "mplayer" | grep -v "grep" | grep -v "bash" | wc -l ) 
-PIDS=$( ps ax | grep "mplayer" | grep -v "grep" | grep -v "bash" | awk '{print $1}' )
+PIDS_COUNT=$( ps ax | grep "mplayer" | grep "noconsolecontrols" | grep -v "grep" | grep -v "bash" | wc -l )
+PIDS=$( ps ax | grep "mplayer" | grep "noconsolecontrols" | grep -v "grep" | grep -v "bash" | awk '{print $1}' )
 
 if [ $PIDS_COUNT -eq 0 ]
 then
@@ -10,7 +10,7 @@ then
 fi
 
 echo "Existing instances:"
-ps ax | grep "mplayer" | grep -v "grep" | grep -v "bash"
+ps ax | grep "mplayer" | grep "noconsolecontrols" | grep -v "grep" | grep -v "bash"
 
 for pid in ${PIDS[@]}
 do
@@ -18,7 +18,7 @@ do
 	kill -9 $pid
 done
 
-PIDS_COUNT=$( ps ax | grep "mplayer" | grep -v "grep" | grep -v "bash" | wc -l ) 
+PIDS_COUNT=$( ps ax | grep "mplayer" | grep "noconsolecontrols" | grep -v "grep" | grep -v "bash" | wc -l )
 if [ $PIDS_COUNT -gt 0 ]
 then
 	echo "Failed to kill ${PIDS_COUNT} mplayer processes"

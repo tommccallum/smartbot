@@ -2,18 +2,80 @@
 
 # Check that Pulseaudio is loaded, if not start it
 HOMEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
-BLUETOOTH_DEVICE=$(cat "${HOMEDIR}/Bluetooth_Speaker.txt")
-EXPECTED_PULSE_APP="pulseaudio"
-HELLOWORLD="${HOMEDIR}/../sounds/can_you_hear_me.wav"
-TIMEOUT=2 ## expected length of HELLOWORLD sound
-SYSTEMCTL=$1
-SLEEP_BETWEEN_CHECKS=5
+CONFIGDIR="$HOME/.config/smartbot"
 VERBOSE=0
+EXPECTED_PULSE_APP="pulseaudio"
+
+
+##
+## The following variables can be overridden by devices.json
+##
+
+# start sound to play on successful connection
+HELLOWORLD="${HOMEDIR}/../sounds/can_you_hear_me.wav"
+# lockfile to use
 LOCKFILE="/tmp/smartbot_connected.lock"
+# expected length of HELLOWORLD sound
+TIMEOUT=2
+# how long to sleep between checks of the device in seconds
+SLEEP_BETWEEN_CHECKS=5
+
+
+
 
 if [ "$1" == "-v" ]; then
   VERBOSE=1
 fi
+
+if [ ! -e "$CONFIGDIR" ]
+then
+  echo "configuration directory does not exist"
+  exit 1
+fi
+if [ ! -e "${CONFIGDIR}/bluetooth_devices.conf" ]
+then
+  echo "bluetooth_devices.conf is missing from ${CONFIGDIR}"
+  exit 1
+fi
+
+source "${CONFIGDIR}/bluetooth_devices.conf"
+
+if [ "x$DEVICES" == "" ]
+then
+  echo "No devices specified."
+  exit 1
+fi
+
+BLUETOOTH_DEVICE="${DEVICES[0]}"
+if [ "x${BLUETOOTH_DEVICE}" == "" ]; then
+  echo "No device specified in array."
+  exit 1
+fi
+
+
+
+
+function msg() {
+  echo "[$(date "+%Y-%m-%d %H:%M:%S")] [INFO ] $1"
+}
+
+function debug() {
+  if [ $VERBOSE -gt 0 ]; then
+    echo "[$(date "+%Y-%m-%d %H:%M:%S")] [DEBUG] $1"
+  fi
+}
+
+function error() {
+  if [ $VERBOSE -gt 0 ]; then
+    echo "[$(date "+%Y-%m-%d %H:%M:%S")] [ERROR] $1"
+  fi
+}
+
+function warn() {
+  if [ $VERBOSE -gt 0 ]; then
+    echo "[$(date "+%Y-%m-%d %H:%M:%S")] [WARN ] $1"
+  fi
+}
 
 ## check if we are already paired with device
 ## returns 1 if paired, 0 otherwise
@@ -32,16 +94,10 @@ function restart_pulseaudio() {
   local pulse_is_running=$(ps ax | grep pulseaudio | grep -v grep | wc -l)
   local pulse_pid=$(ps aux | grep "$EXPECTED_PULSE_APP" | awk '{print $2}')
   if [ "x$pulse_pid" == "x" ]; then
-    echo "[ERROR] Pulseaudio is not running after restart, something is really chronic!"
+    error "Pulseaudio is not running after restart, something is really chronic!"
     exit 1
   fi
   echo "${pulse_is_running}"
-}
-
-function msg() {
-  if [ $VERBOSE -gt 0 ]; then
-    echo $1
-  fi
 }
 
 function remove_lockfile() {
@@ -59,30 +115,36 @@ function evtest_and_exit() {
     kill $evtest_pid
 }
 
-remove_lockfile
-
-echo "User: ${USER}"
 
 if [ ! -e "${HELLOWORLD}" ]; then
-  echo "Could not find ${HELLOWORLD}"
+  error "Could not find ${HELLOWORLD}"
   exit 1
 fi
 
-if [ "x${BLUETOOTH_DEVICE}" == "" ]; then
-  echo "Could not find bluetooth speaker device address"
+if [ "x${USER}" != "root" ]
+then
+  error "This script needs to run as 'root', not ${USER}."
   exit 1
 fi
 
-msg "[OK] Registered bluetooth device is ${BLUETOOTH_DEVICE}"
+#
+# =======================================================
+#  Main script starts here
+# =======================================================
+#
 
-# begin an infinite loop where we check if our device has lost
-# connection for some reason
-FULL_CONNECT_REQUIRED=0
-QUICK_CONNECT_COUNT=1
-NEW_CONNECTION=0
+remove_lockfile
+
 FIRST_START=1
 while true; do
 
+  debug "Checking bluetooth device '${BLUETOOTH_DEVICE}'"
+
+  # begin an infinite loop where we check if our device has lost
+  # connection for some reason
+  FULL_CONNECT_REQUIRED=0
+  QUICK_CONNECT_COUNT=1
+  NEW_CONNECTION=0
   IS_CONNECTED=$(hcitool con | grep "${BLUETOOTH_DEVICE}" | wc -l)
 
   if [ ${IS_CONNECTED} -eq 0 ]; then
@@ -93,25 +155,25 @@ while true; do
     #
     remove_lockfile
 
-    echo "No connection found, attempting to reconnect..."
+    info "No connection found, attempting to reconnect..."
     CONNECTION_DURATION_START=$(date "+%s")
 
     PULSE_PID=$(ps aux | grep "$EXPECTED_PULSE_APP" | awk '{print $2}')
     if [ "x$PULSE_PID" == "x" ]; then
-      echo "Attempting to start Pulseaudio..."
+      info "Attempting to start Pulseaudio..."
       pulseaudio --start
       PULSE_PID=$(ps aux | grep "$EXPECTED_PULSE_APP" | awk '{print $2}')
       if [ "x$PULSE_PID" == "x" ]; then
-        echo "[ERROR] Pulseaudio is not running!"
+        error "Pulseaudio is not running!"
         exit 1
       else
-        echo "Pulseaudio is now running on pid $PULSE_PID"
+        msg "Pulseaudio is now running on pid $PULSE_PID"
       fi
     fi
 
     ## this is the time we want to search our journal from for errors
     WHEN_START=$(date "+%Y-%m-%d %H:%M:%S")
-    echo "Journal view from ${WHEN_START}"
+    msg "Journal view from ${WHEN_START}"
 
     if [ ${FULL_CONNECT_REQUIRED} -eq 0 ]; then
       PAIRED=$(is_paired)
@@ -124,12 +186,12 @@ while true; do
         ## the user should just need to do a short on cycle for
         ## us to reconnect
         ##
-        echo "Attempting a quick connect for bluetooth device"
+        msg "Attempting a quick connect for bluetooth device"
         sudo bluetoothctl disconnect "${BLUETOOTH_DEVICE}"
         sleep 2
         sudo bluetoothctl connect "${BLUETOOTH_DEVICE}"
         if [ $? -eq 0 ]; then
-          echo "Waiting for stuff to happen if it is going to"
+          msg "Waiting for stuff to happen if it is going to"
           sleep 5 # let stuff happen
           NEW_CONNECTION=1
         else
@@ -138,7 +200,7 @@ while true; do
           IS_HOST_OFF=$(journalctl --since "${WHEN_START}" | grep bluetoothd | grep "$HOST_IS_DOWN_MSG" | wc -l)
           if [ $IS_HOST_OFF -gt 0 ]; then
             # device is off no point continuing
-            echo "Device is most likely turned off, sleep for a bit and then try again"
+            msg "Device is most likely turned off, sleep for a bit and then try again"
             sleep 1
             continue
           fi
@@ -146,7 +208,7 @@ while true; do
           ## we get this error if pulseaudio is not running
           NO_A2DP=$(journalctl --since "${WHEN_START}" | grep bluetoothd | grep "a2dp-sink profile connect failed for" | grep "Protocol not available" | wc -l)
           if [ $NO_A2DP -gt 0 ]; then
-            echo "error: a2dp-sink profile connect failed"
+            error "a2dp-sink profile connect failed"
             echo $(restart_pulseaudio) >/dev/null
             sleep 1
             continue
@@ -154,7 +216,7 @@ while true; do
 
           MSG=$(journalctl --since "${WHEN_START}" | grep bluetoothd | grep "Control: Refusing unexpected connect" | wc -l)
           if [ $MSG -gt 0 ]; then
-            echo "error: refusing connection"
+            error "puleaudio is refusing connection"
             echo $(restart_pulseaudio) >/dev/null
             sleep 1
             continue
@@ -162,7 +224,7 @@ while true; do
 
           MSG=$(journalctl --since "${WHEN_START}" | grep bluetoothd | grep "Unable to get Headset Voice gateway SDP record: Operation already in progress" | wc -l)
           if [ $MSG -gt 0 ]; then
-            echo "error: sdp record, retrying"
+            error "sdp record, retrying"
             echo $(restart_pulseaudio) >/dev/null
             sleep 1
             continue
@@ -172,7 +234,7 @@ while true; do
           DO_QUICK_CONNECT_AGAIN=0
           VALUES=( $(journalctl --since "${WHEN_START}" | grep bluetoothd | grep -oP "\(\d+\)$" | sed "s/(//" | sed "s/)//") )
           for v in "${VALUES[@]}"; do
-            echo "journalctl error code: ${v}"
+            error "journalctl error code found: ${v}"
             if [ "x$v" == "x111" ]; then
               FULL_CONNECT_REQUIRED=0
             fi
@@ -189,7 +251,7 @@ while true; do
             ## to keep disconnect and connect until we pick it up properly
             QUICK_CONNECT_COUNT=$((QUICK_CONNECT_COUNT + 1))
             if [ $QUICK_CONNECT_COUNT -gt 10 ]; then
-              echo "error: quick connect limit reached, full connect required"
+              error "quick connect limit reached, full connect required"
               FULL_CONNECT_REQUIRED=1
             else
               sleep 1
@@ -197,7 +259,7 @@ while true; do
             fi
           fi
           if [ $FULL_CONNECT_REQUIRED -gt 0 ]; then
-            echo "error: full connect required"
+            error "full connect required"
             echo $(restart_pulseaudio) >/dev/null
             sleep 1
             continue
@@ -208,14 +270,14 @@ while true; do
           continue
         fi
       fi
-    fi
+    fi # end of quick connect attempt
 
     if [ $FULL_CONNECT_REQUIRED -gt 0 ]; then
-      echo "Attempting to do a full reconnect, this may take up to a few minutes on a bad day"
+      msg "Attempting to do a full reconnect, this may take up to a few minutes on a bad day"
       $HOMEDIR/bluetooth_speaker.expect "${BLUETOOTH_DEVICE}"
       if [ $? != 0 ]; then
         # if was not successful then loop
-        echo "full reconnect was unsuccessful"
+        msg "full reconnect was unsuccessful"
         echo $(restart_pulseaudio) >/dev/null
         sleep 1
         continue
@@ -224,7 +286,7 @@ while true; do
       ## double check
       PAIRED=$(is_paired)
       if [ ${PAIRED} -eq 0 ]; then
-        echo "Still not paired, lets try again"
+        msg "Still not paired, lets try again"
         echo $(restart_pulseaudio) >/dev/null
         sleep 1
         continue
@@ -232,7 +294,7 @@ while true; do
 
       FULL_CONNECT_REQUIRED=0
       NEW_CONNECTION=1
-    fi
+    fi # end of full connect attempt
   fi # end of no connection condition
 
   ## -------------------------------------------------------------------------------------------
@@ -250,14 +312,14 @@ while true; do
 
   PULSE_SINK=$(pactl list sinks short | grep "module-bluez5-device.c" | awk '{print $1}')
   if [ "x$PULSE_SINK" == "x" ]; then
-    echo "[ERROR] pulseaudio '${PULSE_SINK}' has not picked up a bluetooth device, restarting pulseaudio and trying again"
+    error "pulseaudio '${PULSE_SINK}' has not picked up a bluetooth device, restarting pulseaudio and trying again"
     NEW_CONNECTION=0
     sudo bluetoothctl disconnect "${BLUETOOTH_DEVICE}"
     echo $(restart_pulseaudio) >/dev/null
     sleep 1
     continue
   else
-    echo "[OK] detected pulseaudio bluetooth device (${PULSE_SINK})"
+    info "detected pulseaudio bluetooth device (${PULSE_SINK})"
   fi
 
   #    A2DP=$(pactl list | grep -A 18 "bluez" | grep "Active Profile" | awk '{print $3}')
@@ -306,10 +368,10 @@ while true; do
       if [ ${A2DP} -eq 0 ]; then
         msg "Its not the active profile, so lets check the card"
         CARD=$(pactl list | grep -B 2 bluez | grep Card | sed "s/Card #//")
-        echo "Attempting to select a2dp_sink profile for card ${CARD}"
+        msg "Attempting to select a2dp_sink profile for card ${CARD}"
         pactl set-card-profile ${CARD} a2dp_sink
         if [ $? -gt 0 ]; then
-          echo "[ERROR] Failed to set card ${CARD} profile to a2dp_sink"
+          error "Failed to set card ${CARD} profile to a2dp_sink"
           NEW_CONNECTION=0
           sudo bluetoothctl disconnect "${BLUETOOTH_DEVICE}"
           echo $(restart_pulseaudio) >/dev/null
@@ -317,16 +379,16 @@ while true; do
         fi
       fi
 
-      echo "So now lets check to see if its a listed sink"
+      msg "So now lets check to see if its a listed sink"
       ## we output this for the reader
       pactl list sinks short | grep "module-bluez5-device.c" | grep "a2dp_sink"
       IS_DEFAULT_SINK_SET=$(pactl list sinks short | grep "module-bluez5-device.c" | grep "a2dp_sink" | awk '{print $1}' | wc -l)
       if [ $IS_DEFAULT_SINK_SET -eq 0 ]; then
-        echo "No, lets try setting the default sink"
+        msg "No, lets try setting the default sink"
         SINK_NAME=$(pactl list sinks short | grep "module-bluez5-device.c" | grep "a2dp_sink" | awk '{print $1}')
         pactl set-default-sink $SINK_NAME
         if [ $? -gt 0 ]; then
-          echo "[ERROR] Failed to set default sink, restarting pulseaudio and trying connect."
+          error "Failed to set default sink, restarting pulseaudio and trying connect."
           NEW_CONNECTION=0
           sudo bluetoothctl disconnect "${BLUETOOTH_DEVICE}"
           echo $(restart_pulseaudio) >/dev/null
@@ -350,10 +412,10 @@ while true; do
     current_sink=${CURRENT_SINKS[$ii]}
     if [ "x${input}" != "x" ]; then
       if [ ${current_sink} -ne $PULSE_SINK ]; then ## @todo this is still causing "too many argument errors"
-        echo "Moving Sink Input #${input} from ${current_sink} to $PULSE_SINK"
+        msg "Moving Sink Input #${input} from ${current_sink} to $PULSE_SINK"
         pactl move-sink-input ${input} ${PULSE_SINK}
         if [ $? -gt 0 ]; then
-          echo "Failed to move sink from ${input} to ${PULSE_SINK}"
+          error "Failed to move sink from ${input} to ${PULSE_SINK}"
           NEW_CONNECTION=0
           sudo bluetoothctl disconnect "${BLUETOOTH_DEVICE}"
           echo $(restart_pulseaudio) >/dev/null
@@ -384,7 +446,7 @@ while true; do
     A2DP_INPUT=$(journalctl --since "${WHEN_START}" | grep kernel | grep "${BLUETOOTH_DEVICE}" | grep "input:" | grep "as /devices/virtual/input" | wc -l)
     if [ ${A2DP_INPUT} -eq 0 ]; then
       ## hmmm.. something not quite right, lets try again as we do not have proper control
-      echo "Failed to find virtual input for bluetooth device, reconnecting"
+      error "Failed to find virtual input for bluetooth device, reconnecting"
       NEW_CONNECTION=0
       sudo bluetoothctl disconnect "${BLUETOOTH_DEVICE}"
       echo $(restart_pulseaudio) >/dev/null
@@ -398,24 +460,24 @@ while true; do
 
     CONNECTION_DURATION_END=$(date "+%s")
     DURATION=$((CONNECTION_DURATION_END - CONNECTION_DURATION_START))
-    echo "Connection time was ${DURATION} seconds"
+    msg "Connection time was ${DURATION} seconds"
 
-    echo "[OK] New connection found, attempting to speak"
+    msg "New connection found, attempting to speak"
     timeout $TIMEOUT aplay "${HELLOWORLD}"
     if [ $? != 0 ]; then
-      echo "[ERROR] helloworld sound failed to play, restarting pulseaudio and reconnecting"
+      error "helloworld sound failed to play, restarting pulseaudio and reconnecting"
       NEW_CONNECTION=0
       sudo bluetoothctl disconnect "${BLUETOOTH_DEVICE}"
       echo $(restart_pulseaudio) >/dev/null
       continue
     else
-      echo "[OK] we are connected successfully"
+      msg "we are connected successfully"
       echo "$(date "+%s"),CONNECTED" > $LOCKFILE
     fi
   else
     if [ $FIRST_START -gt 0 ]
     then
-      echo "[OK] we are connected successfully"
+      msg "we are connected successfully"
       echo "$(date "+%s"),CONNECTED" > $LOCKFILE
       FIRST_START=0
     fi
@@ -423,8 +485,6 @@ while true; do
 
   ## by this point we should have what we want for a little while
   ## let other processes do something
-  msg "All good, sleeping for $SLEEP_BETWEEN_CHECKS seconds"
+  debug "All good, sleeping for $SLEEP_BETWEEN_CHECKS seconds"
   sleep $SLEEP_BETWEEN_CHECKS
-
-  ## end infinite while loop
-done
+done # end while loop
