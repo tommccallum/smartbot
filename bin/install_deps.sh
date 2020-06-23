@@ -12,6 +12,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && cd .. && pwd )"
 # check for python3
 PYTHON=$( which python3 )
 LOCAL_CONFIG=$1
+DEFAULT_CONF=$2
 INSTALL_LOG="${DIR}/log/install.log"
 FORCE_INSTALL=0
 
@@ -35,7 +36,13 @@ pip3 install python-dateutil
 pip3 install pynput
 
 # prepare to copy over a default configuration of some type
-DEFAULT_CONF="$DIR/config/default"
+if [ "x${DEFAULT_CONF}" == "x" ]
+then
+  DEFAULT_CONF="$DIR/config/default"
+else
+  DEFAULT_CONF="$DIR/config/$DEFAULT_CONF"
+fi
+
 if [ $IS_DOCKER -gt 0 ]
 then
   DEFAULT_CONF="$DIR/config/docker"

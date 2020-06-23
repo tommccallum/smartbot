@@ -15,11 +15,27 @@ PYTHON=$( which python3 )
 LOCAL_CONFIG="$HOME/.config/smartbot"
 INSTALL_LOG="${DIR}/log/install.log"
 FORCE_INSTALL=0
+DEFAULT_CONF="default"
 
-if [ "x$1" == "xreset" ]
-then
-  FORCE_INSTALL=1
-fi
+function usage() {
+  echo "./install.sh [-c|--config file] [-r|--reset]"
+  exit 1
+}
+
+while [ "$1" != "" ]
+do
+  case $1 in
+    -r | --reset ) shift
+                    FORCE_INSTALL=1
+    ;;
+    -c | --config ) shift
+                    DEFAULT_CONF=$1
+                    ;;
+    * )             usage
+                    exit 1
+    esac
+    shift
+done
 
 if [ -e "${LOCAL_CONFIG}" -a $FORCE_INSTALL -eq 0 ]
 then
@@ -42,4 +58,4 @@ then
 fi
 
 echo "Installing dependencies"
-${DIR}/bin/install_deps.sh  "${LOCAL_CONFIG}" 2>&1 | tee -a ${INSTALL_LOG}
+${DIR}/bin/install_deps.sh  "${LOCAL_CONFIG}" "${DEFAULT_CONF}" 2>&1 | tee -a ${INSTALL_LOG}
