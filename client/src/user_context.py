@@ -86,7 +86,7 @@ class UserContext(BluetoothSpeakerHandler):
         :return:
         """
         self._current_state_index += self._state_increment
-        self._current_state_index %= self._state_objects
+        self._current_state_index = self._current_state_index % self._state_objects
         self._state_increment = 1
         self.transition_to(self._state_objects[self._current_state_index])
 
