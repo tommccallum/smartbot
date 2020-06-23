@@ -269,12 +269,10 @@ class MPlayer:
             self.state = MPlayer.STATE_PLAYING
             # mplayer is quite slow to start so
             # so wait before we execute anything else
-            logging.debug("sleeping for 10 while we wait for mplayer to load")
-            time.sleep(2)
-            logging.debug("wakey wakey time")
         else:
-            load_command = self.config["commands"]["load"] + " \"{}\" {}".format(track, seek)
+            load_command = self.config["commands"]["load"] + " \"{}\" 0".format(track)
             self._send_command_to(load_command)
+            seek(seek)
         if seek > 0:
             self.set_play_duration(seek)
             self.continue_play_timer()
