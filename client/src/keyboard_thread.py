@@ -25,6 +25,7 @@ class KeyboardListener(threading.Thread):
         self._running = threading.Event()  # to stop the thread's identity
         self._running.set()  # Set Running to True
         self.listeners = []
+        self.thread_id = None
 
     def add_listener(self, obj):
         self.listeners.append(obj)
@@ -58,6 +59,7 @@ class KeyboardListener(threading.Thread):
 
     def run(self):
         logging.debug("running")
+        self.thread_id = threading.currentThread().ident
         while self._running.isSet():
             self._continue.wait()  # returns immediately when false, blocking until the internal identity bit is true to return
             old_settings = termios.tcgetattr(sys.stdin)
@@ -96,22 +98,14 @@ class KeyboardListener(threading.Thread):
         self.raise_exception() # attempt to get us out of our io block
         self.join() # wait for exit
 
-    def get_id(self):
-        # returns id of the respective thread
-        if hasattr(self, '_thread_id'):
-            return self._thread_id
-        for id, thread in threading._active.items():
-            if thread is self:
-                return id
-        return threading.currentThread().get_ident()
+
 
     def raise_exception(self):
-        thread_id = self.get_id()
-        logging.debug("interrupting thread {}".format(thread_id))
-        res = ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id,
+        logging.debug("interrupting thread {}".format(self.thread_id))
+        res = ctypes.pythonapi.PyThreadState_SetAsyncExc(self.thread_id,
                                                          ctypes.py_object(SystemExit))
         if res > 1:
-            ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, 0)
+            ctypes.pythonapi.PyThreadState_SetAsyncExc(self.thread_id, 0)
             logging.debug('Exception raise failure')
         else:
             logging.debug("exception worked?")
