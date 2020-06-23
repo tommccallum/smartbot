@@ -22,7 +22,7 @@
             "filename": "saved_programmes.json",
             "playlist": {
                 "tracks": [
-                    { "directory": "%HOME%/Music/radio", "extensions": "m4a", "include-subdir": true }
+                    { "directory": "%SMARTBOT%/media/radio", "extensions": "m4a", "include-subdir": true }
                 ],
                 "orderby": "name"
             },
@@ -35,7 +35,7 @@
             "filename": "latest_programmes.json",
             "playlist": {
                 "tracks": [
-                    { "directory": "%HOME%/Radio_Uncompressed/tmp", "extensions": "m4a", "include-subdir": true }
+                    { "directory": "%SMARTBOT%/media/recent", "extensions": "m4a", "include-subdir": true }
                 ],
                 "orderby": ["date", "desc"]
             },
@@ -48,7 +48,7 @@
             "filename": "lets_dance.json",
             "playlist": {
                 "tracks": [
-                    { "directory": "%HOME%/Music/lets_dance", "extensions": "m4a", "include-subdir": true }
+                    { "directory": "%SMARTBOT%/media/lets_dance", "extensions": "m4a", "include-subdir": true }
                 ],
                 "orderby": ["name", "asc"]
             },
@@ -66,7 +66,7 @@
             "filename":"facts_*.json",
             "on_enter": {
                 "type":"sound",
-                "path":"%HOME%/smartbot/sounds/gojetters-funkyfacts.wav"
+                "path":"%SMARTBOT%/media/sounds/gojetters-funkyfacts.wav"
             },
             "on_empty": "There are no funky facts available."
         }

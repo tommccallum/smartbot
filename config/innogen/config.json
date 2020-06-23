@@ -13,49 +13,49 @@
             "when": [ "monday","07:00"],
             "action": "play",
             "args": {
-                "track":"/home/pi/Music/wakeup/all/Happy.mp3"
+                "track":"%SMARTBOT%/media/alarms/all/Happy.mp3"
             }
         },
         {
             "when": [ "tuesday","07:00"],
             "action": "play",
             "args": {
-                "track":"/home/pi/Music/wakeup/all/Happy.mp3"
+                "track":"%SMARTBOT%/media/alarms/all/Happy.mp3"
             }
         },
         {
             "when": [ "wednesday","07:00"],
             "action": "play",
             "args": {
-                "track":"/home/pi/Music/wakeup/all/Happy.mp3"
+                "track":"%SMARTBOT%/media/alarms/all/Happy.mp3"
             }
         },
         {
             "when": [ "thursday","07:00"],
             "action": "play",
             "args": {
-                "track":"/home/pi/Music/wakeup/all/Happy.mp3"
+                "track":"%SMARTBOT%/media/alarms/all/Happy.mp3"
             }
         },
         {
             "when": [ "friday","07:00"],
             "action": "play",
             "args": {
-                "track":"/home/pi/Music/wakeup/all/Happy.mp3"
+                "track":"%SMARTBOT%/media/alarms/all/Happy.mp3"
             }
         },
         {
             "when": [ "saturday","07:00"],
             "action": "play",
             "args": {
-                "track":"/home/pi/Music/wakeup/all/Happy.mp3"
+                "track":"%SMARTBOT%/media/alarms/all/Happy.mp3"
             }
         },
         {
             "when": [ "sunday","07:00"],
             "action": "play",
             "args": {
-                "track":"/home/pi/Music/wakeup/all/Happy.mp3"
+                "track":"%SMARTBOT%/media/alarms/all/Happy.mp3"
             }
         }
   ]
