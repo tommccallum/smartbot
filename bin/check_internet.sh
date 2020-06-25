@@ -85,9 +85,12 @@ do
       fi
     fi
   else
-    echo "[${NOW}] internet lost"
-    INTERNET_CONNECTED=0
-    rm -f $INTERNET_LOCKFILE
+    if [ -e "$INTERNET_LOCKFILE" ]
+    then
+      echo "[${NOW}] internet lost"
+      INTERNET_CONNECTED=0
+      rm -f $INTERNET_LOCKFILE
+    fi
   fi
 
   sleep 1
