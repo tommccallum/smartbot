@@ -103,11 +103,13 @@ class PlaylistStreamState(State):
                 # looks as though when internet cuts out mplayer on pause can stay just fine.
                 self.checkpoint(True)
                 self.get_mplayer().pause()
+                self.play_on_hold_until_internet_is_back = True
                 inline_action("Sorry, the connection has been dropped.  Please hold.")
         elif event.id == EventEnum.INTERNET_FOUND:
             if self.current_track["url"][0:4] == "http":
+                self.play_on_hold_until_internet_is_back = False
                 inline_action("Yay! The connection has been restored. Starting from where you left off.")
-                self.get_mplayer().play()
+                self._restart_where_we_left_off()
 
     def get_track_count(self):
         return self.playlist.size()
@@ -239,9 +241,8 @@ class PlaylistStreamState(State):
             # elif self.get_mplayer().is_stopped():
             #     logging.debug("mplayer is stopped, long load")
             #     self._say_track(track, seek_value)
-            if not self.configuration.internet_detected:
+            if not self.configuration.context.internet_detected:
                 if track["url"][0:4] == "http":
-                    self.play_on_hold_until_internet_is_back = True
                     inline_action("Sorry, the connection has been dropped.  Please hold.")
                     self.configuration.context.ignore_messages = False
                     return
@@ -266,17 +267,11 @@ class PlaylistStreamState(State):
                 self.last_checkpoint = time.time()
 
     def is_finished(self):
-        if not self.configuration.internet_detected:
+        if not self.configuration.context.internet_detected:
             # if we start up and there is no connection then we
             # don't want to be testing if we are finished until
             # the internet is restored.
             if self.current_track["url"][0:4] == "http":
-                return False
-        else:
-            if self.play_on_hold_until_internet_is_back:
-                self.play_on_hold_until_internet_is_back = False
-                inline_action("Yay! The connection has been restored. Starting from where you left off.")
-                self._restart_where_we_left_off()
                 return False
         self.checkpoint()
         if self.get_mplayer().is_finished():
