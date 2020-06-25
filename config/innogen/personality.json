@@ -61,7 +61,7 @@
             "filename": "podcast_history_of_china.json",
             "playlist": {
                 "tracks": [
-                    { "directory": "%SMARTBOT%/media/podcasts/The History Of China", "extensions": "m4a", "include-subdir": true }
+                    { "directory": "%SMARTBOT%/media/podcasts/The History of China", "extensions": "m4a", "include-subdir": true }
                 ],
                 "orderby": ["name", "asc"]
             },
