@@ -3,6 +3,7 @@ import os
 import logging
 import time
 
+from actions import inline_action
 from config_io import Configuration
 from event import Event, EventEnum
 from playlist import Playlist
@@ -31,6 +32,11 @@ class PlaylistStreamState(State):
         self.last_checkpoint = None
         self.has_entry_completed = False
         self.mplayer = None
+
+        # if we start this state and we need an internet connection then this
+        # flag is set to True and the mplayer still not be started until we are
+        # reconnected.
+        self.play_on_hold_until_internet_is_back = False
 
         print("Creating a PlaylistStreamState")
 
@@ -92,6 +98,16 @@ class PlaylistStreamState(State):
         elif event.id == EventEnum.DEVICE_LOST:
             self.checkpoint(True)
             self.get_mplayer().stop()
+        elif event.id == EventEnum.INTERNET_LOST:
+            if self.current_track["url"][0:4] == "http":
+                # looks as though when internet cuts out mplayer on pause can stay just fine.
+                self.checkpoint(True)
+                self.get_mplayer().pause()
+                inline_action("Sorry, the connection has been dropped.  Please hold.")
+        elif event.id == EventEnum.INTERNET_FOUND:
+            if self.current_track["url"][0:4] == "http":
+                inline_action("Yay! The connection has been restored. Starting from where you left off.")
+                self.get_mplayer().play()
 
     def get_track_count(self):
         return self.playlist.size()
@@ -223,6 +239,12 @@ class PlaylistStreamState(State):
             # elif self.get_mplayer().is_stopped():
             #     logging.debug("mplayer is stopped, long load")
             #     self._say_track(track, seek_value)
+            if not self.configuration.internet_connected:
+                if track["url"][0:4] == "http":
+                    self.play_on_hold_until_internet_is_back = True
+                    self.configuration.context.ignore_messages = False
+                    return
+
             self.get_mplayer().start(track["url"], seek_value)
             # elif self.get_mplayer().is_paused():
             #     logging.debug("mplayer is paused, play")
@@ -243,6 +265,17 @@ class PlaylistStreamState(State):
                 self.last_checkpoint = time.time()
 
     def is_finished(self):
+        if not self.configuration.internet_connected:
+            # if we start up and there is no connection then we
+            # don't want to be testing if we are finished until
+            # the internet is restored.
+            if self.current_track["url"][0:4] == "http":
+                return False
+        else:
+            if self.play_on_hold_until_internet_is_back:
+                self.play_on_hold_until_internet_is_back = False
+                self._restart_where_we_left_off()
+                return False
         self.checkpoint()
         if self.get_mplayer().is_finished():
             if self.playlist.size() > 0: # we want to stop it infinitely repeating its got no entries

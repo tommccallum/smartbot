@@ -36,6 +36,9 @@ class UserContext(BluetoothSpeakerHandler):
         self.queue = queue.Queue()
         self.thread_id = threading.get_ident()
         self.keyboard_thread = None
+        self.network_detected = False
+        self.internet_detected = False
+
         self.config = config
         self.mplayer = MPlayer(self.config)
         logging.debug("Context setup in thread {}".format(self.thread_id))
@@ -57,7 +60,8 @@ class UserContext(BluetoothSpeakerHandler):
 
     def start(self):
         """Call this to start the various states that have been enabled"""
-        self.check_connected()
+        self.check_network_connected()
+        self.check_bluetooth_connected()
         if self.keyboard_thread is None:
             self.keyboard_thread = KeyboardListener()
             self.keyboard_thread.add_listener(self)
@@ -246,7 +250,11 @@ class UserContext(BluetoothSpeakerHandler):
                 self._state.on_next_track_down()
             if event.data == EVENT_BUTTON_PREV:
                 self._state.on_previous_track_down()
-
+        elif event.id == EventEnum.NETWORK_FOUND or \
+            event.id == EventEnum.NETWORK_LOST or \
+            event.id == EventEnum.INTERNET_FOUND or \
+            event.id == EventEnum.INTERNET_LOST:
+            self._notify(event)
         elif event.id == EventEnum.QUIT:
             ## shut everything down
             self._notify(event)
@@ -290,7 +298,7 @@ class UserContext(BluetoothSpeakerHandler):
         """this will be coming in to a separate thread!"""
         self.add_event(event)
 
-    def check_connected(self):
+    def check_bluetooth_connected(self):
         if not is_bluetooth_speaker_connected():
             ## pause everything
             logging.debug("detected speaker is not connected")
@@ -304,6 +312,37 @@ class UserContext(BluetoothSpeakerHandler):
             logging.debug("speaker has been reconnected, continuing")
             ev = Event(EventEnum.DEVICE_RECONNECTED)
             self._notify(ev)
+
+    def check_network_connected(self):
+        """
+        Checks network and raises events to take action
+        We check the INTERNET first and then the local NETWORK.  This in on purpose.
+        """
+        network_path="/tmp/smartbot_network.lock"
+        internet_path = "/tmp/smartbot_internet.lock"
+
+        if os.path.isfile(internet_path):
+            if self.internet_detected == False:
+                self.internet_detected = True
+                ev = Event(EventEnum.INTERNET_FOUND)
+                self.add_event(ev)
+        else:
+            if self.internet_detected == True:
+                self.internet_detected = False
+                ev = Event(EventEnum.INTERNET_LOST)
+                self.add_event(ev)
+
+        if os.path.isfile(network_path):
+            if self.network_detected == False:
+                self.network_detected = True
+                ev = Event(EventEnum.NETWORK_FOUND)
+                self.add_event(ev)
+        else:
+            if self.network_detected == True:
+                self.network_detected = False
+                ev = Event(EventEnum.NETWORK_LOST)
+                self.add_event(ev)
+
 
 
     def update(self):

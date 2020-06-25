@@ -16,6 +16,10 @@ then
 fi
 
 function run_application() {
+  echo "Starting network detection"
+  $DIR/bin/check_internet.sh >> $DIR/log/network.log 2>&1 &
+  CHECK_NETWORK_PID=$( ps aux | grep "check_internet.sh" | grep -v grep | awk '{print $2}' )
+
   echo "Starting bluetooth speaker scanner"
   $DIR/hardware/bluetooth.sh >> $DIR/log/bluetooth.log 2>&1 &
   BLUETOOTH_PID=$( ps aux | grep "bluetooth.sh" | grep -v grep | awk '{print $2}' )
@@ -59,6 +63,7 @@ function run_application() {
   $DIR/bin/kill_all_mplayer_jobs.sh
   $DIR/bin/kill_all_lescanner_jobs.sh
   kill -9 ${BLUETOOTH_PID}
+  kill -9 ${CHECK_NETWORK_PID}
 }
 
 run_application
