@@ -10,10 +10,12 @@ LOCAL_NETWORK_CONNECTED=0
 if [ -e "$NETWORK_LOCKFILE" ]
 then
   LOCAL_NETWORK_CONNECTED=1
+  echo "[${NOW}] network state detected as present"
 fi
 if [ -e "$INTERNET_LOCKFILE" ]
 then
   INTERNET_CONNECTED=1
+  echo "[${NOW}] internet state detected as present"
 fi
 
 
