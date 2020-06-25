@@ -24,12 +24,11 @@ if "podcasts" in config:
     podcast_list = config["podcasts"]
 
 for podcast in podcast_list:
-    opt = pods.options(
+    opt = podcasts.options(
         run=True,
         onlynew=True,
         root_dir=config["download_directory"],
-		template="{rootdir}/{podcast}/{date} - {title}{ext}",
-        list=True
+		template="{rootdir}/{podcast}/{date} - {title}{ext}"
     )
 
     podcasts = {
