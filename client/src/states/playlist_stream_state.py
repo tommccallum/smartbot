@@ -38,13 +38,10 @@ class PlaylistStreamState(State):
         # reconnected.
         self.play_on_hold_until_internet_is_back = False
 
-        print("Creating a PlaylistStreamState")
-
         playlist = self.json
         if "playlist" in self.state_config:
             logging.debug("loading playlist from personality spec")
             playlist = self.state_config["playlist"]
-        logging.debug(playlist)
         self.load_playlist(playlist)
 
     def get_mplayer(self):
@@ -60,7 +57,6 @@ class PlaylistStreamState(State):
         }
         """
         self.playlist_config = playlist_config
-        logging.debug(playlist_config)
         self.playlist = Playlist([])
         if playlist_config:
             if not "tracks" in playlist_config:
@@ -76,7 +72,6 @@ class PlaylistStreamState(State):
                     self.playlist.shuffle()
             if "orderby" in playlist_config:
                 self.playlist.sort(playlist_config["orderby"])
-        logging.debug(self.playlist)
 
     def _save_state(self, values):
         """
@@ -107,9 +102,10 @@ class PlaylistStreamState(State):
                 inline_action("Sorry, the connection has been dropped.  Please hold.")
         elif event.id == EventEnum.INTERNET_FOUND:
             if self.current_track["url"][0:4] == "http":
-                self.play_on_hold_until_internet_is_back = False
-                inline_action("Yay! The connection has been restored. Starting from where you left off.")
-                self._restart_where_we_left_off()
+                if self.play_on_hold_until_internet_is_back == True:
+                    self.play_on_hold_until_internet_is_back = False
+                    inline_action("Yay! The connection has been restored. Starting from where you left off.")
+                    self._restart_where_we_left_off()
 
     def get_track_count(self):
         return self.playlist.size()
