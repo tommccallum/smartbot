@@ -271,7 +271,7 @@ class MPlayer:
             if "logfile" in self.config:
                 if self.config["logfile"]:
                     logfile = " > {} 2>&1".format(self.config["logfile"])
-            self.mplayer_process = subprocess.Popen("exec "+shell_cmd+logfile, shell=True, stdout=None, stderr=None)
+            self.mplayer_process = subprocess.Popen("exec "+shell_cmd+logfile, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             logging.info("PID of mplayer process:" + str(self.mplayer_process.pid))
             self.state = MPlayer.STATE_PLAYING
             # mplayer is quite slow to start so
