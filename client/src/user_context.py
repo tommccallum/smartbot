@@ -355,7 +355,8 @@ class UserContext(BluetoothSpeakerHandler):
             If this is true we are in a sensitive area and we don't want to be interrupted
             """
             return True
-        self.check_connected()
+        self.check_bluetooth_connected()
+        self.check_network_connected()
         if self.keyboard_thread is None:
             self.keyboard_thread = KeyboardListener()
             self.keyboard_thread.add_listener(self)
