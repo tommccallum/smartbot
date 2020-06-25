@@ -60,7 +60,8 @@ class Alarm:
                 alarm_event.validate()  # will throw exception if not correct
                 self._schedule_task(at, alarm_event)
                 schedule.run_pending()
-                logging.info("Next job to run at {}".format(schedule.next_run()))
+
+            logging.info("Next job to run at {}".format(schedule.next_run()))
 
     def _timer(self):
         """This is the callback function which is run each second"""

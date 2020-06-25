@@ -222,7 +222,7 @@ class UserContext(BluetoothSpeakerHandler):
 
     def _process_message(self, event):
         if event is None: return True
-        logging.debug("pulling event off queue {}".format(event))
+        logging.debug("pulling event off queue with ID {}".format(event.id))
         if event.id == EventEnum.INTERRUPT:
             logging.debug("interrupting")
             self.do_interrupt(event)

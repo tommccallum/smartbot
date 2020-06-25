@@ -10,7 +10,7 @@ class PlayAlarmEvent(AlarmEvent):
         self.config = config
 
     def validate(self):
-        logging.debug(self.data)
+        # logging.debug(self.data)
         if "track" not in self.data:
             raise ValueError("track not found in data")
         if self.config.SMARTBOT_HOME is not None:

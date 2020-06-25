@@ -24,7 +24,7 @@ class Playlist:
 
     def _load(self, list_of_tracks):
         """Load playlist from configuration array"""
-        logging.debug(list_of_tracks)
+        # logging.debug(list_of_tracks)
         if type(list_of_tracks) is not list:
             raise ValueError("playlist configuration is not a list of tracks or a list of directories")
         for item in list_of_tracks:
@@ -34,7 +34,7 @@ class Playlist:
         self.ordering = list(range(0, len(self.playlist)))
 
     def _add_track(self, track, recursive_dir = True):
-            logging.debug(track)
+            # logging.debug(track)
             if type(track) is dict:
                 if "directory" in track:
                     # a directory with options
