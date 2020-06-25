@@ -84,7 +84,11 @@ do
         echo "$NOW" > $INTERNET_LOCKFILE
       fi
     fi
-
+  else
+    echo "[${NOW}] internet lost"
+    INTERNET_CONNECTED=0
+    rm -f $INTERNET_LOCKFILE
   fi
 
+  sleep 1
 done
