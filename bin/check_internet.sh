@@ -7,6 +7,7 @@ INTERNET_LOCKFILE="/tmp/smartbot_internet.lock"
 INTERNET_CONNECTED=0
 LOCAL_NETWORK_CONNECTED=0
 
+NOW=$(date "+%Y-%m-%d %H:%M:%S")
 if [ -e "$NETWORK_LOCKFILE" ]
 then
   LOCAL_NETWORK_CONNECTED=1
@@ -65,7 +66,7 @@ do
     #
     # Check internet connection by pinging the CHECK_IP
     #
-    PING=$( ping -c $CHECK_IP | grep "1 received" | wc -l )
+    PING=$( ping -c 1 $CHECK_IP | grep "1 received" | wc -l )
 
     if [ $PING -eq 0 ]
     then
