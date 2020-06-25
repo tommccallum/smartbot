@@ -239,9 +239,10 @@ class PlaylistStreamState(State):
             # elif self.get_mplayer().is_stopped():
             #     logging.debug("mplayer is stopped, long load")
             #     self._say_track(track, seek_value)
-            if not self.configuration.internet_connected:
+            if not self.configuration.internet_detected:
                 if track["url"][0:4] == "http":
                     self.play_on_hold_until_internet_is_back = True
+                    inline_action("Sorry, the connection has been dropped.  Please hold.")
                     self.configuration.context.ignore_messages = False
                     return
 
@@ -265,7 +266,7 @@ class PlaylistStreamState(State):
                 self.last_checkpoint = time.time()
 
     def is_finished(self):
-        if not self.configuration.internet_connected:
+        if not self.configuration.internet_detected:
             # if we start up and there is no connection then we
             # don't want to be testing if we are finished until
             # the internet is restored.
@@ -274,6 +275,7 @@ class PlaylistStreamState(State):
         else:
             if self.play_on_hold_until_internet_is_back:
                 self.play_on_hold_until_internet_is_back = False
+                inline_action("Yay! The connection has been restored. Starting from where you left off.")
                 self._restart_where_we_left_off()
                 return False
         self.checkpoint()
