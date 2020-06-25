@@ -37,7 +37,7 @@ class EventDeviceAgent(BasicThread):
     def find_device(self):
         if self.name == None:
             self.device = None
-            print("Device name is none, setting device handle to None")
+            logging.debug("Device name is none, setting device handle to None")
             return
 
     def _find_input_device(self):
@@ -45,7 +45,7 @@ class EventDeviceAgent(BasicThread):
             input_dev = InputDevice(path)
             if input_dev.name == self.name:
                 self.device = path
-                print("Found device " + self.name + " at " + self.device)
+                logging.debug("Found device " + self.name + " at " + self.device)
         if not self.device:
             # fail here, no point saying anything as speaker has not been found
             raise ValueError("Device " + self.name + " is not found")
@@ -53,7 +53,7 @@ class EventDeviceAgent(BasicThread):
     def list_devices(self):
         devices = [InputDevice(path) for path in list_devices()]
         for device in devices:
-            print(device.path, device.name, device.phys)
+            logging.info("{} {} {}".format(device.path, device.name, device.phys))
 
     def open(self):
         if self.device:
@@ -70,7 +70,7 @@ class EventDeviceAgent(BasicThread):
             except:
                 pass
             if self.device is None:
-                logging.debug("devicqe not found yet, will try again in a bit")
+                logging.debug("device not found yet, will try again in a bit")
                 time.sleep(1)
                 return
         if self.device_io is None:
