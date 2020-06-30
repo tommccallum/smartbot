@@ -66,7 +66,7 @@ class UserContext(BluetoothSpeakerHandler):
     def stop(self):
         logging.info("Stopping application context")
         if self.event_device_agent is not None:
-            self.event_Device_agent.stop()
+            self.event_device_agent.stop()
         quit_ev = Event(EventEnum.QUIT)
         if self.keyboard_thread:
             self.keyboard_thread.stop()
