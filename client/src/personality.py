@@ -134,9 +134,15 @@ class Personality:
             return False
         when = datetime.datetime.now()
         today_as_string = when.strftime("%Y-%m-%d")
+        end_time = datetime.datetime.strptime("{} {}".format(today_as_string, self.get_end_sleep_time()), "%Y-%m-%d %H:%M")
+        soft_sleep = datetime.datetime.strptime("{} {}".format(today_as_string, self.get_soft_sleep_time()),
+                                                "%Y-%m-%d %H:%M")
+        hard_sleep = datetime.datetime.strptime("{} {}".format(today_as_string, self.get_hard_sleep_time()),
+                                                "%Y-%m-%d %H:%M")
+        if end_time < soft_sleep:
+            end_time = end_time + datetime.timedelta(days=1)
         if globalvars.app_context and globalvars.app_context.is_asleep():
-            end_datetime = datetime.datetime.strptime("{} {}".format(today_as_string,self.get_end_sleep_time()), "%Y-%m-%d %H:%M")
-            if when > end_datetime:
+            if when > end_time:
                 ev = Event(EventEnum.EXIT_SLEEP)
                 ev.override_ignorable_events = True
                 if globalvars.app_context:
@@ -146,8 +152,6 @@ class Personality:
         else:
             if when > datetime.datetime.strptime("{} {}".format(today_as_string,self.get_end_sleep_time()), "%Y-%m-%d %H:%M"):
                 return False
-            soft_sleep = datetime.datetime.strptime("{} {}".format(today_as_string,self.get_soft_sleep_time()),"%Y-%m-%d %H:%M")
-            hard_sleep = datetime.datetime.strptime("{} {}".format(today_as_string,self.get_hard_sleep_time()),"%Y-%m-%d %H:%M")
             if when >= hard_sleep:
                 ev = Event(EventEnum.ENTER_SLEEP_NOW)
                 ev.target_state = SleepState.create(self.config, self, {})
