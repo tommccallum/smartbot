@@ -103,7 +103,6 @@ class ContinuousState(State):
         else:
             self._resume_thread()
 
-
     def on_exit(self):
         self.waiting_to_pause = 1
         self._pause_thread()
@@ -122,7 +121,8 @@ class ContinuousState(State):
     def on_play_down(self):
         logging.debug("trying to move on")
         self._pause_thread()
-        self.context.transition_to_next()
+        ev = Event(EventEnum.TRANSITION_TO_NEXT)
+        self.context.add_event(ev)
 
     def on_interrupt(self):
         self.waiting_to_pause = 1
@@ -139,5 +139,7 @@ class ContinuousState(State):
         if event.id == EventEnum.ENTER_OWNER:
             self.on_continue()
         elif event.id == EventEnum.EXIT_OWNER:
+            self.on_interrupt()
+        elif event.id == EventEnum.ENTER_SLEEP_NOW:
             self.on_interrupt()
 

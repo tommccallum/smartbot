@@ -34,6 +34,66 @@ class TestPersonality(unittest.TestCase):
         self.assertNotEqual(None, actual)
         config._cleanup()
 
+    def test_has_sleep_mode(self):
+        config = Configuration()
+        p = Personality(config)
+        p.json["sleep"] = {
+            "enabled": True,
+            "begin": {
+                "hard": "09:00",
+                "soft": "09:30"
+            },
+            "end": "17:00",
+            "on_end": "Live Radio",
+            "phrases": [ "Its only %T, go back to sleep Innogen.",
+                "Its not quite morning Innogen, go back to sleep",
+                "Its really early Innogen, go back to sleep"
+            ]
+        }
+        self.assertTrue(p.has_sleep_mode())
+        self.assertTrue(p.is_sleep_mode_enabled())
+        self.assertEqual("09:00",p.get_hard_sleep_time())
+        self.assertEqual("09:30", p.get_soft_sleep_time())
+        self.assertEqual("17:00", p.get_end_sleep_time())
+        self.assertEqual("Live Radio", p.get_on_end_sleep_action())
+        self.assertTrue(p.check_sleep_spec_is_valid())
+
+    def test_for_sleep_mode_true(self):
+        config = Configuration()
+        p = Personality(config)
+        p.json["sleep"] = {
+            "enabled": True,
+            "begin": {
+                "hard": "09:00",
+                "soft": "09:30"
+            },
+            "end": "11:40",
+            "on_end": "Live Radio",
+            "phrases": ["Its only %T, go back to sleep Innogen.",
+                        "Its not quite morning Innogen, go back to sleep",
+                        "Its really early Innogen, go back to sleep"
+                        ]
+        }
+        self.assertTrue(p.check_for_sleep_mode())
+
+    def test_for_sleep_mode_false(self):
+        config = Configuration()
+        p = Personality(config)
+        p.json["sleep"] = {
+            "enabled": True,
+            "begin": {
+                "hard": "09:00",
+                "soft": "09:30"
+            },
+            "end": "09:40",
+            "on_end": "Live Radio",
+            "phrases": ["Its only %T, go back to sleep Innogen.",
+                        "Its not quite morning Innogen, go back to sleep",
+                        "Its really early Innogen, go back to sleep"
+                        ]
+        }
+        self.assertFalse(p.check_for_sleep_mode())
+
 
 if __name__ == '__main__':
     unittest.main()

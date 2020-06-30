@@ -24,13 +24,11 @@ class VoiceLibrary:
         self.phrases = []
         self.speech = {}
         if os.path.isfile(self.phrases_full_path):
-            logging.debug(self.phrases_full_path)
             with open(self.phrases_full_path, "r") as in_file:
                 self.phrases = json.load(in_file)
 
         self.speech_full_path = personality.config.find(self.speech_filename)
         if os.path.isfile(self.speech_full_path):
-            logging.debug(self.speech_full_path)
             with open(self.speech_full_path, "r") as in_file:
                 self.speech = json.load(in_file)
 

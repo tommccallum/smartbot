@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CONFIG="/home/pi/smartbot/recent-config.sh"
+CONFIG="/home/pi/.config/smartbot/recent-config.sh"
 if [ "x${CONFIG}" == "x" ]
 then
   echo "empty configuration path"

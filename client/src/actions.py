@@ -1,10 +1,12 @@
+import datetime
 import os
+import random
 import subprocess
 import globalvars
 
 
 def expand_path(path):
-    config = globalvars.app_context.personality.config
+    config = globalvars.app_context.config
     if config.HOME_DIRECTORY is not None:
         path = path.replace("%HOME%", config.HOME_DIRECTORY)
     if config.config_path is not None:
@@ -28,6 +30,31 @@ def blocking_play(path):
         return True
     return False
 
+def replace_tags(text):
+    text = text.replace( "%O", globalvars.app_context.config.json["owner"] )
+    return text
+
+def time_based_greeting():
+    when = datetime.datetime.now()
+    if when.hour >= 21:
+        greeting = "Evening"
+    elif when.hour >= 18:
+        greeting = "Evening"
+    elif when.hour >= 12 and when.hour < 16:
+        greeting = "Afternoon"
+    elif when.hour >= 16 and when.hour < 18:
+        greeting = "Hello"
+    elif when.hour < 2:
+        greeting = "Hello"
+    elif when.hour < 6:
+        greeting = "Morning"
+    else:
+        # after 6 and before 12
+        greeting = "Morning"
+    if type(greeting) is list:
+        greeting = random.choice(greeting)
+    return greeting
+
 
 def inline_action(item, default=None):
     """
@@ -44,6 +71,7 @@ def inline_action(item, default=None):
         else:
             item = default
     if type(item) is str:
+        item = replace_tags(item)
         globalvars.app_context.personality.voice_library.say(item)
         return True
     elif type(item) is dict:
@@ -56,7 +84,8 @@ def inline_action(item, default=None):
                     return False
             if item["type"].lower() == "speech":
                 if "text" in item:
-                    globalvars.app_context.personality.voice_library.say(item)
+                    to_say = replace_tags(item["text"])
+                    globalvars.app_context.personality.voice_library.say(to_say)
                     return True
                 else:
                     return False

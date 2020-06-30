@@ -148,7 +148,7 @@ class Alarm:
             now = datetime.now()
             date_time = now.strftime("%Y-%m-%d %H:%M:%S")
             logging.info("Woke at {} to {}".format(date_time, alarm_event))
-            ev = Event(EventEnum.INTERRUPT)
+            ev = Event(EventEnum.ALARM_INTERRUPT)
             if self.config_object.context is not None:
                 ev.target_state = AlarmState(self.config_object, self.config_object.context.personality, alarm_event)
                 logging.debug("attempting to add event to context queue")

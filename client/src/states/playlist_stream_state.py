@@ -106,6 +106,9 @@ class PlaylistStreamState(State):
                     self.play_on_hold_until_internet_is_back = False
                     inline_action("Yay! The connection has been restored. Starting from where you left off.")
                     self._restart_where_we_left_off()
+        elif event.id == EventEnum.ENTER_SLEEP_NOW:
+            ## pause and stop immediately, without message to user
+            self.on_previous_track_down()
 
     def get_track_count(self):
         return self.playlist.size()
@@ -166,10 +169,12 @@ class PlaylistStreamState(State):
             if self.get_mplayer().is_paused():
                 self.personality.voice_library.say("Continuing with {}".format(self.current_track["name"]))
                 self.get_mplayer().play()
+                self.active = True
             else:
                 self.get_mplayer().pause()
                 self.personality.voice_library.say("Pausing playlist, press the same button to continue")
                 self._save()
+                self.active = False
 
 
 
@@ -186,7 +191,8 @@ class PlaylistStreamState(State):
             logging.debug("pausing play")
             self.get_mplayer().pause()
         self._save()
-        self.context.transition_to_next()
+        ev = Event(EventEnum.TRANSITION_TO_NEXT)
+        self.context.add_event(ev)
 
     def on_interrupt(self):
         self.get_mplayer().on_interrupt()

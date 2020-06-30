@@ -6,6 +6,20 @@
         },
         "language": "en"
     },
+    "sleep": {
+        "enabled": true,
+        "begin": {
+            "hard": "22:00",
+            "soft": "21:30"
+        },
+        "end": "06:00",
+         "on_enter": "%SMARTBOT%/sounds/Marconi_Union-Weightless-sleepversion.mp3",
+        "on_end": "Silence",
+        "phrases": [ "Its only %T, go back to sleep Innogen.",
+            "Its not quite morning Innogen, go back to sleep",
+            "Its really early Innogen, go back to sleep"
+        ]
+    },
     "states": [{
         "type": "introduction",
         "filename": "introduction.json"

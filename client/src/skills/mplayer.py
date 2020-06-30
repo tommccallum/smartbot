@@ -3,6 +3,8 @@ import signal
 import subprocess
 import psutil
 import json
+
+import globalvars
 from fifo import make_fifo
 import time
 import logging
@@ -125,6 +127,7 @@ class MPlayer:
         except:
             #logging.debug("{} does not exist".format(self.mplayer_process.pid))
             self.state = MPlayer.STATE_STOPPED
+            self._stop_and_clean_up()
             return True     # pid does not exist
         return False    # pid does exist
 
@@ -251,6 +254,7 @@ class MPlayer:
         Stores process info self.mplayer_process
         Creates fifo file on startup with unique pid
         """
+        globalvars.app_context.ignore_messages = True
         logging.debug("{} {}".format(track,seek))
         if self.mplayer_process is None:
             self._make_fifo()
@@ -286,6 +290,8 @@ class MPlayer:
         else:
             # we do this afterwards as we would rather be too little duration than too much
             self.start_play_timer()
+        time.sleep(5)
+        globalvars.app_context.ignore_messages = False
 
     def start(self, track=None, seek=0):
         """Run mplayer and write pid to file just in case we need to clean up"""

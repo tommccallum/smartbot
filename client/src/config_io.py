@@ -8,7 +8,7 @@ from os import makedirs
 from pathlib import Path
 import shutil
 from alarm import Alarm
-
+from globalvars import setup_logging
 
 
 class Configuration:
@@ -30,13 +30,7 @@ class Configuration:
     @staticmethod
     def _setup_logging():
         if Configuration._logging_setup is False:
-            root = logging.getLogger()
-            root.setLevel(logging.DEBUG)
-            handler = logging.StreamHandler(sys.stdout)
-            handler.setLevel(logging.DEBUG)
-            formatter = logging.Formatter('[%(module)s::%(funcName)s] [%(levelname)s] %(message)s')
-            handler.setFormatter(formatter)
-            root.addHandler(handler)
+            setup_logging()
             Configuration._logging_setup = True
 
     @staticmethod
@@ -73,12 +67,43 @@ class Configuration:
         # convert both to absolute paths
         self.config_path = os.path.abspath(self.config_path)
         self.config_file = os.path.abspath(self.config_file)
-        logging.debug("Using configuration from {}".format(self.config_path))
+        logging.info("Using configuration from '{}'".format(self.config_path))
 
         self.alarm = None           # set when read new configuration
         self.context = None         # set to allow the alarm to interrupt
+        self.personality = None     # direct reference to personality class
         self.json = None            # the JSON from config.json
+
+        self.bluetooth_owners_capability = True
+        self.bluetooth_speaker_capability = True
+        self.network_monitor_capability = True
+        self.internet_monitor_capability = True
+        self.keyboard_monitor_capability = True
+
+        self.enable_capabilities_from_command_line()
         self._load()
+        self.print_capabilities()
+
+    def print_capabilities(self):
+
+        logging.info("Capability: Bluetooth Owners = {}".format(self.bluetooth_owners_capability))
+        logging.info("Capability: Bluetooth Speaker = {}".format(self.bluetooth_speaker_capability))
+        logging.info("Capability: Network = {}".format(self.network_monitor_capability))
+        logging.info("Capability: Internet = {}".format(self.internet_monitor_capability))
+        logging.info("Capability: Keyboard = {}".format(self.keyboard_monitor_capability))
+
+    def enable_capabilities_from_command_line(self):
+        for arg in sys.argv:
+            if arg == "-owners":
+                self.bluetooth_owners_capability = False
+            if arg == "-bluetooth-speaker":
+                self.bluetooth_speaker_capability = False
+            if arg == "-network-monitor":
+                self.network_monitor_capability = False
+            if arg == "-internet-monitor":
+                self.internet_monitor_capability = False
+            if arg == "-keyboard":
+                self.keyboard_monitor_capability = False
 
     def _cleanup(self):
         if self.alarm is not None:

@@ -13,9 +13,8 @@ EVENT_KEY_Q = 4
 class EventEnum(Enum):
     """different events"""
     NO_EVENT = 0
-    INTERRUPT = 1
+    ALARM_INTERRUPT = 1
     CONTINUE = 2
-    ALARM = 3
     ENTER_OWNER = 4
     EXIT_OWNER = 5
     DEVICE_FOUND = 6
@@ -29,6 +28,12 @@ class EventEnum(Enum):
     NETWORK_LOST=16,
     INTERNET_FOUND=17,
     INTERNET_LOST=18,
+    ENTER_SLEEP_NOW=19,         ## definitely go to sleep
+    ENTER_SLEEP_IF_ABLE = 20,   ## if we are paused, then enter sleep mode
+    EXIT_SLEEP=21,              ## wakey wakey
+    TRANSITION_TO_NEXT=22,
+    TRANSITION_TO_FIRST = 23,
+    TRANSITION_TO_NAMED=24,
     QUIT=255
 
 

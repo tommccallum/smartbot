@@ -5,11 +5,7 @@ import time
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__),"../src"))
 
-
-
 from keyboard_thread import KeyboardListener
-
-
 from config_io import Configuration
 from skills.mplayer import MPlayer
 
@@ -31,29 +27,34 @@ class TestMPlayer(unittest.TestCase):
         mplayer1 = MPlayer(config)
         self.assertNotEqual(mplayer1.instance_id, mplayer2.instance_id)
 
-    def test_shutdown(self):
+    def test_start_and_stop(self):
         config = Configuration(CURDIR + "/test_conf_simple")
         mplayer = MPlayer(config)
         mplayer.start(CURDIR + "/../../sounds/piano2.m4a")
         time.sleep(3)
         mplayer.stop()
 
-    def test_shutdown(self):
-        keyboard_thread = KeyboardListener()
-        keyboard_thread.add_listener(self)
-        keyboard_thread.start()
-        config = Configuration(CURDIR + "/test_conf_simple")
-        mplayer = MPlayer(config)
-        mplayer.start("http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio2_mf_p")
-        for ii in range(0,5):
-            print("Attempt {}".format(ii))
-            time.sleep(3)
-            mplayer.pause()
-            time.sleep(3)
-            mplayer.play()
-        time.sleep(3)
-        mplayer.stop()
-        keyboard_thread.stop()
+    # def test_shutdown(self):
+    #     """
+    #     Testing that we can pause and continue while keyboard is listening and
+    #     then shutdown
+    #     :return:
+    #     """
+    #     keyboard_thread = KeyboardListener()
+    #     keyboard_thread.add_listener(self)
+    #     keyboard_thread.start()
+    #     config = Configuration(CURDIR + "/test_conf_simple")
+    #     mplayer = MPlayer(config)
+    #     mplayer.start("http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio2_mf_p")
+    #     for ii in range(0,5):
+    #         print("Attempt {}".format(ii))
+    #         time.sleep(3)
+    #         mplayer.pause()
+    #         time.sleep(3)
+    #         mplayer.play()
+    #     time.sleep(3)
+    #     mplayer.stop()
+    #     keyboard_thread.stop()
 
 if __name__ == '__main__':
     unittest.main()

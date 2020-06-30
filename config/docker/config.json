@@ -1,8 +1,6 @@
 {
   "owner": "Innogen",
   "personality": "personality.json",
-  "radio_show_path": "/home/pi/Radio_Uncompressed",
-  "music_path": "/home/pi/Music",
   "devices": {
     "path": "devices.json"
   },

@@ -104,7 +104,16 @@ else
   cd /home/pi/flite
   ./configure
   make
-  make get_voices
+  if [ $IS_DOCKER -gt 0 ]
+  then
+    if [ ! -e "/home/pi/flite/voices" ]
+    then
+      mkdir -p /home/pi/flite/voices
+    fi
+    mv ./tmp/voices/* /home/pi/flite/voices
+  else
+    make get_voices
+  fi
 fi
 popd
 
@@ -136,9 +145,9 @@ crontab -l
 if [ $IS_DOCKER -gt 0 ]
 then
   echo "[WARN] Moving existing radio shows to media/recent"
-  if [ -e "./tmp" ]
+  if [ -e "/home/pi/smartbot/tmp" ]
   then
-    mv ./tmp/*.m4a /home/pi/smartbot/media/recent
+    mv /home/pi/smartbot/tmp/*.m4a /home/pi/smartbot/media/recent
   fi
 else
   pushd .

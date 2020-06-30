@@ -1,4 +1,6 @@
 import logging
+
+from event import EventEnum, Event
 from states.state import State
 
 
@@ -13,14 +15,16 @@ class EndState(State):
     def on_enter(self):
         logging.debug("EndState::on_enter")
         if self._context:
-            self._context.transition_to_first()
+            ev = Event(EventEnum.TRANSITION_TO_FIRST)
+            self.context.add_event(ev)
 
     def on_exit(self):
-        logging.debug("EndState::on_enter")
+        logging.debug("EndState::on_exit")
 
     def on_play_down(self):
         logging.debug("transitioning to new state")
         if self._context:
-            self._context.transition_to_first()
+            ev = Event(EventEnum.TRANSITION_TO_FIRST)
+            self.context.add_event(ev)
 
 

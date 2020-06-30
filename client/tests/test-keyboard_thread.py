@@ -2,28 +2,27 @@ import logging
 import unittest
 import os
 import sys
+import time
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__),"../src"))
 
+from globalvars import setup_logging
 from keyboard_thread import KeyboardListener
-import time
 
 
 class TestKeyboardThread(unittest.TestCase):
 
     def test_keys(self):
-        root = logging.getLogger()
-        root.setLevel(logging.DEBUG)
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('[%(asctime)s] [%(module)s::%(funcName)s] [%(levelname)s] %(message)s',
-                                      datefmt="%Y-%m-%d %H:%M:%S")
-        handler.setFormatter(formatter)
-        root.addHandler(handler)
+        """
+        Test is the keyboard picks up on arrow keys, requires user input
+        :return:
+        """
+        setup_logging()
 
         k = KeyboardListener()
         k.start()
         time.sleep(3)
-
+        k.stop()
 
 if __name__ == '__main__':
     unittest.main()

@@ -7,19 +7,20 @@
         "language": "en"
     },
     "states": [{
-        "name": "introduction"
+        "type": "introduction",
+        "title": "introduction"
         },{
-            "name": "audio",
+            "type": "audio",
             "title": "Live Radio",
             "filename": "live_stream.json",
             "on_enter": "You are now listening to live radio.",
             "on_empty": "There are no radio stations available."
         }, {
-            "name": "audio",
+            "type": "audio",
             "title": "Saved Programmes",
             "playlist": {
                 "tracks": [
-                    { "directory": "%HOME%/Radio_Uncompressed/keep", "extensions": "m4a", "include-subdir": true }
+                    { "directory": "%SMARTBOT%/media/radio", "extensions": "m4a", "include-subdir": true }
                 ],
                 "orderby": "name"
             },
@@ -27,11 +28,11 @@
             "on_empty": "There are no favourites chosen yet."
         },
         {
-            "name": "audio",
+            "type": "audio",
             "title": "Latest Programmes",
             "playlist": {
                 "tracks": [
-                    { "directory": "%HOME%/Radio_Uncompressed/tmp", "extensions": "m4a", "include-subdir": true }
+                    { "directory": "%SMARTBOT%/media/recent", "extensions": "m4a", "include-subdir": true }
                 ],
                 "orderby": ["date", "desc"]
             },

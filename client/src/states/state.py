@@ -30,14 +30,18 @@ class State(BluetoothSpeakerHandler):
         self.title = None
         self.configuration = configuration
         self.personality = personality
+        self.active = True          # set to False if we are not currently doing anything
         # this is the configuration in the 'states' key of the personality file
         self.state_config = state_configuration
         self.local_conf = None
+        self.title = None
         self.json = {}
         if self.state_config is not None:
             if "filename" in self.state_config:
                 self.local_conf = os.path.join(self.configuration.config_path, self.state_config["filename"])
                 self._read()
+        if "title" in self.state_config:
+            self.title = self.state_config["title"]
 
     def _read(self):
         logging.debug(self.local_conf)
@@ -109,3 +113,9 @@ class State(BluetoothSpeakerHandler):
 
     def is_finished(self):
         return False
+
+    def is_sleep_state(self):
+        return False
+
+    def is_active(self):
+        return self.active

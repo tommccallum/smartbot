@@ -31,11 +31,11 @@ for podcast in podcast_list:
 		template="{rootdir}/{podcast}/{date} - {title}{ext}"
     )
 
-    podcasts = {
+    podcastList = {
         podcast["name"]: podcast["url"]
     }
 
     print(opt)
-    print(podcasts)
+    print(podcastList)
 
-    pods.getpodcast(podcasts, opt)
+    podcasts.getpodcast(podcastList, opt)

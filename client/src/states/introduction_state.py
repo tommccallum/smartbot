@@ -1,6 +1,9 @@
 import logging
+import random
 
+from actions import time_based_greeting
 from config_io import Configuration
+from event import EventEnum, Event
 from states.state import State
 
 class IntroductionState(State):
@@ -21,13 +24,15 @@ class IntroductionState(State):
         super(IntroductionState, self).__init__(configuration, personality, state_configuration)
         self.next_track = 0
         self.first_run = True
+        if "phrases" in self.state_config:
+            self.phrases = self.state_config["phrases"]
         if "introduction" in self.json:
             self.first_run = self.json["introduction"]
 
     def on_enter(self):
         logging.debug("IntroductionState::on_enter")
         if self.first_run:
-            self.personality.voice_library.say("Hello {}".format(self.configuration.json["owner"]))
+            self.personality.voice_library.say("{} {}".format(time_based_greeting(), self.configuration.json["owner"]))
             if not self.json or not "introduction" in self.json:
                 self.personality.voice_library.say("My name is {}".format(self.personality.get_name()))
                 self.json["introduction"] = True
@@ -37,7 +42,9 @@ class IntroductionState(State):
         ## we have to instruct the context owner to move to next step
         ## this is None if we are testing solo
         if self._context:
-            self._context.transition_to_next()
+            ev = Event(EventEnum.TRANSITION_TO_NEXT)
+            self.context.add_event(ev)
+
 
     def on_exit(self):
         logging.debug("IntroductionState::on_exit")

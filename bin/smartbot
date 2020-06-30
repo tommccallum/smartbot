@@ -15,25 +15,52 @@ then
   exit 1
 fi
 
+function clean_up_scripts() {
+  # ensure we have removed all mplayer jobs that might have been kept around
+  # due to some silly coding error
+  $DIR/bin/kill_all_mplayer_jobs.sh
+  $DIR/bin/kill_all_lescanner_jobs.sh
+  BLUETOOTH_PID=$( ps aux | grep "bluetooth.sh" | grep -v grep | awk '{print $2}' )
+  if [ "x${BLUETOOTH_PID}" != "x" ]; then
+    kill -9 ${BLUETOOTH_PID}
+  fi
+  CHECK_NETWORK_PID=$( ps aux | grep "check_internet.sh" | grep -v grep | awk '{print $2}' )
+  if [ "x${CHECK_NETWORK_PID}" != "x" ]; then
+    kill -9 ${CHECK_NETWORK_PID}
+  fi
+}
+
 function run_application() {
+  # These are TRUE when empty, FALSE when filled
+  ENABLE_NETWORK_MONITOR=""
+  ENABLE_INTERNET_MONITOR=""
+  ENABLE_OWNERS=""
+  ENABLE_BLUETOOTH_SPEAKER=""
+  ENABLE_KEYBOARD=""
+
+  echo "Ensuring there are no existing scripts running..."
+  clean_up_scripts
+
   echo "Starting network detection"
   $DIR/bin/check_internet.sh >> $DIR/log/network.log 2>&1 &
-  CHECK_NETWORK_PID=$( ps aux | grep "check_internet.sh" | grep -v grep | awk '{print $2}' )
 
-  echo "Starting bluetooth speaker scanner"
-  $DIR/hardware/bluetooth.sh >> $DIR/log/bluetooth.log 2>&1 &
-  BLUETOOTH_PID=$( ps aux | grep "bluetooth.sh" | grep -v grep | awk '{print $2}' )
-
-  # wait until the speaker is attached before running application
-  while true
-  do
-    if [ -e "$LOCKFILE" ]
-    then
-      break
-    else
-      sleep 1
-    fi
-  done
+  if [ $IS_DOCKER -eq 0 ]
+  then
+    echo "Starting bluetooth speaker scanner"
+    $DIR/hardware/bluetooth.sh >> $DIR/log/bluetooth.log 2>&1 &
+    # wait until the speaker is attached before running application
+    while true
+    do
+      if [ -e "$LOCKFILE" ]
+      then
+        break
+      else
+        sleep 1
+      fi
+    done
+  else
+    ENABLE_BLUETOOTH_SPEAKER="-bluetooth-speaker"
+  fi
 
   if [ $IS_BLUETOOTH -eq 0 -a $IS_DOCKER -gt 0 ]
   then
@@ -42,28 +69,33 @@ function run_application() {
   fi
   if [ $IS_BLUETOOTH -gt 0 ]
   then
-    IS_RUNNING=$( ps aux | grep lescanner | grep -v grep | wc -l)
-    if [ $IS_RUNNING -gt 0 ]
+    # has it a local bluetooth device though?
+    LOCAL_BT_DEVICE_COUNT=$( hcitool dev | grep -v "Devices:" | wc -l )
+    if [ ${LOCAL_BT_DEVICE_COUNT} -gt 0 ]
     then
-      echo "Bluetooth scanner is already running"
+      IS_RUNNING=$( ps aux | grep lescanner | grep -v grep | wc -l)
+      if [ $IS_RUNNING -gt 0 ]
+      then
+        echo "Bluetooth scanner is already running"
+      else
+        echo "Starting bluetooth scanner"
+        #sudo $DIR/bin/lescanner.py 1> $DIR/log/bt_scanner.log 2>&1 &
+      fi
     else
-      echo "Starting bluetooth scanner"
-      #sudo $DIR/bin/lescanner.py 1> $DIR/log/bt_scanner.log 2>&1 &
+      echo "Local bluetooth device was not detected."
+      ENABLE_OWNERS="-owners"
     fi
   else
     echo "Bluetooth was not detected."
+    ENABLE_OWNERS="-owners"
   fi
 
   # start us off
   echo "Starting smartbot"
-  $PYTHON $DIR/client/src/main.py
+  $PYTHON $DIR/client/src/main.py ${ENABLE_NETWORK_MONITOR} ${ENABLE_INTERNET_MONITOR} ${ENABLE_OWNERS} ${ENABLE_BLUETOOTH_SPEAKER} ${ENABLE_KEYBOARD}
 
-  # ensure we have removed all mplayer jobs that might have been kept around
-  # due to some silly coding error
-  $DIR/bin/kill_all_mplayer_jobs.sh
-  $DIR/bin/kill_all_lescanner_jobs.sh
-  kill -9 ${BLUETOOTH_PID}
-  kill -9 ${CHECK_NETWORK_PID}
+  echo "Tidying up after exit..."
+  clean_up_scripts
 }
 
 run_application

@@ -40,9 +40,5 @@ class TestAlarmState(unittest.TestCase):
         time.sleep(90)
         # you should here the piano sound during this test
 
-    def test_over_song(self):
-        """Test while we are playing a song to make sure we interrupt properly"""
-
-
 if __name__ == '__main__':
     unittest.main()

@@ -33,18 +33,21 @@ class Playlist:
         self.playlist = list({v['url']:v for v in self.playlist}.values())
         self.ordering = list(range(0, len(self.playlist)))
 
+    def _replace_tags(self, text):
+        if self.home_path is not None:
+            text = text.replace("%HOME%", self.home_path)
+        if self.config_path is not None:
+            text = text.replace("%CONFIG%", self.config_path)
+        if self.smartbot_path is not None:
+            text = text.replace("%SMARTBOT%", self.smartbot_path)
+        return text
+
     def _add_track(self, track, recursive_dir = True):
             # logging.debug(track)
             if type(track) is dict:
                 if "directory" in track:
                     # a directory with options
-                    directory = track["directory"]
-                    if self.home_path is not None:
-                        directory = directory.replace("%HOME%", self.home_path)
-                    if self.config_path is not None:
-                        directory = directory.replace("%CONFIG%", self.config_path)
-                    if self.smartbot_path is not None:
-                        directory = directory.replace("%SMARTBOT%", self.smartbot_path)
+                    directory = self._replace_tags(track["directory"])
                     recursive = True
                     extensions = None
                     if "include-subdir" in track:
@@ -59,18 +62,12 @@ class Playlist:
                         if os.path.isfile(track["url"]):
                             track_date = os.path.getmtime(track)
                         track["date"] = track_date
-                    if self.home_path is not None:
-                        track["url"] = track["url"].replace("%HOME%", self.home_path)
-                    if self.config_path is not None:
-                        track["url"] = track["url"].replace("%CONFIG%", self.config_path)
+                    track["url"] = self._replace_tags(track["url"])
                     self.playlist.append(track)
                 else:
                     logging.error("invalid playlist track '{}'".format(track))
             else:
-                if self.home_path is not None:
-                    track = track.replace("%HOME%", self.home_path)
-                if self.config_path is not None:
-                    track = track.replace("%CONFIG%", self.config_path)
+                track = self._replace_tags(track)
                 if os.path.isdir(track):
                     # a plain directory
                     self._load_directory(track, recursive_dir)

@@ -69,57 +69,57 @@ class TestPlaylist(unittest.TestCase):
 
     def test_directory(self):
         trackList = [
-            "/home/pi/Radio_Uncompressed"
+            "/home/pi/smartbot/media/recent"
         ]
         p = Playlist(trackList)
         self.assertEqual(p.size(), 4)
 
     def test_directory_repeat(self):
         trackList = [
-            "/home/pi/Radio_Uncompressed",
-            "/home/pi/Radio_Uncompressed"
+            "/home/pi/smartbot/media/recent",
+            "/home/pi/smartbot/media/recent"
         ]
         p = Playlist(trackList)
         self.assertEqual(p.size(), 4)
 
     def test_directory_none(self):
         trackList = [
-            "/home/pi/Radio_Uncompressed/keep",
+            "/home/pi/smartbot/media/radio"
         ]
         p = Playlist(trackList)
         self.assertEqual(p.size(), 0)
 
     def test_directory_not_recursive(self):
         trackList = [
-            { "directory":"/home/pi/Radio_Uncompressed", "include-subdir":False }
+            { "directory":"/home/pi/smartbot/media", "include-subdir":False }
         ]
         p = Playlist(trackList)
         self.assertEqual(p.size(), 0)
 
     def test_directory_extensions_1(self):
         trackList = [
-            { "directory":"/home/pi/Radio_Uncompressed", "include-subdir":True, "extensions": None }
+            { "directory":"/home/pi/smartbot/media/recent", "include-subdir":True, "extensions": None }
         ]
         p = Playlist(trackList)
         self.assertEqual(p.size(), 4)
 
     def test_directory_extensions_2(self):
         trackList = [
-            { "directory":"/home/pi/Radio_Uncompressed", "include-subdir":True, "extensions": [] }
+            { "directory":"/home/pi/smartbot/media/recent", "include-subdir":True, "extensions": [] }
         ]
         p = Playlist(trackList)
         self.assertEqual(p.size(), 4)
 
     def test_directory_extensions_3(self):
         trackList = [
-            { "directory":"/home/pi/Radio_Uncompressed", "include-subdir":True, "extensions": ["m4a"] }
+            { "directory":"/home/pi/smartbot/media/recent", "include-subdir":True, "extensions": ["m4a"] }
         ]
         p = Playlist(trackList)
         self.assertEqual(p.size(), 4)
 
     def test_directory_extensions_4(self):
         trackList = [
-            { "directory":"/home/pi/Radio_Uncompressed", "include-subdir":True, "extensions": "m4a" }
+            { "directory":"/home/pi/smartbot/media/recent", "include-subdir":True, "extensions": "m4a" }
         ]
         p = Playlist(trackList)
         self.assertEqual(p.size(), 4)

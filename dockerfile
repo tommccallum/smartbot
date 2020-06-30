@@ -24,6 +24,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install expect
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install libatlas-base-dev
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install cron
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install wget
+# required for ifconfig and ping
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install net-tools iputils-ping
 ENV TZ=Europe/London
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
@@ -40,7 +42,7 @@ WORKDIR /home/pi
 COPY . /home/pi/smartbot/
 
 USER root
-RUN chown pi:pi /home/pi/smartbot
+RUN chown -R pi:pi /home/pi/smartbot
 
 USER $UNAME
 WORKDIR /home/pi
