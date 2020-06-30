@@ -281,7 +281,6 @@ class MPlayer:
                     logfile = " > {} 2>&1".format(self.config["logfile"])
             self.mplayer_process = subprocess.Popen("exec "+shell_cmd+logfile, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             logging.info("PID of mplayer process:" + str(self.mplayer_process.pid))
-            self.state = MPlayer.STATE_PLAYING
             # mplayer is quite slow to start so
             # so wait before we execute anything else
         else:
@@ -294,6 +293,7 @@ class MPlayer:
         else:
             # we do this afterwards as we would rather be too little duration than too much
             self.start_play_timer()
+        self.state = MPlayer.STATE_PLAYING
         time.sleep(5)
         globalvars.app_context.ignore_messages = False
 
