@@ -278,7 +278,9 @@ class PlaylistStreamState(State):
             # the internet is restored.
             if self.current_track["url"][0:4] == "http":
                 return False
+        logging.debug("saving checkpoint")
         self.checkpoint()
+        logging.debug("check is finished")
         if self.get_mplayer().is_finished():
             logging.debug("mplayer has finished")
             if self.playlist.size() > 0: # we want to stop it infinitely repeating its got no entries
