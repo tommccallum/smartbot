@@ -88,8 +88,8 @@ class PlaylistStreamState(State):
         :return:
         """
         values["user_state"] = {}
-        logging.debug("{} {}".format(self.current_track is not None, self.mplayer is not None))
-        if self.current_track and self.mplayer:
+        logging.debug("{} {}".format(self.current_track is not None, self.get_mplayer() is not None))
+        if self.current_track and self.get_mplayer():
             logging.debug("setting user_state {}".format(values["user_state"]))
             values["user_state"]["track"] = self.current_track
             values["user_state"]["seek"] = self.get_mplayer().get_play_duration()
