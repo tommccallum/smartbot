@@ -271,11 +271,15 @@ class PlaylistStreamState(State):
         Save user state every 5 seconds
         :return:
         """
+        logging.debug("here3")
         if self.get_mplayer().is_playing():
+            logging.debug("here4")
             if self.last_checkpoint is None or force:
+                logging.debug("here5")
                 self._save()
                 self.last_checkpoint = time.time()
             elif time.time() - self.last_checkpoint > 2:
+                logging.debug("here6")
                 self._save()
                 self.last_checkpoint = time.time()
 
