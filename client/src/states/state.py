@@ -56,6 +56,7 @@ class State(BluetoothSpeakerHandler):
             return
         self.json = self._save_state(self.json)
         with open(self.local_conf, "w") as conf:
+            logging.debug("saving to {}".format(self.local_conf))
             str = json.dumps(self.json, indent=4, sort_keys=True)
             conf.write(str)
 
