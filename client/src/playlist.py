@@ -52,6 +52,8 @@ class Playlist:
             counter += 1
         if track and counter > self.position:
             self.set_current(track)
+            return True
+        return False
 
     def select_by_regex(self, text):
         """Select by a substring (Should be a regex but have been lazy!)"""

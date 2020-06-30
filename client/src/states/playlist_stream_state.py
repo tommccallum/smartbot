@@ -73,6 +73,7 @@ class PlaylistStreamState(State):
             if "orderby" in playlist_config:
                 self.playlist.sort(playlist_config["orderby"])
             if "start-track" in playlist_config:
+                logging.debug("found start track, attempting to move position")
                 if self.playlist.select_by_regex_only_if_earlier(playlist_config["start-track"]):
                     # poke these values in so we continue where we want to otherwise it will
                     # start at the NEXT track not this one.
