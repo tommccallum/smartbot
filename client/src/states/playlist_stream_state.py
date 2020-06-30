@@ -77,7 +77,7 @@ class PlaylistStreamState(State):
                 if self.playlist.select_by_regex_only_if_earlier(playlist_config["start-track"]):
                     # poke these values in so we continue where we want to otherwise it will
                     # start at the NEXT track not this one.
-                    self.json["user_state"] = { "track": self.playlist.get_track(), "seek": 0 }
+                    self.json["user_state"] = { "track": self.playlist.get_current_track(), "seek": 0 }
                     logging.debug("setting user state to {}".format(self.json["user_state"]))
 
 

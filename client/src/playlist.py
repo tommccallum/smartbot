@@ -204,6 +204,9 @@ class Playlist:
                 self.position = ii
                 return
 
+    def get_current_track(self):
+        return self.get_track(self.position)
+
     def get_track(self, index):
         """Get a track and update book-keeping"""
         if len(self.ordering) == 0:
