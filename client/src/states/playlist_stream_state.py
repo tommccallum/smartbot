@@ -77,6 +77,7 @@ class PlaylistStreamState(State):
                     # poke these values in so we continue where we want to otherwise it will
                     # start at the NEXT track not this one.
                     self.json["user_state"] = { "track": self.playlist.get_track(), "seek": 0 }
+                    logging.debug("setting user state to {}".format(self.json["user_state"]))
 
 
     def _save_state(self, values):
@@ -157,6 +158,7 @@ class PlaylistStreamState(State):
             if "seek" in user_state:
                 seek = user_state["seek"]
             if "track" in user_state:
+                logging.debug("restarting from a previous user state")
                 track = user_state["track"]
                 self.current_track = track
                 self.playlist.set_current(track)
