@@ -77,7 +77,8 @@
                 "tracks": [
                     { "directory": "%SMARTBOT%/media/podcasts/The History of China", "extensions": "mp3", "include-subdir": true }
                 ],
-                "orderby": ["name", "asc"]
+                "orderby": ["date", "asc"],
+                "start-track": "#115"
             },
             "on_enter": "Welcome to the History of China podcast",
             "on_empty": "There are no episodes available yet."

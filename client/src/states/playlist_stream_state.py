@@ -72,6 +72,8 @@ class PlaylistStreamState(State):
                     self.playlist.shuffle()
             if "orderby" in playlist_config:
                 self.playlist.sort(playlist_config["orderby"])
+            if "start-track" in playlist_config:
+                self.playlist.select_by_regex_only_if_earlier(playlist_config["start-track"])
 
     def _save_state(self, values):
         """

@@ -42,6 +42,25 @@ class Playlist:
             text = text.replace("%SMARTBOT%", self.smartbot_path)
         return text
 
+    def select_by_regex_only_if_earlier(self, text):
+        counter = 0
+        track = None
+        for p in self.playlist:
+            if text in p["url"]:
+                track = p
+                break
+            counter += 1
+        if track and counter > self.position:
+            self.set_current(track)
+
+    def select_by_regex(self, text):
+        """Select by a substring (Should be a regex but have been lazy!)"""
+        for p in self.playlist:
+            if text in p["url"]:
+                self.set_current(p)
+                return True
+        return False
+
     def _add_track(self, track, recursive_dir = True):
             # logging.debug(track)
             if type(track) is dict:
