@@ -151,7 +151,7 @@ class Personality:
                 return False
             return True
         else:
-            if when > datetime.datetime.strptime("{} {}".format(today_as_string,self.get_end_sleep_time()), "%Y-%m-%d %H:%M"):
+            if when > end_time:
                 return False
             if when >= hard_sleep:
                 ev = Event(EventEnum.ENTER_SLEEP_NOW)
