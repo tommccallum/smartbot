@@ -181,6 +181,7 @@ class PlaylistStreamState(State):
     def on_next_track_down(self):
         logging.debug("LiveStreamState::next track")
         #self.get_mplayer().stop()
+        self.get_mplayer().pause()
         self._play_next_track()
         #self.get_mplayer().next_track(self.play)
         self._save()
@@ -209,6 +210,7 @@ class PlaylistStreamState(State):
         self._save()
 
     def _say_track(self, track, seek_value):
+        logging.debug("announcing track")
         what_to_call_track = "track"
         announce_seek_time = True
         if "announce-seek" in self.state_config:
@@ -216,10 +218,10 @@ class PlaylistStreamState(State):
         if "word-for-track" in self.playlist_config:
             what_to_call_track = self.playlist_config["word-for-track"]
         if announce_seek_time == False or seek_value < 1:
-            self.personality.voice_library.say("Next {} is {}".format(what_to_call_track, track["name"]))
+            inline_action("Next {} is {}".format(what_to_call_track, track["name"]))
         else:
             time_string = self.personality.voice_library.convert_seconds_to_saying(seek_value)
-            self.personality.voice_library.say("Next {} is {} starting at {}".format(what_to_call_track, track["name"], time_string))
+            inline_action("Next {} is {} starting at {}".format(what_to_call_track, track["name"], time_string))
 
 
 
@@ -228,7 +230,6 @@ class PlaylistStreamState(State):
             logging.debug("asked to play next track when mplayer was still stopping")
             time.sleep(3) # hack!
 
-        self.configuration.context.ignore_messages = True
         if track is None:
             track = self.get_next_track()
             seek_value = 0
@@ -240,11 +241,11 @@ class PlaylistStreamState(State):
                     inline_action("Sorry, the connection has been dropped.  Please hold.")
                     self.configuration.context.ignore_messages = False
                     return
-
+            logging.debug("about to play next track...")
             # if self.get_mplayer().is_playing():
             #     logging.debug("mplayer is playing, quick load")
             #     self.get_mplayer().pause()
-                self._say_track(track, seek_value)
+            self._say_track(track, seek_value)
                 # self.get_mplayer().next_track(track["url"])
             # elif self.get_mplayer().is_stopped():
             #     logging.debug("mplayer is stopped, long load")
@@ -255,7 +256,6 @@ class PlaylistStreamState(State):
             # elif self.get_mplayer().is_paused():
             #     logging.debug("mplayer is paused, play")
             #     self.get_mplayer().play()
-        self.configuration.context.ignore_messages = False
 
     def checkpoint(self, force=False):
         """
