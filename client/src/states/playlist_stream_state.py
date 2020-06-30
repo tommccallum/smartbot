@@ -271,6 +271,7 @@ class PlaylistStreamState(State):
                 self.last_checkpoint = time.time()
 
     def is_finished(self):
+        logging.debug("checking if play item has finished")
         if not self.configuration.context.internet_detected:
             # if we start up and there is no connection then we
             # don't want to be testing if we are finished until
@@ -279,6 +280,8 @@ class PlaylistStreamState(State):
                 return False
         self.checkpoint()
         if self.get_mplayer().is_finished():
+            logging.debug("mplayer has finished")
             if self.playlist.size() > 0: # we want to stop it infinitely repeating its got no entries
+                logging.debug("moving to next track")
                 self.on_next_track_down()
         return False
