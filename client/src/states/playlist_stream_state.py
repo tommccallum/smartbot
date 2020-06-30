@@ -73,7 +73,11 @@ class PlaylistStreamState(State):
             if "orderby" in playlist_config:
                 self.playlist.sort(playlist_config["orderby"])
             if "start-track" in playlist_config:
-                self.playlist.select_by_regex_only_if_earlier(playlist_config["start-track"])
+                if self.playlist.select_by_regex_only_if_earlier(playlist_config["start-track"]):
+                    # poke these values in so we continue where we want to otherwise it will
+                    # start at the NEXT track not this one.
+                    self.json["user_state"] = { "track": self.playlist.get_track(), "seek": 0 }
+
 
     def _save_state(self, values):
         """

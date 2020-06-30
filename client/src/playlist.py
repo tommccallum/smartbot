@@ -166,19 +166,19 @@ class Playlist:
 
     def next(self):
         """Get next tack"""
-        return self._get_track(self.position+1)
+        return self.get_track(self.position+1)
 
     def prev(self):
         """Get previous track"""
-        return self._get_track(self.position-1)
+        return self.get_track(self.position-1)
 
     def first(self):
         """Get first track"""
-        return self._get_track(0)
+        return self.get_track(0)
 
     def last(self):
         """Get last track"""
-        return self._get_track(len(self.ordering)-1)
+        return self.get_track(len(self.ordering)-1)
 
     def shuffle(self):
         """Randomly shuffle the play order"""
@@ -202,7 +202,7 @@ class Playlist:
                 self.position = ii
                 return
 
-    def _get_track(self, index):
+    def get_track(self, index):
         """Get a track and update book-keeping"""
         if len(self.ordering) == 0:
             return None
