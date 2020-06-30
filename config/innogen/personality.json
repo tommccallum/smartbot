@@ -75,7 +75,7 @@
             "filename": "podcast_history_of_china.json",
             "playlist": {
                 "tracks": [
-                    { "directory": "%SMARTBOT%/media/podcasts/The History of China", "extensions": "m4a", "include-subdir": true }
+                    { "directory": "%SMARTBOT%/media/podcasts/The History of China", "extensions": "mp3", "include-subdir": true }
                 ],
                 "orderby": ["name", "asc"]
             },
@@ -88,11 +88,11 @@
             "filename": "podcast_stricty_come_dancing.json",
             "playlist": {
                 "tracks": [
-                    { "directory": "%SMARTBOT%/media/podcasts/Strictly Come Dancing", "extensions": "m4a", "include-subdir": true }
+                    { "directory": "%SMARTBOT%/media/podcasts/Strictly Come Dancing", "extensions": "mp3", "include-subdir": true }
                 ],
                 "orderby": ["name", "asc"]
             },
-            "on_enter": "Welcome to the Strict Come Dancing podcast",
+            "on_enter": "Welcome to the Strictly Come Dancing podcast",
             "on_empty": "There are no episodes available yet."
         },
         {
@@ -106,7 +106,7 @@
             "filename":"facts_*.json",
             "on_enter": {
                 "type":"sound",
-                "path":"%SMARTBOT%/media/sounds/gojetters-funkyfacts.wav"
+                "path":"%SMARTBOT%/sounds/gojetters-funkyfacts.wav"
             },
             "on_empty": "There are no funky facts available."
         }

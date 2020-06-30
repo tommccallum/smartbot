@@ -235,19 +235,21 @@ class PlaylistStreamState(State):
         if track is None:
             self.on_empty_playlist()
         else:
-            # if self.get_mplayer().is_playing():
-            #     logging.debug("mplayer is playing, quick load")
-            #     self.get_mplayer().pause()
-            #     self._say_track(track, seek_value)
-            #     self.get_mplayer().next_track(track["url"])
-            # elif self.get_mplayer().is_stopped():
-            #     logging.debug("mplayer is stopped, long load")
-            #     self._say_track(track, seek_value)
             if not self.configuration.context.internet_detected:
                 if track["url"][0:4] == "http":
                     inline_action("Sorry, the connection has been dropped.  Please hold.")
                     self.configuration.context.ignore_messages = False
                     return
+
+            # if self.get_mplayer().is_playing():
+            #     logging.debug("mplayer is playing, quick load")
+            #     self.get_mplayer().pause()
+                self._say_track(track, seek_value)
+                # self.get_mplayer().next_track(track["url"])
+            # elif self.get_mplayer().is_stopped():
+            #     logging.debug("mplayer is stopped, long load")
+            #     self._say_track(track, seek_value)
+
 
             self.get_mplayer().start(track["url"], seek_value)
             # elif self.get_mplayer().is_paused():
