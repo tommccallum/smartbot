@@ -141,6 +141,7 @@ class Personality:
                                                 "%Y-%m-%d %H:%M")
         if end_time < soft_sleep:
             end_time = end_time + datetime.timedelta(days=1)
+        logging.debug("sleep {} {} {}".format(soft_sleep, hard_sleep, end_time))
         if globalvars.app_context and globalvars.app_context.is_asleep():
             if when > end_time:
                 ev = Event(EventEnum.EXIT_SLEEP)
