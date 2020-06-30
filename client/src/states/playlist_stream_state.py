@@ -31,7 +31,6 @@ class PlaylistStreamState(State):
         self.playlist_config = None
         self.last_checkpoint = None
         self.has_entry_completed = False
-        self.mplayer = None
 
         # if we start this state and we need an internet connection then this
         # flag is set to True and the mplayer still not be started until we are
@@ -88,9 +87,7 @@ class PlaylistStreamState(State):
         :return:
         """
         values["user_state"] = {}
-        logging.debug("{} {}".format(self.current_track is not None, self.get_mplayer() is not None))
         if self.current_track and self.get_mplayer():
-            logging.debug("setting user_state {}".format(values["user_state"]))
             values["user_state"]["track"] = self.current_track
             values["user_state"]["seek"] = self.get_mplayer().get_play_duration()
         #logging.debug("saving state as {}".format(values["user_state"]))
@@ -273,15 +270,11 @@ class PlaylistStreamState(State):
         Save user state every 5 seconds
         :return:
         """
-        logging.debug("mplayer status: {}".format(self.get_mplayer().state))
         if self.get_mplayer().is_playing():
-            logging.debug("wtf1")
             if self.last_checkpoint is None or force:
-                logging.debug("wtf2")
                 self._save()
                 self.last_checkpoint = time.time()
             elif time.time() - self.last_checkpoint > 2:
-                logging.debug("wtf3")
                 self._save()
                 self.last_checkpoint = time.time()
 
