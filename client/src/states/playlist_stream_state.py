@@ -273,10 +273,13 @@ class PlaylistStreamState(State):
         """
         logging.debug("mplayer status: {}".format(self.get_mplayer().state))
         if self.get_mplayer().is_playing():
+            logging.debug("wtf1")
             if self.last_checkpoint is None or force:
+                logging.debug("wtf2")
                 self._save()
                 self.last_checkpoint = time.time()
             elif time.time() - self.last_checkpoint > 2:
+                logging.debug("wtf3")
                 self._save()
                 self.last_checkpoint = time.time()
 
