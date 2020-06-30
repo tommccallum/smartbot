@@ -176,8 +176,12 @@ class MPlayer:
         if self.state != MPlayer.STATE_PAUSED:
             self.state = MPlayer.STATE_PAUSED
             logging.debug("pausing mplayer")
-            self._send_command_to(self.config["commands"]["pause"])
-            self.stop_play_timer()
+            # check we are still alive
+            if self.is_finished():
+                self._stop_and_clean_up()
+            else:
+                self._send_command_to(self.config["commands"]["pause"])
+                self.stop_play_timer()
 
 
     # def pause_or_play(self):

@@ -90,7 +90,7 @@
                 "tracks": [
                     { "directory": "%SMARTBOT%/media/podcasts/Strictly Come Dancing", "extensions": "mp3", "include-subdir": true }
                 ],
-                "orderby": ["name", "asc"]
+                "orderby": ["date", "asc"]
             },
             "on_enter": "Welcome to the Strictly Come Dancing podcast",
             "on_empty": "There are no episodes available yet."
