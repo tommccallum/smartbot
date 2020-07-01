@@ -3,6 +3,7 @@ import logging
 import os
 
 import globalvars
+from actions import inline_action
 from bluetooth_speaker_handler import BluetoothSpeakerHandler
 from event import Event, EventEnum
 
@@ -123,12 +124,14 @@ class State(BluetoothSpeakerHandler):
 
     def on_next_track_down(self):
         self.on_interrupt()
+        inline_action("bye, see you later")
         ev = Event(EventEnum.TRANSITION_TO_NAMED)
         ev.data = self.state_config["on_end"]
         globalvars.app_context.add_event(ev)
 
     def on_previous_track_down(self):
         self.on_interrupt()
+        inline_action("bye, see you later")
         ev = Event(EventEnum.TRANSITION_TO_NAMED)
         ev.data = self.state_config["on_end"]
         globalvars.app_context.add_event(ev)
