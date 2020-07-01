@@ -1,3 +1,4 @@
+from actions import inline_action
 from bluetooth_speaker_handler import BluetoothSpeakerHandler
 from fifo import read_fifo_nonblocking, make_fifo
 from keyboard_thread import KeyboardListener
@@ -120,8 +121,7 @@ class UserContext(BluetoothSpeakerHandler):
 
     def transition_to_named_state(self, name):
         if name is None:
-            logging.debug("name cannot be 'None' for transition")
-            return
+            return False
         if name.lower() == "silence":
             # @todo register extra state like silence in another array rather than having a separate IF clause here.
             state = SilenceState.create(self.config, self.personality, {})
@@ -133,8 +133,9 @@ class UserContext(BluetoothSpeakerHandler):
                     if s.title.lower() == name.lower():
                         found = index
             if found < 0:
-                return
+                return False
             self.transition_to(self._state_objects[found])
+        return True
 
     def _notify(self, event):
         """
@@ -218,6 +219,20 @@ class UserContext(BluetoothSpeakerHandler):
             if self._state.is_finished():
                 if self.is_interrupted():
                     self.do_alarm_continue()
+
+    def handle_reload_config(self):
+        """
+        Reload everything
+        :return:
+        """
+        inline_action("I am reloading my activities, sorry for the inconvenience.")
+        self.config.reload()
+        self.personality.reload()
+        new_states = self.personality.get_states()
+        c_state_title = self._state.title
+        self._state_objects = new_states
+        if not self.transition_to_named_state(c_state_title):
+            self.transition_to_first()
 
     def _is_mode_event(self, event):
         if event is None: return False
@@ -322,6 +337,8 @@ class UserContext(BluetoothSpeakerHandler):
             self.go_to_sleep(event)
         elif event.id == EventEnum.EXIT_SLEEP:
             self._notify(event)
+        elif event.id == EventEnum.RELOAD_CONFIG:
+            self.handle_reload_config()
         else:
             logging.debug("dropping event ID {}".format(event.id))
         return True

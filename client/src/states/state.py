@@ -2,6 +2,7 @@ import json
 import logging
 import os
 
+import globalvars
 from bluetooth_speaker_handler import BluetoothSpeakerHandler
 from event import Event, EventEnum
 
@@ -119,3 +120,15 @@ class State(BluetoothSpeakerHandler):
 
     def is_active(self):
         return self.active
+
+    def on_next_track_down(self):
+        self.on_interrupt()
+        ev = Event(EventEnum.TRANSITION_TO_NAMED)
+        ev.data = self.state_config["on_end"]
+        globalvars.app_context.add_event(ev)
+
+    def on_previous_track_down(self):
+        self.on_interrupt()
+        ev = Event(EventEnum.TRANSITION_TO_NAMED)
+        ev.data = self.state_config["on_end"]
+        globalvars.app_context.add_event(ev)

@@ -6,6 +6,7 @@ import termios
 import time
 import logging
 import sys
+import signal
 
 from config_io import Configuration
 from event_device_handler import EventDeviceAgent
@@ -27,6 +28,14 @@ def clean_exit():
     if terminal_old_settings:
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, terminal_old_settings)
 
+def reload_configuration():
+    """
+    This handles the reload configuration event and passes it to our main event loop
+    :return:
+    """
+    ev = Event(EventEnum.RELOAD_CONFIG)
+    globalvars.app_context.add_event(ev)
+
 def init_application(config_path=None):
     """
     Set up the 3 main classes: Configuration, Personality and Context
@@ -44,6 +53,8 @@ def init_application(config_path=None):
     context = UserContext(states, app_config, personality)
     app_config.context = context
     globalvars.app_context = context
+    signal.signal(signal.SIGHUP, reload_configuration)
+
     # globalvars.app_context._listeners.append(MainListener(app_config, globalvars.app_context))
 
 

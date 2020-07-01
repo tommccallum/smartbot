@@ -23,14 +23,20 @@ class VoiceLibrary:
         self.phrases_full_path = personality.config.find(self.phrases_filename)
         self.phrases = []
         self.speech = {}
+        self._load()
+
+    def _load(self):
         if os.path.isfile(self.phrases_full_path):
             with open(self.phrases_full_path, "r") as in_file:
                 self.phrases = json.load(in_file)
 
-        self.speech_full_path = personality.config.find(self.speech_filename)
+        self.speech_full_path = self.personality.config.find(self.speech_filename)
         if os.path.isfile(self.speech_full_path):
             with open(self.speech_full_path, "r") as in_file:
                 self.speech = json.load(in_file)
+
+    def reload(self):
+        self._load(self)
 
     def say(self, text, related_to_file=None, save=True):
         """

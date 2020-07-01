@@ -84,7 +84,13 @@ class Playlist:
                             track_date = os.path.getmtime(track)
                         track["date"] = track_date
                     track["url"] = self._replace_tags(track["url"])
-                    self.playlist.append(track)
+                    if track["url"][0:4] != "http":
+                        if os.path.isfile(track["url"]) and os.stat(track["url"]).st_size > 0:
+                            self.playlist.append(track)
+                        else:
+                            logging.warning("file '{}' either does not exist or has size 0".format(track["url"]))
+                    else:
+                        self.playlist.append(track)
                 else:
                     logging.error("invalid playlist track '{}'".format(track))
             else:
@@ -99,7 +105,10 @@ class Playlist:
                         "url": track,
                         "date": track_date
                     }
-                    self.playlist.append(new_item)
+                    if os.stat(track).st_size > 0:
+                        self.playlist.append(new_item)
+                    else:
+                        logging.warning("file '{}' either does not exist or has size 0".format(new_item["url"]))
                 elif track[0:3] == "http":
                     # a plain url for a stream perhaps
                     new_item = {

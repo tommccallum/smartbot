@@ -1,0 +1,14 @@
+[Unit]
+Description=Smartbot
+
+[Service]
+User=pi
+Group=pi
+Type=simple
+Restart=always
+RestartSec=5
+WorkingDirectory=/home/pi/smartbot/bin
+ExecStart=/home/pi/smartbot/bin/smartbot
+
+[Install]
+WantedBy=multi-user.target

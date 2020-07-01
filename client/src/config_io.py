@@ -142,6 +142,12 @@ class Configuration:
         """search for configuration file in known places"""
         return os.path.join(self.get_config_path(), filename)
 
+    def reload(self):
+        # we stop our events and set them ready for reload
+        self.alarm.stop()
+        self.alarm = None
+        self._load()
+
     def _load(self):
         if self.config_file is not None:
             if not os.path.isfile(self.config_file):
