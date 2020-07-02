@@ -105,9 +105,8 @@ function remove_lockfile() {
 }
 
 function evtest_and_exit() {
-    local evtest_pid
     /usr/bin/evtest /dev/input/event$i &
-    evtest_pid=$!
+    local evtest_pid=$!
     sleep 1  # give evtest time to produce output
     kill ${evtest_pid}
 }
