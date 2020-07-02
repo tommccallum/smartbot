@@ -429,7 +429,7 @@ while true; do
   msg "Checking virtual device has been setup properly"
   VIRTUAL_INPUT=""
   VIRTUAL_INPUT_PATHS=( $( find /dev/input -iname "event*" ) )
-  for v in "${VIRTUAL_INPUT_PATHS[@]}":
+  for v in "${VIRTUAL_INPUT_PATHS[@]}"
   do
     CHECK_INPUT=$( timeout 1 /usr/bin/evtest $v | head -n 3 | grep "${BLUETOOTH_DEVICE}" | wc -l )
     if [ $CHECK_INPUT -gt 0 ]
