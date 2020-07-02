@@ -5,7 +5,7 @@ import random
 import signal
 import threading
 import time
-
+import glob
 
 from config_io import Configuration
 from html_stripper import strip_tags
@@ -46,17 +46,23 @@ class FactsState(ContinuousState):
             return None
         full_path = os.path.join(self.configuration.get_config_path(), self.state_config["filename"])
         all_fact_files=self.get_all_fact_files()
-        full_path = random.choice(all_fact_files)
-        if os.path.isfile(full_path):
-            with open(full_path, "r") as in_file:
-                data = json.load(in_file)
-            if self.fact_id is None:
-                r = random.choice(data)
-            else:
-                r = self.pick(data, self.fact_id)
-            logging.debug(r)
-            text = strip_tags(r["fact"])
-            return text
+        while True:
+            try:
+                full_path = random.choice(all_fact_files)
+                if os.path.isfile(full_path):
+                    with open(full_path, "r") as in_file:
+                        ## this could throw an exception if not valid json or
+                        ## empty file etc so we just catch it and loop
+                        data = json.load(in_file)
+                    if self.fact_id is None:
+                        r = random.choice(data)
+                    else:
+                        r = self.pick(data, self.fact_id)
+                    logging.debug(r)
+                    text = strip_tags(r["fact"])
+                    return text
+            except:
+                pass
         return None
 
     def get_all_fact_files(self):
@@ -66,18 +72,7 @@ class FactsState(ContinuousState):
         :return:
         """
         full_path = os.path.join(self.configuration.get_config_path(), self.state_config["filename"])
-        valid_files = []
-        if "*" in full_path:
-            counter = 1
-            while True:
-                p = full_path.replace("*",str(counter))
-                if os.path.isfile(p):
-                    valid_files.append(p)
-                else:
-                    break
-                counter += 1
-        else:
-            valid_files.append(full_path)
+        valid_files = glob.glob(full_path)
         return valid_files
 
     def pick(self, data, id):

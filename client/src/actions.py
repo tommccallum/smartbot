@@ -31,7 +31,10 @@ def blocking_play(path):
     return False
 
 def replace_tags(text):
-    text = text.replace( "%O", globalvars.app_context.config.json["owner"] )
+    if globalvars.app_context:
+        if globalvars.app_context.config:
+            if "owner" in globalvars.app_context.config.json:
+                text = text.replace( "%O", globalvars.app_context.config.json["owner"] )
     return text
 
 def time_based_greeting():
