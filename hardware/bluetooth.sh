@@ -428,7 +428,7 @@ while true; do
   ## this seems to take a bit of time to do so lets sleep for another 2
   msg "Checking virtual device has been setup properly"
   VIRTUAL_INPUT=""
-  VIRTUAL_INPUT_PATHS=$( find /dev/input -iname "event*" )
+  VIRTUAL_INPUT_PATHS=( $( find /dev/input -iname "event*" ) )
   for v in "${VIRTUAL_INPUT_PATHS[@]}":
   do
     CHECK_INPUT=$( timeout 1 /usr/bin/evtest $v | head -n 3 | grep "${BLUETOOTH_DEVICE}" | wc -l )
