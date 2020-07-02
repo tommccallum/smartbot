@@ -37,6 +37,24 @@ pip3 install pynput
 # this has a bug which means it won't run from script, have copied and fixed.
 #pip3 install getpodcast
 
+# check this line is in /etc/bluetooth/audio.conf
+# Enable=Source,Sink,Media,Socket
+AUDIO_LINE="Enable=Source,Sink,Media,Socket"
+if [ ! -e "/etc/bluetooth" ]
+then
+  echo "/etc/bluetooth directory not yet created!"
+  exit 1
+fi
+if [ -e "/etc/bluetooth/audio.conf" ]
+then
+  INCLUDE_AUDIO_BLUETOOTH=$( grep "$AUDIO_LINE" /etc/bluetooth/audio.conf | wc -l )
+  if [ $INCLUDE_AUDIO_BLUETOOTH -eq 0 ]
+  then
+    echo "$AUDIO_LINE" >> /etc/bluetooth/audio.conf
+  fi
+else
+  echo "$AUDIO_LINE" > /etc/bluetooth/audio.conf
+fi
 # prepare to copy over a default configuration of some type
 if [ "x${DEFAULT_CONF}" == "x" ]
 then
