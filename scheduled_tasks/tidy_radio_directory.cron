@@ -22,5 +22,5 @@ then
     KEEP_FOR_N_DAYS=10
   fi
   # Say when we want to remove files from recent directory
-  /usr/bin/find "$LOCATION" -mtime +${KEEP_FOR_N_DAYS} -exec echo {} \; -exec rm -f {} \;
+  /usr/bin/find "$LOCATION" -type f -mtime +${KEEP_FOR_N_DAYS} -exec echo {} \; -exec rm -f {} \;
 fi

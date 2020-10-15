@@ -53,7 +53,7 @@ def init_application(config_path=None):
     context = UserContext(states, app_config, personality)
     app_config.context = context
     globalvars.app_context = context
-    signal.signal(signal.SIGHUP, reload_configuration)
+    #signal.signal(signal.SIGHUP, reload_configuration)
 
     # globalvars.app_context._listeners.append(MainListener(app_config, globalvars.app_context))
 
@@ -107,12 +107,12 @@ def start_event_device_agent(config, context):
 #         logging.debug("here")
 
 
+
 if __name__ == "__main__":
     #
     # Main App
     #
     init_application()
-
     # start main loop through states
     globalvars.app_context.start()
 
