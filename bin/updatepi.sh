@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This is a scheduled cron task.
+
 LOG="/home/pi/smartbot/log/upgrade-$(date '+%Y%m%d%H%M%S').log"
 date > $LOG
 echo "[TASK] CLEANUP $(date '+%Y-%m-%d %H:%M:%S')" >> $LOG
