@@ -5,7 +5,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__),"../src"))
 
 
-from states.speaking_clock import SpeakingClockState
+from activities.speaking_clock import SpeakingClockState
 from personality import Personality
 from config_io import Configuration
 import time

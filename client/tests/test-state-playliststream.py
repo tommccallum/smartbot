@@ -9,7 +9,7 @@ from personality import Personality
 from config_io import Configuration
 import time
 
-from states.playlist_stream_state import PlaylistStreamState
+from activities.playlist_stream_state import PlaylistStreamState
 
 CURDIR=os.path.abspath(os.path.dirname(__file__))
 

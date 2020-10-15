@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__),"../src"))
 
 from main import init_application
 import globalvars
-from states.sleep_state import SleepState
+from activities.sleep_state import SleepState
 
 
 class TestSleepState(unittest.TestCase):

@@ -8,7 +8,7 @@ import threading
 from alarm_events.alarm_event import AlarmEvent
 from alarm_events.alarm_factory import create_alarm_event
 from event import Event, EventEnum
-from states.alarm_state import AlarmState
+from activities.alarm_state import AlarmState
 
 
 class Alarm:

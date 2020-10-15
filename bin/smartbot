@@ -92,7 +92,7 @@ function run_application() {
 
   # start us off
   echo "Starting smartbot"
-  $PYTHON $DIR/client/src/main.py ${ENABLE_NETWORK_MONITOR} ${ENABLE_INTERNET_MONITOR} ${ENABLE_OWNERS} ${ENABLE_BLUETOOTH_SPEAKER} ${ENABLE_KEYBOARD}
+  $PYTHON $DIR/client/src/main.py ${ENABLE_NETWORK_MONITOR} ${ENABLE_INTERNET_MONITOR} ${ENABLE_OWNERS} ${ENABLE_BLUETOOTH_SPEAKER} ${ENABLE_KEYBOARD} "$@"
 
   echo "Tidying up after exit..."
   clean_up_scripts

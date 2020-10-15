@@ -1,7 +1,7 @@
 import unittest
 import os
 import logging
-from states.live_stream_state import LiveStreamState
+from activities.live_stream_state import LiveStreamState
 from personality import Personality
 from config_io import Configuration
 import time

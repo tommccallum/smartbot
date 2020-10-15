@@ -1,17 +1,8 @@
-import logging
-import sys
+"""
+Any global variables are put here.
+Its pretty ugly but many of our functions require the current state.
+"""
+app_state  = None
+"""Don't import AppState as otherwise circular import"""
 
-app_context = None
 
-def setup_logging():
-    """
-    Setup default logging structures
-    :return:
-    """
-    root = logging.getLogger()
-    root.setLevel(logging.DEBUG)
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('[%(asctime)-17s] [%(levelname)-8s] [%(module)-15s] [%(funcName)-10s] %(message)s')
-    handler.setFormatter(formatter)
-    root.addHandler(handler)

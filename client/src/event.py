@@ -35,8 +35,9 @@ class EventEnum(Enum):
     TRANSITION_TO_FIRST = 23,
     TRANSITION_TO_NAMED=24,
     RELOAD_CONFIG=25,
+    TRANSITION_TO_GIVEN=27,
+    ALARM_CONTINUE = 28,
     QUIT=255
-
 
 class Event:
     """
@@ -55,3 +56,13 @@ class Event:
         self.id = id
         self.data = {}
         self.target_state = None
+
+
+    def is_mode_event(self):
+        if self.id == EventEnum.KEY_PRESS:
+            if self.data == EVENT_KEY_UP:
+                return True
+        elif self.id == EventEnum.BUTTON_DOWN:
+            if self.data == EVENT_BUTTON_PLAY:
+                return True
+        return False

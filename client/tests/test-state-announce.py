@@ -4,7 +4,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__),"../src"))
 
 
-from states.announce_state import AnnounceState
+from activities.announce_state import AnnounceState
 from personality import Personality
 from config_io import Configuration
 import time

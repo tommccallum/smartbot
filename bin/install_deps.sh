@@ -34,6 +34,8 @@ pip3 install numpy
 pip3 install psutil
 pip3 install python-dateutil
 pip3 install pynput
+pip3 install freezegun # required for running tests
+
 # this has a bug which means it won't run from script, have copied and fixed.
 #pip3 install getpodcast
 

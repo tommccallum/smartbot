@@ -3,12 +3,12 @@ import random
 import datetime
 
 from actions import inline_action, expand_path
-from config_io import Configuration
+from activities.activity import Activity
 from event import Event, EventEnum
-from skills.mplayer import MPlayer
-from states.state import State
+from skills.audio_player import AudioPlayer
 
-class SleepState(State):
+
+class SleepState(Activity):
     """
     A state that is active during the sleep period
 
@@ -18,21 +18,15 @@ class SleepState(State):
     When user hits any +/- button then it says the time (not date)!
     When user hits play, we replace with the last state being played??
     """
-
-    @staticmethod
-    def create(configuration: Configuration, personality: "Personality", state_configuration):
-        return SleepState(configuration, personality, state_configuration)
-
     def __init__(self,
-                 configuration: Configuration,
-                 personality: "Personality",
+                 app_state,
                  state_configuration
                  ) -> None:
-        super(SleepState, self).__init__(configuration, personality, state_configuration)
+        super().__init__(app_state, state_configuration)
         self.next_track = 0
         self.first_run = True
-        self.state_config = self.personality.json["sleep"]
-        self.mplayer = None
+        self.state_config = self.personality().json["sleep"]
+        self.audio_player = None
 
     def notify(self, event: Event):
         super().notify(event)
@@ -43,9 +37,8 @@ class SleepState(State):
                 ev.data = self.state_config["on_end"]
             else:
                 ev = Event(EventEnum.TRANSITION_TO_FIRST)
-            if self.configuration.context:
-                ev.override_ignorable_events = True
-                self.configuration.context.add_event(ev)
+            ev.override_ignorable_events = True
+            self.add_event(ev)
             # @todo what happens when we wake up and no one is around???
 
     def on_enter(self):
@@ -65,25 +58,25 @@ class SleepState(State):
                 self.mplayer.play()
         else:
             logging.debug("Starting sleepy music '{}'".format(music))
-            self.mplayer = MPlayer(self.configuration)
-            self.mplayer.start(music)
+            self.audio_player = AudioPlayer(self.config())
+            self.audio_player.play(music)
 
     def on_exit(self):
         logging.debug("SleepState::on_exit")
-        if self.mplayer:
-            self.mplayer.stop()
+        if self.audio_player:
+            self.audio_player.stop()
 
 
     def is_finished(self):
-        if self.mplayer and self.mplayer.is_finished():
-            self.mplayer.stop()
-            self.mplayer = None
+        if self.audio_player and self.audio_player.is_finished():
+            self.audio_player.stop()
+            self.audio_player = None
         return False
 
     def on_previous_track_down(self):
         # say something
-        if self.mplayer:
-            self.mplayer.pause()
+        if self.audio_player:
+            self.audio_player.pause()
         saying = random.choice(self.state_config["phrases"])
         saying = saying.replace("%T", datetime.datetime.now().strftime("%H:%M"))
         inline_action(saying)
@@ -92,8 +85,8 @@ class SleepState(State):
     def on_next_track_down(self):
         # say something
         # say something
-        if self.mplayer:
-            self.mplayer.pause()
+        if self.audio_player:
+            self.audio_player.pause()
         saying = random.choice(self.state_config["phrases"])
         saying = saying.replace("%T", datetime.datetime.now().strftime("%H:%M"))
         inline_action(saying)
@@ -102,13 +95,13 @@ class SleepState(State):
 
     def on_play_down(self):
         # say something
-        if self.mplayer:
-            self.mplayer.pause()
+        if self.audio_player:
+            self.audio_player.pause()
         saying = random.choice(self.state_config["phrases"])
         saying = saying.replace("%T", datetime.datetime.now().strftime("%H:%M"))
         inline_action(saying)
-        if self.mplayer:
-            self.mplayer.play()
+        if self.audio_player:
+            self.audio_player.play()
 
     def is_sleep_state(self):
         return True

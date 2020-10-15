@@ -1,28 +1,21 @@
 import datetime
 import logging
-import random
 
 from actions import inline_action
-from config_io import Configuration
+from activities.activity import Activity
 from event import EventEnum, Event
-from states.state import State
 
 
-class SilenceState(State):
+class SilenceState(Activity):
     """
     Used after sleep state, should not say or do anything
     """
 
-    @staticmethod
-    def create(configuration: Configuration, personality: "Personality", state_configuration):
-        return SilenceState(configuration, personality, state_configuration)
-
     def __init__(self,
-                 configuration: Configuration,
-                 personality: "Personality",
+                 app_state,
                  state_configuration
                  ) -> None:
-        super().__init__(configuration, personality, state_configuration)
+        super().__init__(app_state, state_configuration)
         self.title = "Silence"
 
     def on_enter(self):
@@ -51,5 +44,5 @@ class SilenceState(State):
         logging.debug("transitioning to new state")
         if self._context:
             ev = Event(EventEnum.TRANSITION_TO_FIRST)
-            self.context.add_event(ev)
+            self.add_event(ev)
 

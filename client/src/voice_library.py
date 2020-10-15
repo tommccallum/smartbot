@@ -8,6 +8,7 @@ import re
 import time
 
 
+
 class VoiceLibrary:
     """Stores the voice wav files
 
@@ -16,27 +17,26 @@ class VoiceLibrary:
 
     """
 
-    def __init__(self, personality: "Personality"):
-        self.personality = personality
-        self.phrases_filename = "phrases.json"
-        self.speech_filename = "speech.json"
-        self.phrases_full_path = personality.config.find(self.phrases_filename)
+    def __init__(self, app_state):
+        self.app_state = app_state                      # required to get specifics about personality
+        self.phrases_filename = "phrases.json"          # pre-determined phrases to digitise
+        self.speech_filename = "speech.json"            # generated speech database
+        self.phrases_full_path = self.app_state.settings.find(self.phrases_filename)
         self.phrases = []
         self.speech = {}
-        self._load()
+        self.load()
 
-    def _load(self):
-        if os.path.isfile(self.phrases_full_path):
-            with open(self.phrases_full_path, "r") as in_file:
-                self.phrases = json.load(in_file)
+    def load(self):
+        if self.phrases_full_path is not None:
+            if os.path.isfile(self.phrases_full_path):
+                with open(self.phrases_full_path, "r") as in_file:
+                    self.phrases = json.load(in_file)
 
-        self.speech_full_path = self.personality.config.find(self.speech_filename)
-        if os.path.isfile(self.speech_full_path):
-            with open(self.speech_full_path, "r") as in_file:
-                self.speech = json.load(in_file)
-
-    def reload(self):
-        self._load(self)
+        self.speech_full_path = self.app_state.settings.find(self.speech_filename)
+        if self.speech_full_path is not None:
+            if os.path.isfile(self.speech_full_path):
+                with open(self.speech_full_path, "r") as in_file:
+                    self.speech = json.load(in_file)
 
     def say(self, text, related_to_file=None, save=True):
         """
@@ -47,9 +47,7 @@ class VoiceLibrary:
         """
         saying = None
         if self._has_saying(text):
-            # this does not mean the file actually exists so we still need to
-            # have a _make_saying - just in case !
-            saying = self._get_saying(text)
+            saying = self.get_saying(text)
         if saying is None or not os.path.isfile(saying["file_path"]):
             saying = self._make_saying(text,related_to_file,save)
         return self._play_speech(saying, save)
@@ -95,51 +93,52 @@ class VoiceLibrary:
             del self.speech[key]
         self._save_files()
 
-    def convert_seconds_to_saying(self, seek_value):
+    @staticmethod
+    def convert_seconds_to_saying(seek_value):
         hour_string = ""
         min_string = ""
         second_string = ""
         conjunction1 = ""
         conjunction2 = ""
         hours = 0
-        mins = 0
+        minutes = 0
         seconds = 0
 
         # convert everything into whole hours, minutes and seconds
         seconds = int(seek_value)
         if seconds >= 60:
-            mins = int(seek_value / 60)
-            seconds = int(seek_value - (mins * 60))
-            if mins >= 60:
-                hours = int(mins / 60)
-                mins = int(mins - (hours * 60))
+            minutes = int(seek_value / 60)
+            seconds = int(seek_value - (minutes * 60))
+            if minutes >= 60:
+                hours = int(minutes / 60)
+                minutes = int(minutes - (hours * 60))
 
         if hours > 0:
             if hours == 1:
                 hour_string = "{} hour".format(hours)
             else:
                 hour_string = "{} hours".format(hours)
-        if mins > 0:
-            if mins == 1:
-                min_string = "{} minute".format(mins)
+        if minutes > 0:
+            if minutes == 1:
+                min_string = "{} minute".format(minutes)
             else:
-                min_string = "{} minutes".format(mins)
+                min_string = "{} minutes".format(minutes)
         if seconds > 0:
             if seconds == 1:
                 second_string = "{} second".format(seconds)
             else:
                 second_string = "{} seconds".format(seconds)
 
-        if hours > 0 and mins > 0 and seconds > 0:
+        if hours > 0 and minutes > 0 and seconds > 0:
             conjunction1 = ""
             conjunction2 = "and"
-        if hours > 0 and mins == 0 and seconds > 0:
+        if hours > 0 and minutes == 0 and seconds > 0:
             conjunction1 = "and"
             conjunction2 = ""
-        if hours > 0 and mins > 0 and seconds == 0:
+        if hours > 0 and minutes > 0 and seconds == 0:
             conjunction1 = "and"
             conjunction2 = ""
-        if hours == 0 and mins > 0 and seconds > 0:
+        if hours == 0 and minutes > 0 and seconds > 0:
             conjunction1 = ""
             conjunction2 = "and"
 
@@ -150,7 +149,7 @@ class VoiceLibrary:
         item = self._get_key(text)
         return item in self.speech
 
-    def _get_saying(self, text):
+    def get_saying(self, text):
         """Get the speech item for text, returns None if it does not exist"""
         item = self._get_key(text)
         try:
@@ -159,7 +158,7 @@ class VoiceLibrary:
             return None
 
     def _get_all_owners_from_devices(self):
-        devices_file_path = self.personality.config.get_devices_path()
+        devices_file_path = self.app_state.settings.get_devices_path()
         logging.debug(devices_file_path)
         owners = []
         if devices_file_path is not None:
@@ -174,7 +173,7 @@ class VoiceLibrary:
 
     def _get_default_tags(self):
         tags = {}
-        tags["name"] = self.personality.get_name()
+        tags["name"] = self.app_state.personality.get_name()
         tags["owners"] = self._get_all_owners_from_devices()
         return tags
 
@@ -221,7 +220,7 @@ class VoiceLibrary:
         """Get the absolute path to the voice file we need, does not test if it exists"""
         logging.debug("Get saying '{}'".format(text))
         name = self._generate_filename_from_text(text)
-        root_path = os.path.join(self.personality.config.get_config_path(), "cache", self.personality.get_voice())
+        root_path = os.path.join(self.app_state.settings.get_config_path(), "cache", self.app_state.personality.get_voice())
         if not os.path.isdir(root_path):
             os.makedirs(root_path)
         file_path = os.path.join(root_path, name)
@@ -236,6 +235,9 @@ class VoiceLibrary:
 
     def _save_files(self):
         """Save phrases (where appropriate) and speech databases"""
+        if self.speech_full_path is None:
+            logging.warning("speech not saved as no speech path given")
+            return
         logging.debug("Saving speech to {}".format(self.speech_full_path))
         str = json.dumps(self.speech, sort_keys=True, indent=4)
         with open(self.speech_full_path, "w") as out:
@@ -333,17 +335,8 @@ class VoiceLibrary:
 
     def _make_saying_for_each_track(self, text, tags):
         """Iterate over each track in Radio_Uncompressed and Music"""
-        path = self.personality.config.get_radio_path()
+        path = self.app_state.settings.get_media_path()
         if path:
             self._make_saying_for_directory(text, path, tags)
         else:
-            logging.debug("No radio show path was given, check config.json.")
-        path = self.personality.config.get_music_path()
-        if path:
-            self._make_saying_for_directory(text, path, tags)
-        else:
-            logging.debug("No music path was given, check config.json.")
-
-
-
-
+            logging.debug("No media path was given, check config.json.")

@@ -1,31 +1,18 @@
-import glob
-import json
-import os
-import re
-import time
 import logging
 
+from activities.activity import Activity
+from app_state import AppState
 from event import Event
-from states.state import State
 
 
-class AlarmState(State):
-    @staticmethod
-    def create(configuration: "Configuration", personality: "Personality", state_configuration: object):
-        """
-        Optional
-        state_configuration is expected to be the alarm event
-        """
-        return AlarmState(configuration, personality, state_configuration)
+class AlarmState(Activity):
 
     def __init__(self,
-                 configuration: "Configuration",
-                 personality: "Personality",
+                 app_state: AppState,
                  state_configuration
                  ) -> None:
-        super(AlarmState, self).__init__(configuration, personality, state_configuration)
+        super().__init__(app_state, state_configuration)
         self.state_config.parent = self
-
 
     def notify(self, event: Event):
         if self.state_config is not None:

@@ -1,5 +1,7 @@
 # Personal assistant
 
+## What to do if coming to this project for the first time, or back after a long hiatus...
+
 ## Technologies
 
 - Raspberry Pi

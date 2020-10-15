@@ -6,12 +6,11 @@ import threading
 import time
 
 from actions import blocking_play, inline_action
-from config_io import Configuration
+from activities.activity import Activity
 from event import Event, EventEnum
-from states.state import State
 
 
-class ContinuousState(State):
+class ContinuousState(Activity):
     """
         Plays a thread in the background
         NOT TO BE USED DIRECTLY
@@ -25,11 +24,10 @@ class ContinuousState(State):
     PAUSED=3
 
     def __init__(self,
-                 configuration: Configuration,
-                 personality: "Personality",
+                 app_state,
                  state_configuration
                  ) -> None:
-        super(ContinuousState, self).__init__(configuration, personality, state_configuration)
+        super().__init__(app_state, state_configuration)
         # this is the next state to go to when the user clicks on Next Mode button
         self.running = 0
         self.thread_id = None
@@ -114,7 +112,7 @@ class ContinuousState(State):
         """In this mode, the previous button pauses the currently playing song"""
         if self.running:
             self._pause_thread()
-            self.personality.voice_library.say("Pausing, press the same button to continue")
+            self.app_state.personality.voice_library.say("Pausing, press the same button to continue")
         else:
             self._resume_thread()
 
@@ -122,7 +120,7 @@ class ContinuousState(State):
         logging.debug("trying to move on")
         self._pause_thread()
         ev = Event(EventEnum.TRANSITION_TO_NEXT)
-        self.context.add_event(ev)
+        self.add_event(ev)
 
     def on_interrupt(self):
         self.waiting_to_pause = 1

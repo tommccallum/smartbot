@@ -5,7 +5,7 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__),"../src"))
 
-from states.silence_state import SilenceState
+from activities.silence_state import SilenceState
 from personality import Personality
 from config_io import Configuration
 import globalvars

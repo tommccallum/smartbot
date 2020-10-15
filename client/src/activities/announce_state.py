@@ -2,11 +2,11 @@ import logging
 import os
 import signal
 
-from config_io import Configuration
-from states.state import State
+from activities.activity import Activity
+from app_state import AppState
 
 
-class AnnounceState(State):
+class AnnounceState(Activity):
     """
         Announcement interruption to main function
 
@@ -21,17 +21,16 @@ class AnnounceState(State):
 
     """
     def __init__(self,
-                 configuration: Configuration,
-                 personality: "Personality",
+                 app_state: AppState,
                  state_configuration=None
                  ) -> None:
-        super(AnnounceState, self).__init__(configuration, personality, state_configuration)
+        super(AnnounceState, self).__init__(app_state, state_configuration)
         self.message = None
 
     def on_enter(self):
         """on entering this new state"""
         logging.debug("entering state")
-        self.personality.voice_library.say(self.message)
+        self.app_state.personality.voice_library.say(self.message)
 
     def on_exit(self):
         """on transitioning from this state"""

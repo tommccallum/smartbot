@@ -1,3 +1,4 @@
+import glob
 import unittest
 import sys
 import os
@@ -87,7 +88,8 @@ class TestPlaylist(unittest.TestCase):
             "/home/pi/smartbot/media/radio"
         ]
         p = Playlist(trackList)
-        self.assertEqual(p.size(), 0)
+        files = glob.glob("/home/pi/smartbot/media/radio/*")
+        self.assertEqual(p.size(), len(files))
 
     def test_directory_not_recursive(self):
         trackList = [
@@ -126,9 +128,9 @@ class TestPlaylist(unittest.TestCase):
 
     def test_ordering_invalid_field(self):
         trackList = [
-            { "name": "a", "date": 0, "url": "something"},
-            {"name": "c", "date": 2, "url": "something2"},
-            {"name": "b", "date": 1, "url": "something3"},
+            {"name": "a", "date": 0, "url": "/home/pi/smartbot/sounds/Marconi_Union-Weightless.mp3"},
+            {"name": "c", "date": 2, "url": "/home/pi/smartbot/sounds/can_you_hear_me.wav"},
+            {"name": "b", "date": 1, "url": "/home/pi/smartbot/sounds/Tardis-sound.wav"},
         ]
         p = Playlist(trackList)
         p.sort("somethingwrong")
@@ -137,9 +139,9 @@ class TestPlaylist(unittest.TestCase):
 
     def test_ordering_name_asc(self):
         trackList = [
-            {"name": "a", "date": 0, "url": "something"},
-            {"name": "c", "date": 2, "url": "something2"},
-            {"name": "b", "date": 1, "url": "something3"},
+            {"name": "a", "date": 0, "url": "/home/pi/smartbot/sounds/Marconi_Union-Weightless.mp3"},
+            {"name": "c", "date": 2, "url": "/home/pi/smartbot/sounds/can_you_hear_me.wav"},
+            {"name": "b", "date": 1, "url": "/home/pi/smartbot/sounds/Tardis-sound.wav"},
         ]
         p = Playlist(trackList)
         p.sort("name")
@@ -147,9 +149,9 @@ class TestPlaylist(unittest.TestCase):
 
     def test_ordering_name_desc(self):
         trackList = [
-            {"name": "a", "date": 0, "url": "something"},
-            {"name": "c", "date": 2, "url": "something2"},
-            {"name": "b", "date": 1, "url": "something3"},
+            {"name": "a", "date": 0, "url": "/home/pi/smartbot/sounds/Marconi_Union-Weightless.mp3"},
+            {"name": "c", "date": 2, "url": "/home/pi/smartbot/sounds/can_you_hear_me.wav"},
+            {"name": "b", "date": 1, "url": "/home/pi/smartbot/sounds/Tardis-sound.wav"},
         ]
         p = Playlist(trackList)
         p.sort(["name","descending"])
@@ -157,9 +159,9 @@ class TestPlaylist(unittest.TestCase):
 
     def test_ordering_date_asc(self):
         trackList = [
-            {"name": "a", "date": 0, "url": "something"},
-            {"name": "c", "date": 2, "url": "something2"},
-            {"name": "b", "date": 1, "url": "something3"},
+            {"name": "a", "date": 0, "url": "/home/pi/smartbot/sounds/Marconi_Union-Weightless.mp3"},
+            {"name": "c", "date": 2, "url": "/home/pi/smartbot/sounds/can_you_hear_me.wav"},
+            {"name": "b", "date": 1, "url": "/home/pi/smartbot/sounds/Tardis-sound.wav"},
         ]
         p = Playlist(trackList)
         p.sort("date")
@@ -167,9 +169,9 @@ class TestPlaylist(unittest.TestCase):
 
     def test_ordering_date_asc_2(self):
         trackList = [
-            {"name": "a", "date": 0, "url": "something"},
-            {"name": "c", "date": 2, "url": "something2"},
-            {"name": "b", "date": 1, "url": "something3"},
+            {"name": "a", "date": 0, "url": "/home/pi/smartbot/sounds/Marconi_Union-Weightless.mp3"},
+            {"name": "c", "date": 2, "url": "/home/pi/smartbot/sounds/can_you_hear_me.wav"},
+            {"name": "b", "date": 1, "url": "/home/pi/smartbot/sounds/Tardis-sound.wav"},
         ]
         p = Playlist(trackList)
         p.sort(["date","ascending"])
@@ -177,9 +179,9 @@ class TestPlaylist(unittest.TestCase):
 
     def test_ordering_date_desc(self):
         trackList = [
-            {"name": "a", "date": 0, "url": "something"},
-            {"name": "c", "date": 2, "url": "something2"},
-            {"name": "b", "date": 1, "url": "something3"},
+            {"name": "a", "date": 0, "url": "/home/pi/smartbot/sounds/Marconi_Union-Weightless.mp3"},
+            {"name": "c", "date": 2, "url": "/home/pi/smartbot/sounds/can_you_hear_me.wav"},
+            {"name": "b", "date": 1, "url": "/home/pi/smartbot/sounds/Tardis-sound.wav"},
         ]
         p = Playlist(trackList)
         p.sort(["date","descending"])

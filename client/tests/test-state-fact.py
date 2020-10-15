@@ -7,7 +7,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__),"../src"))
 
 import globalvars
-from states.facts_state import FactsState
+from activities.facts_state import FactsState
 from personality import Personality
 from config_io import Configuration
 import time

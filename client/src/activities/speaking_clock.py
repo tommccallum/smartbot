@@ -2,8 +2,7 @@ import datetime
 import logging
 import time
 
-from config_io import Configuration
-from states.continuous_state import ContinuousState
+from activities.continuous_state import ContinuousState
 
 
 class SpeakingClockState(ContinuousState):
@@ -21,16 +20,11 @@ class SpeakingClockState(ContinuousState):
 
     """
 
-    @staticmethod
-    def create(configuration: Configuration, personality: "Personality", state_configuration):
-        return SpeakingClockState(configuration, personality, state_configuration)
-
     def __init__(self,
-                 configuration: Configuration,
-                 personality: "Personality",
+                 app_state,
                  state_configuration=None
                  ) -> None:
-        super(SpeakingClockState, self).__init__(configuration, personality, state_configuration)
+        super().__init__(app_state, state_configuration)
         self.last_date_said = None
 
     def do_work_in_thread(self, is_first_run):
@@ -91,6 +85,6 @@ class SpeakingClockState(ContinuousState):
                 message = "The time is half past {}".format(when.minute, hour)
             message += postfix
 
-        self.personality.voice_library.say(day_of_week_name, None, False)
+        self.app_state.voice_library.say(day_of_week_name, None, False)
         #time.sleep(2)
-        self.personality.voice_library.say(message, None, False)
+        self.app_state.voice_library.say(message, None, False)

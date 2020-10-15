@@ -1,27 +1,21 @@
 import logging
-import random
 
 from actions import time_based_greeting
-from config_io import Configuration
+from activities.activity import Activity
 from event import EventEnum, Event
-from states.state import State
 
-class IntroductionState(State):
+
+class IntroductionState(Activity):
     """
     A default state that is added after the final configured state to return us to the first.
     Its ONLY job should be to link restart the context loop.
     """
 
-    @staticmethod
-    def create(configuration: Configuration, personality: "Personality", state_configuration):
-        return IntroductionState(configuration, personality, state_configuration)
-
     def __init__(self,
-                 configuration: Configuration,
-                 personality: "Personality",
+                 app_state,
                  state_configuration
                  ) -> None:
-        super(IntroductionState, self).__init__(configuration, personality, state_configuration)
+        super().__init__(app_state, state_configuration)
         self.next_track = 0
         self.first_run = True
         if "phrases" in self.state_config:
@@ -32,9 +26,9 @@ class IntroductionState(State):
     def on_enter(self):
         logging.debug("IntroductionState::on_enter")
         if self.first_run:
-            self.personality.voice_library.say("{} {}".format(time_based_greeting(), self.configuration.json["owner"]))
+            self.app_state.voice_library.say("{} {}".format(time_based_greeting(), self.app_state.config().json["owner"]))
             if not self.json or not "introduction" in self.json:
-                self.personality.voice_library.say("My name is {}".format(self.personality.get_name()))
+                self.app_state.voice_library.say("My name is {}".format(self.app_state.personality.get_name()))
                 self.json["introduction"] = True
             self._save()
             self.first_run = False
@@ -43,7 +37,7 @@ class IntroductionState(State):
         ## this is None if we are testing solo
         if self._context:
             ev = Event(EventEnum.TRANSITION_TO_NEXT)
-            self.context.add_event(ev)
+            self.add_event(ev)
 
 
     def on_exit(self):

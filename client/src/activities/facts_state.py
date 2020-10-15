@@ -2,15 +2,12 @@ import json
 import logging
 import os
 import random
-import signal
-import threading
 import time
 import glob
 
-from config_io import Configuration
+import app_state
 from html_stripper import strip_tags
-from states.continuous_state import ContinuousState
-from states.state import State
+from activities.continuous_state import ContinuousState
 
 
 class FactsState(ContinuousState):
@@ -28,23 +25,17 @@ class FactsState(ContinuousState):
 
     """
 
-    @staticmethod
-    def create(configuration: Configuration, personality: "Personality", state_configuration):
-        return FactsState(configuration, personality, state_configuration)
-
-
     def __init__(self,
-                 configuration: Configuration,
-                 personality: "Personality",
+                 app_state_object,
                  state_configuration=None
                  ) -> None:
-        super(FactsState, self).__init__(configuration, personality, state_configuration)
+        super().__init__(app_state_object, state_configuration)
         self.fact_id = None
 
     def random_fact(self):
         if not "filename" in self.state_config:
             return None
-        full_path = os.path.join(self.configuration.get_config_path(), self.state_config["filename"])
+        full_path = os.path.join(self.settings().get_config_path(), self.state_config["filename"])
         all_fact_files=self.get_all_fact_files()
         while True:
             try:
@@ -71,7 +62,7 @@ class FactsState(ContinuousState):
         will stop when there is a gap, starts at 1
         :return:
         """
-        full_path = os.path.join(self.configuration.get_config_path(), self.state_config["filename"])
+        full_path = os.path.join(self.config().get_config_path(), self.state_config["filename"])
         valid_files = glob.glob(full_path)
         return valid_files
 
@@ -85,6 +76,6 @@ class FactsState(ContinuousState):
         message = self.random_fact()
         logging.debug(message)
         if message is not None:
-            self.personality.voice_library.say(message, None, False)
+            self.app_state.voice_library.say(message, None, False)
         time.sleep(3)
 

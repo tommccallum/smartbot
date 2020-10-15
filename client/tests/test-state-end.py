@@ -7,7 +7,7 @@ from personality import Personality
 from config_io import Configuration
 import time
 
-from states.end_state import EndState
+from activities.end_state import EndState
 
 CURDIR=os.path.abspath(os.path.dirname(__file__))
 
