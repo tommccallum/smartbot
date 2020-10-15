@@ -1,5 +1,10 @@
 #!/bin/bash
 
+#
+# This is a scheduled service in Crontab.
+# Download random facts pages from mentalfloss.com.
+#
+
 LOCATION="/home/pi/.config/smartbot"
 FILENAME="facts"
 EXTENSION="json"

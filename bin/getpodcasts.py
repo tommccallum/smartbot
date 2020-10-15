@@ -1,5 +1,9 @@
 #!/usr/bin/python3
 
+#
+#  This is a crontab scheduled task to get latest podcasts.
+#
+
 import podcasts
 import json
 import sys

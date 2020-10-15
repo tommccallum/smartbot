@@ -1,12 +1,20 @@
 #!/bin/bash
 
-# google DNS servers
-CHECK_IP="8.8.8.8"
+# Check if network and internet is down
+# It uses the existence of a file to indicate the status to any interested
+# process.
+
+
+CHECK_IP="8.8.8.8"                                # Google DNS servers are used to test internet connectivity
 NETWORK_LOCKFILE="/tmp/smartbot_network.lock"
 INTERNET_LOCKFILE="/tmp/smartbot_internet.lock"
-INTERNET_CONNECTED=0
-LOCAL_NETWORK_CONNECTED=0
+INTERNET_CONNECTED=0                              # status flag for tracking internet connectivity
+LOCAL_NETWORK_CONNECTED=0                         # status flag for tracking local network connectivity
 
+
+#
+# On startup we get the current state of the network.
+#
 NOW=$(date "+%Y-%m-%d %H:%M:%S")
 if [ -e "$NETWORK_LOCKFILE" ]
 then
