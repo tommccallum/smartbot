@@ -8,9 +8,9 @@ import logging
 import sys
 import signal
 
-from config_io import Configuration
+from app_settings import AppSettings
 from event_device_handler import EventDeviceAgent
-from personality import Personality
+from personality_settings import PersonalitySettings
 from user_context import UserContext
 from fifo import make_fifo, read_fifo_in_thread
 from event import EventEnum, Event
@@ -47,8 +47,8 @@ def init_application(config_path=None):
     global terminal_old_settings
     terminal_old_settings = termios.tcgetattr(sys.stdin)
 
-    app_config = Configuration(config_path)
-    personality = Personality(app_config)
+    app_config = AppSettings(config_path)
+    personality = PersonalitySettings(app_config)
     states = personality.get_states()
     context = UserContext(states, app_config, personality)
     app_config.context = context
